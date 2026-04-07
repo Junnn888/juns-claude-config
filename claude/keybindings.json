@@ -1,0 +1,18 @@
+{
+  "$schema": "https://www.schemastore.org/claude-code-keybindings.json",
+  "bindings": [
+{
+      "context": "Global",
+      "bindings": {
+        "ctrl+t": "app:toggleTodos",
+        "ctrl+o": "app:toggleTranscript"
+      }
+    },
+    {
+      "context": "Task",
+      "bindings": {
+        "ctrl+b": "task:background"
+      }
+    }
+  ]
+}
