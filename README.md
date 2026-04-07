@@ -20,7 +20,7 @@ This backs up any existing config before overwriting. Re-run to update.
   hooks/block-git-commit.js         Blocks git commit/add/push in all sessions
   commands/
     block-agent-commits.md          Patches subagent files to prevent autonomous commits
-    init-project.md                 Scaffolds project-specific config
+    init-j.md                       Scaffolds project-specific config
 ```
 
 ### Global settings
@@ -32,7 +32,7 @@ This backs up any existing config before overwriting. Re-run to update.
 
 ### Commands
 
-**`/init-project`** — Run this in any project directory to generate:
+**`/init-j`** — Run this in any project directory to generate:
 
 - `CLAUDE.local.md` — 30-50 lines of hard rules tailored to the project (tech stack, conventions, key abstractions, common commands)
 - `.claude/rules/` — Path-scoped rule files that only load when editing matching files (e.g., migration rules load only when editing `supabase/`)
@@ -56,7 +56,7 @@ Based on research comparing Claude Code and OpenCode workflows:
 curl -fsSL https://raw.githubusercontent.com/Junnn888/juns-claude-config/main/install.sh | bash
 ```
 
-Then open any project and run `/init-project`.
+Then open any project and run `/init-j`.
 
 ## License
 

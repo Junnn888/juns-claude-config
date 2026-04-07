@@ -16,7 +16,7 @@ FILES=(
   "claude/keybindings.json:keybindings.json"
   "claude/hooks/block-git-commit.js:hooks/block-git-commit.js"
   "claude/commands/block-agent-commits.md:commands/block-agent-commits.md"
-  "claude/commands/init-project.md:commands/init-project.md"
+  "claude/commands/init-j.md:commands/init-j.md"
 )
 
 echo "Installing Claude Code config from $REPO..."
@@ -60,7 +60,7 @@ echo ""
 echo "Next steps:"
 echo "  1. Open any project directory"
 echo "  2. Run: claude"
-echo "  3. Type: /init-project"
+echo "  3. Type: /init-j"
 echo "     This scaffolds project-specific config (CLAUDE.local.md, .claude/rules/, typecheck hook)"
 echo ""
 echo "To update later, re-run this script."
