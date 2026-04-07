@@ -21,6 +21,7 @@ This backs up any existing config before overwriting. Re-run to update.
   commands/
     block-agent-commits.md          Patches subagent files to prevent autonomous commits
     init-j.md                       Scaffolds project-specific config
+    learn.md                        Extracts prefer/avoid patterns from commits
 ```
 
 ### Global settings
@@ -38,6 +39,8 @@ This backs up any existing config before overwriting. Re-run to update.
 - `.claude/rules/` — Path-scoped rule files that only load when editing matching files (e.g., migration rules load only when editing `supabase/`)
 - `.claude/settings.local.json` — PostToolUse hook for automatic type-checking after edits
 - `.gitignore` update — Adds `.claude/rules/` so project config stays personal
+
+**`/learn`** — Analyzes recent commits and extracts coding patterns into `.claude/rules/patterns.md`. Code that was committed is classified as "Prefer"; code that was replaced is classified as "Avoid". Tracks the last analyzed commit SHA so subsequent runs only process new commits. Caps at 15 prefer + 15 avoid entries to stay within instruction budget.
 
 **`/block-agent-commits`** — Patches `~/.claude/agents/*.md` files with a `<git-commit-policy>` block that prevents subagents from running git commit/add/push. Needed because Claude Code hooks don't propagate to subagents spawned via the Task tool.
 

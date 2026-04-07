@@ -17,6 +17,7 @@ FILES=(
   "claude/hooks/block-git-commit.js:hooks/block-git-commit.js"
   "claude/commands/block-agent-commits.md:commands/block-agent-commits.md"
   "claude/commands/init-j.md:commands/init-j.md"
+  "claude/commands/learn.md:commands/learn.md"
 )
 
 echo "Installing Claude Code config from $REPO..."
