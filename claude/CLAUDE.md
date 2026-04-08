@@ -2,7 +2,7 @@
 
 ## Approach
 - Think step-by-step through problems before writing code.
-- For tasks involving 3+ files or architectural decisions, start with a plan before making edits.
+- For tasks involving 3+ files or architectural decisions, start with a plan before making edits. `/j-plan` is available for parallel research + structured planning.
 - Always read existing files before modifying them. Understand the current implementation.
 - Prefer editing existing files over creating new ones.
 - When exploring unfamiliar code, trace the full path: caller -> function -> side effects.

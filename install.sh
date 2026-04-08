@@ -21,6 +21,7 @@ FILES=(
   "claude/commands/j-update.md:commands/j-update.md"
   "claude/commands/j-review.md:commands/j-review.md"
   "claude/commands/j-am.md:commands/j-am.md"
+  "claude/commands/j-plan.md:commands/j-plan.md"
   "claude/agents/code-reviewer.md:agents/code-reviewer.md"
   "claude/agents/lint-checker.md:agents/lint-checker.md"
   "claude/agents/test-writer.md:agents/test-writer.md"

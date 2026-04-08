@@ -25,6 +25,7 @@ This backs up any existing config before overwriting. Re-run anytime to update.
     j-learn.md                      Extracts prefer/avoid patterns from commits
     j-review.md                     Parallel code review + lint check
     j-am.md                         Switch agent models (normal/max)
+    j-plan.md                       Parallel research + structured implementation plan
     j-block-agent-commits.md        Patches subagent files to prevent autonomous commits
   agents/
     code-reviewer.md                Reviews code for bugs, security, architecture (Opus)
@@ -84,6 +85,21 @@ This analyzes recent commits and extracts coding patterns into `.claude/rules/pa
 It tracks the last analyzed commit SHA, so subsequent runs only process new commits. Capped at 15 prefer + 15 avoid entries to stay within instruction budget.
 
 Run `/j-learn` whenever you feel Claude is drifting from your project's conventions, or after a significant refactor that establishes new patterns.
+
+### 4. Plan before you build
+
+Before starting a non-trivial task, run:
+
+```
+/j-plan add OAuth2 authentication to the API layer
+```
+
+This spawns 3 parallel research agents (Haiku) that simultaneously investigate:
+- **File Scout** -- relevant files, entry points, and dependency chains
+- **Pattern Scout** -- reusable code, existing patterns, and conventions
+- **Constraint Scout** -- tests, type constraints, dependencies, and recent changes
+
+Results are synthesized into a structured plan with scope, files, implementation steps, tests, and risks. The research runs on Haiku for speed and cost; the synthesis runs on your current model.
 
 ## Usage: pre-existing project
 
