@@ -65,7 +65,8 @@ For each major area of the codebase, create a path-scoped rule file with a YAML 
 Common patterns to look for:
 - **Database/ORM layer**: Migration conventions, schema patterns, query client usage
 - **API routes/controllers**: Auth boilerplate, response patterns, error handling
-- **Components/UI**: Component structure, styling patterns, state management
+- **Components/UI**: Component structure, composition patterns, state management
+- **UI/Layout**: Component library preferences (e.g., shadcn over raw HTML), CSS methodology (Tailwind vs CSS modules vs styled-components), layout conventions (flex/grid, container patterns), spacing/sizing system, responsive breakpoints, theme/color usage
 - **Tests**: Test runner config, fixture patterns, what to test vs not test
 - **Types/Models**: Type patterns, generation strategy, sync obligations
 

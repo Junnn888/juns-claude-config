@@ -37,7 +37,8 @@ For each meaningful change, identify:
 - State management patterns (hooks, stores, context usage)
 - Type patterns (interface vs type, enum vs const object, generics usage)
 - Testing patterns (what to mock, assertion style, test structure)
-- Component patterns (composition, prop patterns, styling approach)
+- Component patterns (composition, prop patterns, render approach)
+- UI/layout patterns (component library preferences, CSS methodology, spacing/sizing conventions, responsive patterns, theme usage)
 - Data fetching patterns (SWR, React Query, server actions, loaders)
 - File/folder organization choices
 
