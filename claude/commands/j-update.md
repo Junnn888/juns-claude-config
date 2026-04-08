@@ -12,6 +12,12 @@ These are the files managed by this config. Each entry is `repo_path -> install_
 - `claude/commands/j-init.md` -> `~/.claude/commands/j-init.md`
 - `claude/commands/j-learn.md` -> `~/.claude/commands/j-learn.md`
 - `claude/commands/j-update.md` -> `~/.claude/commands/j-update.md`
+- `claude/commands/j-review.md` -> `~/.claude/commands/j-review.md`
+- `claude/commands/j-am.md` -> `~/.claude/commands/j-am.md`
+- `claude/agents/code-reviewer.md` -> `~/.claude/agents/code-reviewer.md`
+- `claude/agents/lint-checker.md` -> `~/.claude/agents/lint-checker.md`
+- `claude/agents/test-writer.md` -> `~/.claude/agents/test-writer.md`
+- `claude/agents/debugger.md` -> `~/.claude/agents/debugger.md`
 
 Base URL: `https://raw.githubusercontent.com/Junnn888/juns-claude-config/main`
 

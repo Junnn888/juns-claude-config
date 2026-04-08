@@ -35,7 +35,12 @@ If any of these exist, this is an **update run** rather than a fresh init. Note 
 
 In either case, the file should be **30-50 lines max** and include ONLY:
 
-1. **Project identity** (2-3 lines): Name, framework, key tech. Mention anything non-obvious (e.g., "types are manually maintained" or "monorepo with turborepo").
+1. **Project identity** (3-5 lines): Name, framework, language, and key tooling. Always include:
+   - Framework and language (e.g., "Next.js 14 with TypeScript")
+   - Test framework (e.g., "vitest", "jest", "pytest") -- agents read this to write tests without re-discovering
+   - Linter (e.g., "eslint with flat config", "biome") if present
+   - Build tool (e.g., "vite", "turbopack") if non-obvious
+   - CSS/UI approach (e.g., "Tailwind + shadcn/ui") if present
 2. **Hard rules** (5-10 lines): Things that cause real breakage if violated. Only include rules that Claude would NOT discover by reading 2-3 existing files. Examples:
    - Package manager (if not npm)
    - Export style (if enforced, e.g., named-only)

@@ -19,6 +19,12 @@ FILES=(
   "claude/commands/j-init.md:commands/j-init.md"
   "claude/commands/j-learn.md:commands/j-learn.md"
   "claude/commands/j-update.md:commands/j-update.md"
+  "claude/commands/j-review.md:commands/j-review.md"
+  "claude/commands/j-am.md:commands/j-am.md"
+  "claude/agents/code-reviewer.md:agents/code-reviewer.md"
+  "claude/agents/lint-checker.md:agents/lint-checker.md"
+  "claude/agents/test-writer.md:agents/test-writer.md"
+  "claude/agents/debugger.md:agents/debugger.md"
 )
 
 echo "Installing Claude Code config from $REPO..."
@@ -27,6 +33,7 @@ echo ""
 # Create directories
 mkdir -p "$CLAUDE_DIR/hooks"
 mkdir -p "$CLAUDE_DIR/commands"
+mkdir -p "$CLAUDE_DIR/agents"
 
 # Backup existing files
 backup_if_exists() {

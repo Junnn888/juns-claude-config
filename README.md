@@ -23,7 +23,14 @@ This backs up any existing config before overwriting. Re-run anytime to update.
   commands/
     j-init.md                       Scaffolds project-specific config
     j-learn.md                      Extracts prefer/avoid patterns from commits
+    j-review.md                     Parallel code review + lint check
+    j-am.md                         Switch agent models (normal/max)
     j-block-agent-commits.md        Patches subagent files to prevent autonomous commits
+  agents/
+    code-reviewer.md                Reviews code for bugs, security, architecture (Opus)
+    lint-checker.md                 Checks style, naming, conventions (Haiku)
+    test-writer.md                  Writes comprehensive tests (Sonnet)
+    debugger.md                     Structured diagnosis of complex bugs (Opus)
 ```
 
 ### What the global config does
@@ -110,9 +117,53 @@ curl -fsSL https://raw.githubusercontent.com/Junnn888/juns-claude-config/main/in
 
 Then open any project and run `/j-init`. Your global config (settings, hooks, keybindings) is restored immediately. Project-specific config needs to be regenerated per-project.
 
+## Agents
+
+Four custom agents ship with this config. They work at three levels:
+
+1. **Automatic** -- CLAUDE.md tells Claude to spawn review/debug agents at natural checkpoints (e.g., after implementing a multi-file change). No user action needed.
+2. **Explicit command** -- `/j-review` runs code-reviewer + lint-checker in parallel on your current changes.
+3. **Targeted** -- `@agent-name` invokes a specific agent directly.
+
+| Agent | Model | Purpose | Tools |
+|-------|-------|---------|-------|
+| `code-reviewer` | Opus | Bugs, security, performance, architecture | Read, Grep, Glob, Bash (read-only git) |
+| `lint-checker` | Haiku | Style, naming, convention compliance | Read, Grep, Glob |
+| `test-writer` | Sonnet | Writes tests with edge cases and failure modes | Read, Grep, Glob, Write, Bash |
+| `debugger` | Opus | Structured diagnosis: hypothesis, evidence, root cause | Read, Grep, Glob, Bash |
+
+Agents read `CLAUDE.local.md` and `.claude/rules/` first for project context, so `/j-init` should be run before using agents in a new project.
+
+### Usage examples
+
+```
+@code-reviewer review the auth module
+@test-writer write tests for src/utils/parser.ts
+@debugger the API returns 500 on POST /users with valid payload
+/j-review
+```
+
+### Test-first development
+
+Ask Claude to implement a feature and it will offer test-first: `@test-writer` creates failing tests from a spec, then the main agent implements code to pass them. Works in a single session.
+
+### Switching agent models
+
+Use `/j-am` to switch all agents between default models and max (all Opus):
+
+```
+/j-am max       # Switch all agents to Opus
+/j-am normal    # Restore default models
+/j-am           # Show current model assignments
+```
+
+### Git safety in agents
+
+Agents with Bash/Write access ship with a `<git-commit-policy>` block that prevents autonomous commits. For third-party agents installed separately, run `/j-block-agent-commits` to patch them.
+
 ## Additional commands
 
-**`/j-block-agent-commits`** -- Claude Code hooks don't propagate to subagents spawned via the Task tool. This command patches `~/.claude/agents/*.md` files with a `<git-commit-policy>` block that prevents subagents from running git commit/add/push. Run it once after installing or updating Claude Code agents.
+**`/j-block-agent-commits`** -- Claude Code hooks don't propagate to subagents spawned via the Task tool. This command patches `~/.claude/agents/*.md` files with a `<git-commit-policy>` block that prevents subagents from running git commit/add/push. Run it after installing third-party agents.
 
 ## Design philosophy
 

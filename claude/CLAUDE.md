@@ -27,3 +27,9 @@
 ## Git
 - Do NOT run git commit, git add, or git push unless explicitly asked.
 - Read-only git commands (status, diff, log, blame, show) are fine.
+
+## Agents
+- After completing implementation work that touches 3+ files, read `~/.claude/agents/code-reviewer.md` and spawn a review agent (via the Agent tool) on the changed files before reporting work as done. Report findings alongside completion.
+- When asked to debug a problem that spans multiple modules, read `~/.claude/agents/debugger.md` and spawn a diagnostic agent first. Apply fixes based on its findings.
+- When starting a new feature, offer test-first development: spawn `@test-writer` with the feature spec to create failing tests, then implement to pass them.
+- `/j-review` is available for on-demand review of any uncommitted changes (including changes the user wrote themselves).
