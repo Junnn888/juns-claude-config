@@ -1,6 +1,6 @@
 # juns-claude-config
 
-Personal Claude Code configuration. Installs global settings, hooks, permissions, and commands to `~/.claude/`, plus a `/init-project` command that scaffolds project-specific config for any codebase.
+Personal Claude Code configuration. Installs global settings, hooks, permissions, and commands to `~/.claude/`, plus a `/j-init` command that scaffolds project-specific config for any codebase.
 
 ## Install
 
@@ -19,9 +19,9 @@ This backs up any existing config before overwriting. Re-run to update.
   keybindings.json                  Custom keyboard shortcuts
   hooks/block-git-commit.js         Blocks git commit/add/push in all sessions
   commands/
-    block-agent-commits.md          Patches subagent files to prevent autonomous commits
-    init-j.md                       Scaffolds project-specific config
-    learn.md                        Extracts prefer/avoid patterns from commits
+    j-block-agent-commits.md        Patches subagent files to prevent autonomous commits
+    j-init.md                       Scaffolds project-specific config
+    j-learn.md                      Extracts prefer/avoid patterns from commits
 ```
 
 ### Global settings
@@ -33,16 +33,16 @@ This backs up any existing config before overwriting. Re-run to update.
 
 ### Commands
 
-**`/init-j`** — Run this in any project directory to generate:
+**`/j-init`** — Run this in any project directory to generate:
 
 - `CLAUDE.local.md` — 30-50 lines of hard rules tailored to the project (tech stack, conventions, key abstractions, common commands)
 - `.claude/rules/` — Path-scoped rule files that only load when editing matching files (e.g., migration rules load only when editing `supabase/`)
 - `.claude/settings.local.json` — PostToolUse hook for automatic type-checking after edits
 - `.gitignore` update — Adds `.claude/rules/` so project config stays personal
 
-**`/learn`** — Analyzes recent commits and extracts coding patterns into `.claude/rules/patterns.md`. Code that was committed is classified as "Prefer"; code that was replaced is classified as "Avoid". Tracks the last analyzed commit SHA so subsequent runs only process new commits. Caps at 15 prefer + 15 avoid entries to stay within instruction budget.
+**`/j-learn`** — Analyzes recent commits and extracts coding patterns into `.claude/rules/patterns.md`. Code that was committed is classified as "Prefer"; code that was replaced is classified as "Avoid". Tracks the last analyzed commit SHA so subsequent runs only process new commits. Caps at 15 prefer + 15 avoid entries to stay within instruction budget.
 
-**`/block-agent-commits`** — Patches `~/.claude/agents/*.md` files with a `<git-commit-policy>` block that prevents subagents from running git commit/add/push. Needed because Claude Code hooks don't propagate to subagents spawned via the Task tool.
+**`/j-block-agent-commits`** — Patches `~/.claude/agents/*.md` files with a `<git-commit-policy>` block that prevents subagents from running git commit/add/push. Needed because Claude Code hooks don't propagate to subagents spawned via the Task tool.
 
 ## Design philosophy
 
@@ -59,7 +59,7 @@ Based on research comparing Claude Code and OpenCode workflows:
 curl -fsSL https://raw.githubusercontent.com/Junnn888/juns-claude-config/main/install.sh | bash
 ```
 
-Then open any project and run `/init-j`.
+Then open any project and run `/j-init`.
 
 ## License
 
