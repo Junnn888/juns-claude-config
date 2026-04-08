@@ -18,6 +18,7 @@ FILES=(
   "claude/commands/j-block-agent-commits.md:commands/j-block-agent-commits.md"
   "claude/commands/j-init.md:commands/j-init.md"
   "claude/commands/j-learn.md:commands/j-learn.md"
+  "claude/commands/j-update.md:commands/j-update.md"
 )
 
 echo "Installing Claude Code config from $REPO..."
