@@ -92,6 +92,16 @@ If the project already has AI config files (`.cursorrules`, `AGENTS.md`), `/j-in
 
 After initialization, run `/j-learn` to extract patterns from your existing commit history (it analyzes the last 20 commits by default).
 
+## Usage: after a major architecture change
+
+If your project undergoes a fundamental change (new framework, different ORM, restructured directories, etc.), re-run `/j-init`. It's idempotent -- on subsequent runs it:
+
+- Re-scans the project and compares against existing config
+- Updates stale sections in `CLAUDE.local.md` while preserving manual additions
+- Adds rules for new areas, removes rules whose paths no longer exist, updates stale rules
+- Leaves `.claude/rules/patterns.md` alone (managed by `/j-learn`)
+- Reports what changed rather than what was created
+
 ## Usage: new machine
 
 ```bash
