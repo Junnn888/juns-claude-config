@@ -26,6 +26,8 @@ This backs up any existing config before overwriting. Re-run anytime to update.
     j-review.md                     Parallel code review + lint check
     j-am.md                         Switch agent models (normal/max)
     j-plan.md                       Parallel research + structured implementation plan
+    j-search.md                     Parallel codebase exploration to answer questions about the code
+    j-debug.md                      Parallel search to triangulate where a bug/error originates
     j-block-agent-commits.md        Patches subagent files to prevent autonomous commits
   agents/
     code-reviewer.md                Reviews code for bugs, security, architecture (Opus)
@@ -100,6 +102,36 @@ This spawns 3 parallel research agents (Haiku) that simultaneously investigate:
 - **Constraint Scout** -- tests, type constraints, dependencies, and recent changes
 
 Results are synthesized into a structured plan with scope, files, implementation steps, tests, and risks. The research runs on Haiku for speed and cost; the synthesis runs on your current model.
+
+### 5. Ask questions about the codebase
+
+When you want to understand how something works, run:
+
+```
+/j-search how does authentication work in this project
+```
+
+This spawns 3 parallel exploration agents:
+- **Surface Scanner** -- greps for relevant terms, files, exports, and definitions
+- **Structure Mapper** -- traces module relationships, call graphs, and data flow
+- **Context Gatherer** -- finds tests, types, docs, config, and recent changes
+
+Results are synthesized into a direct answer with key files, execution flow, and supporting context. It also reads conversation context, so you can paste a screenshot or diagram before running the command.
+
+### 6. Debug with parallel search
+
+When you need to find where a bug or error originates, run:
+
+```
+/j-debug where does the 400 response come from on POST /api/users
+```
+
+This spawns 3 parallel search agents that attack the problem from different angles:
+- **Surface Scanner** -- greps for error messages, status codes, route paths, and their variations
+- **Code Path Tracer** -- traces the execution path from entry point through the call chain
+- **Guard & Config Inspector** -- finds validators, auth guards, middleware, and config that could produce the symptom
+
+Results are triangulated: locations that appear across multiple agents are flagged as high-confidence matches.
 
 ## Usage: pre-existing project
 
