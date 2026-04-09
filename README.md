@@ -26,6 +26,7 @@ This backs up any existing config before overwriting. Re-run anytime to update.
     j-review.md                     Parallel code review + lint check
     j-am.md                         Switch agent models (normal/max)
     j-plan.md                       Parallel research + structured implementation plan
+    j-commit-pr.md                  Generates commit message + filled PR template from staged diff
     j-search.md                     Parallel codebase exploration to answer questions about the code
     j-debug.md                      Parallel search to triangulate where a bug/error originates
     j-block-agent-commits.md        Patches subagent files to prevent autonomous commits
@@ -132,6 +133,20 @@ This spawns 3 parallel search agents that attack the problem from different angl
 - **Guard & Config Inspector** -- finds validators, auth guards, middleware, and config that could produce the symptom
 
 Results are triangulated: locations that appear across multiple agents are flagged as high-confidence matches.
+
+### 7. Generate commit messages and PR descriptions
+
+When you have staged changes ready, run:
+
+```
+/j-commit-pr
+```
+
+This reads `git diff --cached`, searches for a PR template in `.github/`, and generates:
+- A commit message matching your project's recent commit style
+- A filled-out PR template with all markdown preserved
+
+"Type of Change" checkboxes are auto-checked based on diff analysis. Testing checkboxes are left unchecked for manual verification. Output is in code blocks for easy copy-paste.
 
 ## Usage: pre-existing project
 
