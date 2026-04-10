@@ -37,7 +37,7 @@ Invoke skills automatically when the user's request matches — do not wait for 
 - Follow existing patterns and conventions in the codebase.
 - Do not add comments that restate what the code does.
 - When fixing bugs, understand the root cause before applying a fix.
-- Run existing tests/linters when available before declaring work complete.
+- A Stop hook runs typecheck, lint, build, and tests automatically before completion. If it reports failures, fix them. If failures persist after multiple attempts, ask the user for guidance.
 
 ## Simplicity
 - No features beyond what was asked.
@@ -59,6 +59,6 @@ Invoke skills automatically when the user's request matches — do not wait for 
 - Read-only git commands (status, diff, log, blame, show) are fine.
 
 ## Agents
-- After completing implementation work that touches 3+ files, use `/j-review` before reporting work as done. Report findings alongside completion.
+- After completing implementation work that touches 3+ files, consider using `/j-review` for qualitative code review. Mechanical verification (typecheck, lint, build, tests) is handled by the Stop hook.
 - When asked to debug a problem that spans multiple modules, read `~/.claude/agents/debugger.md` and spawn a diagnostic agent first. Apply fixes based on its findings.
 - When starting a new feature, offer test-first development: spawn `@test-writer` with the feature spec to create failing tests, then implement to pass them.

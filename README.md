@@ -20,6 +20,7 @@ This backs up any existing config before overwriting. Re-run anytime to update.
   settings.json                     Permissions, thinking, hooks
   keybindings.json                  Custom keyboard shortcuts
   hooks/block-git-commit.js         Blocks git commit/add/push in all sessions
+  hooks/verify-on-stop.js          Runs typecheck/lint/build/tests before Claude stops
   commands/
     j-init.md                       Scaffolds project-specific config
     j-learn.md                      Extracts prefer/avoid patterns from commits
@@ -41,6 +42,7 @@ This backs up any existing config before overwriting. Re-run anytime to update.
 
 - **Extended thinking** enabled with high effort level
 - **Git safety**: A PreToolUse hook blocks `git commit`, `git add`, `git push` at the shell level. A deny list also blocks `git reset --hard`, `git checkout .`, `git clean`, `rm -rf`, and `sudo`.
+- **Verification on stop**: A Stop hook automatically runs available typecheckers, linters, build scripts, and tests when Claude finishes implementation work. If anything fails, Claude sees the output and continues fixing. Only runs when code was actually changed.
 - **Auto-allowed tools**: Read-only git commands, file utilities, Node/Bun/npm commands, MCP tools, Agent, Edit, Write, Task tools -- so Claude doesn't prompt you for routine operations.
 - **Keybindings**: Ctrl+T (todos), Ctrl+O (transcript), Ctrl+B (background task)
 
@@ -184,7 +186,7 @@ Then open any project and run `/j-init`. Your global config (settings, hooks, ke
 
 Four custom agents ship with this config. They work at three levels:
 
-1. **Automatic** -- CLAUDE.md tells Claude to spawn review/debug agents at natural checkpoints (e.g., after implementing a multi-file change). No user action needed.
+1. **Automatic** -- The global Stop hook handles mechanical verification (typecheck, lint, build, tests). CLAUDE.md suggests spawning review/debug agents at natural checkpoints (e.g., after implementing a multi-file change).
 2. **Explicit command** -- `/j-review` runs code-reviewer + lint-checker in parallel on your current changes.
 3. **Targeted** -- `@agent-name` invokes a specific agent directly.
 
@@ -234,7 +236,7 @@ Based on research comparing Claude Code and OpenCode workflows:
 
 - **Instruction adherence is the constraint, not context tokens.** Claude reliably follows ~150-200 instructions; the system prompt uses ~50. Config files stay concise to maximise compliance.
 - **Path-scoped rules are free until triggered.** Domain-specific conventions go in `.claude/rules/` instead of a single large instruction file.
-- **Hooks are deterministic but not free.** PostToolUse output accumulates in context. Only typecheck is hooked -- lint is handled by pre-commit, tests are run explicitly.
+- **Hooks are deterministic but not free.** PostToolUse typecheck runs per-edit (project-local). The global Stop hook runs typecheck/lint/build/tests once at completion -- right tradeoff between feedback speed and context cost.
 - **If Claude can discover it by reading existing files, don't write an instruction for it.** Instructions are reserved for things that cause real breakage if violated.
 
 ## License

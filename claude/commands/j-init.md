@@ -112,6 +112,7 @@ Project config initialized:
   .claude/rules/           — [X] rule files
   .claude/settings.local.json — PostToolUse typecheck hook
   .gitignore               — updated
+  Global Stop hook             — runs typecheck/lint/build/tests on completion
 
 Rule files:
   - [filename] — [glob] — [brief description]
@@ -132,6 +133,8 @@ Project config updated:
   Rules updated:  [list updated files, or "none"]
   Rules removed:  [list removed files, or "none"]
   Rules unchanged: [list untouched files, or "none"]
+
+  Global Stop hook             — runs typecheck/lint/build/tests on completion
 
 Start a new session to pick up the changes.
 ```

@@ -15,6 +15,7 @@ FILES=(
   "claude/settings.json:settings.json"
   "claude/keybindings.json:keybindings.json"
   "claude/hooks/block-git-commit.js:hooks/block-git-commit.js"
+  "claude/hooks/verify-on-stop.js:hooks/verify-on-stop.js"
   "claude/commands/j-block-agent-commits.md:commands/j-block-agent-commits.md"
   "claude/commands/j-init.md:commands/j-init.md"
   "claude/commands/j-learn.md:commands/j-learn.md"
@@ -64,6 +65,7 @@ done
 
 # Make hook executable
 chmod +x "$CLAUDE_DIR/hooks/block-git-commit.js" 2>/dev/null || true
+chmod +x "$CLAUDE_DIR/hooks/verify-on-stop.js" 2>/dev/null || true
 
 echo ""
 echo "Done. Config installed to $CLAUDE_DIR/"
