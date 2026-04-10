@@ -4,6 +4,8 @@ Personal Claude Code configuration. Installs global settings, hooks, permissions
 
 The purpose of this config is to be able to achieve as much of opencode's niceities as possible, while using the claude max plan. Opencode Zen and Openrouter = expenny :(
 
+UPDATE: 10/04/2026 it's pretty awful tbh
+
 ## Install
 
 ```bash
