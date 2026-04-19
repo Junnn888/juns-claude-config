@@ -10,11 +10,15 @@ If the output is empty:
 
 1. Run `git diff --stat` to check for unstaged changes.
 2. If unstaged changes exist, report: "No staged changes found. You have unstaged changes -- stage them with `git add <files>` first." and stop.
-3. If no changes at all, report: "No changes found." and stop.
+3. If no changes at all, fall back to the last commit:
+   1. Run `git log -1 --format="%h %s"` to get the latest commit.
+   2. Run `git diff HEAD~1..HEAD` to get that commit's diff.
+   3. Report: "No uncommitted changes found. Using last commit: `<short hash> <subject>`"
+   4. Continue to Step 2 using this diff. Mark this as **post-commit mode**.
 
-Once confirmed there are staged changes:
+Once confirmed there are staged changes (or falling back to last commit):
 
-1. Run `git diff --cached` to capture the full staged diff.
+1. Run `git diff --cached` (or `git diff HEAD~1..HEAD` in post-commit mode) to capture the full diff.
 2. Run `git log --oneline -5` to see recent commit message style.
 
 ### Step 2: Search for a PR template in the project
@@ -101,6 +105,8 @@ If the diff is very large (50+ files), summarize at a high level rather than lis
 ### Step 5: Output the results
 
 Display the results in this exact format:
+
+If in **post-commit mode**, add a note at the top: "Based on last commit `<short hash>`. Commit message below is a suggested rewrite."
 
 ```
 ## Commit Message

@@ -6,11 +6,16 @@ Run a parallel code review on current changes (staged + unstaged).
 
 Run `git diff --stat` and `git diff --cached --stat` to identify changed files.
 
-If there are no changes (both commands produce empty output), report "No changes to review" and stop.
+If there are no changes (both commands produce empty output), fall back to the last commit:
+
+1. Run `git log -1 --format="%h %s"` to get the latest commit.
+2. Use `git diff HEAD~1..HEAD` as the diff for review.
+3. Report: "No uncommitted changes found. Reviewing last commit: `<short hash> <subject>`"
+4. Continue to Step 2 using this diff. Mark this as **post-commit mode**.
 
 ### Step 2: Gather context
 
-1. Run `git diff` and `git diff --cached` to get the full diffs.
+1. Run `git diff` and `git diff --cached` to get the full diffs (or `git diff HEAD~1..HEAD` in post-commit mode).
 2. Read the agent instruction files:
    - `~/.claude/agents/code-reviewer.md`
    - `~/.claude/agents/lint-checker.md`
