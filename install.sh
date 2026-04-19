@@ -11,11 +11,13 @@ CLAUDE_DIR="$HOME/.claude"
 
 # Files to install
 FILES=(
+  "claude/VERSION:VERSION"
   "claude/CLAUDE.md:CLAUDE.md"
   "claude/settings.json:settings.json"
   "claude/keybindings.json:keybindings.json"
   "claude/hooks/block-git-commit.js:hooks/block-git-commit.js"
   "claude/hooks/verify-on-stop.js:hooks/verify-on-stop.js"
+  "claude/hooks/restrict-to-project.js:hooks/restrict-to-project.js"
   "claude/commands/j-block-agent-commits.md:commands/j-block-agent-commits.md"
   "claude/commands/j-init.md:commands/j-init.md"
   "claude/commands/j-learn.md:commands/j-learn.md"
@@ -66,6 +68,7 @@ done
 # Make hook executable
 chmod +x "$CLAUDE_DIR/hooks/block-git-commit.js" 2>/dev/null || true
 chmod +x "$CLAUDE_DIR/hooks/verify-on-stop.js" 2>/dev/null || true
+chmod +x "$CLAUDE_DIR/hooks/restrict-to-project.js" 2>/dev/null || true
 
 echo ""
 echo "Done. Config installed to $CLAUDE_DIR/"

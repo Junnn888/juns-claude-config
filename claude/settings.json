@@ -9,6 +9,15 @@
             "command": "node \"$HOME/.claude/hooks/block-git-commit.js\""
           }
         ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$HOME/.claude/hooks/restrict-to-project.js\""
+          }
+        ]
       }
     ],
     "Stop": [
@@ -48,8 +57,6 @@
       "Bash(git ls-files *)",
       "Bash(git shortlog *)",
       "Bash(git -C *)",
-      "Bash(ls *)",
-      "Bash(cat *)",
       "Bash(head *)",
       "Bash(tail *)",
       "Bash(wc *)",
@@ -60,7 +67,6 @@
       "Bash(sort *)",
       "Bash(uniq *)",
       "Bash(cut *)",
-      "Bash(find *)",
       "Bash(jq *)",
       "Bash(file *)",
       "Bash(stat *)",

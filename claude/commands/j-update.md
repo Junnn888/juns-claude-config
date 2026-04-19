@@ -1,9 +1,12 @@
-Update the global Claude Code configuration files in `~/.claude/` from the latest version on GitHub. This fetches, diffs, backs up, and replaces changed files while reporting exactly what changed.
+Update the global Claude Code configuration files in `~/.claude/` from the latest version on GitHub.
+
+Uses a VERSION file to skip unnecessary work — only fetches all files when the version has changed.
 
 ## Config manifest
 
 These are the files managed by this config. Each entry is `repo_path -> install_path`:
 
+- `claude/VERSION` -> `~/.claude/VERSION`
 - `claude/CLAUDE.md` -> `~/.claude/CLAUDE.md`
 - `claude/settings.json` -> `~/.claude/settings.json`
 - `claude/keybindings.json` -> `~/.claude/keybindings.json`
@@ -25,39 +28,55 @@ Base URL: `https://raw.githubusercontent.com/Junnn888/juns-claude-config/main`
 
 ## Steps
 
-### Step 1: Fetch latest versions from GitHub
+### Step 1: Version check
 
-For each file in the manifest, use WebFetch to download the raw content from:
-`{BASE_URL}/{repo_path}`
+1. Run `curl -sf {BASE_URL}/claude/VERSION` via Bash to fetch the remote version (a single integer on one line).
+2. Read `~/.claude/VERSION` if it exists.
+3. Compare:
+   - **If both exist and match**: print `Global config is already up to date (version {N}).` and **stop** — do not proceed to further steps.
+   - **If they differ, or local VERSION does not exist**: continue to Step 2.
 
-Fetch all files in parallel. If any fetch fails, report the failure but continue with the rest.
+If the remote fetch fails, warn the user and **stop**: `Failed to fetch version from GitHub. Check your network connection.`
 
-### Step 2: Compare with installed versions
+### Step 2: Download all files
 
-For each file in the manifest:
+Run a single Bash command that uses `curl` to download every file in the manifest to `/tmp/claude-config-update/`, preserving directory structure (`hooks/`, `commands/`, `agents/`). Create subdirectories first with `mkdir -p`.
 
-1. Read the currently installed file at the install path
-2. Compare the fetched content with the installed content
-3. Classify as: **changed**, **unchanged**, or **new** (installed file doesn't exist)
+Use the format:
+```bash
+mkdir -p /tmp/claude-config-update/{hooks,commands,agents} && \
+BASE="https://raw.githubusercontent.com/Junnn888/juns-claude-config/main/claude" && \
+curl -sf "$BASE/VERSION" -o /tmp/claude-config-update/VERSION && \
+curl -sf "$BASE/CLAUDE.md" -o /tmp/claude-config-update/CLAUDE.md && \
+# ... etc for all files
+```
 
-### Step 3: Back up and install changed files
+If any individual file fails to download, note it but continue with the rest.
+
+### Step 3: Compare and install
+
+For each file in the manifest (except VERSION):
+
+1. Compare `/tmp/claude-config-update/{file}` with the installed version at `~/.claude/{file}` using `diff -q`
+2. Classify as: **changed**, **unchanged**, or **new** (installed file doesn't exist)
 
 For each file classified as **changed** or **new**:
 
-1. If the installed file exists, copy it to `{install_path}.backup.{YYYYMMDDHHMMSS}` using Bash
+1. If the installed file exists, back it up: `cp {install_path} {install_path}.backup.{YYYYMMDDHHMMSS}`
 2. Write the fetched content to the install path using the Write tool
 3. If the file is in `hooks/`, make it executable: `chmod +x {install_path}`
 
-Create any missing directories (`hooks/`, `commands/`) before writing.
+Create any missing directories before writing.
 
 Skip files classified as **unchanged**.
 
-### Step 4: Report
+### Step 4: Write version and report
 
-Display a summary:
+1. Write the remote VERSION content to `~/.claude/VERSION` using the Write tool.
+2. Display a summary:
 
 ```
-Global config updated from Junnn888/juns-claude-config:
+Global config updated to version {N} from Junnn888/juns-claude-config:
 
   File                              Status
   ----                              ------
@@ -66,26 +85,18 @@ Global config updated from Junnn888/juns-claude-config:
   keybindings.json                  unchanged
   hooks/block-git-commit.js         updated (backed up)
   commands/j-init.md                unchanged
-  commands/j-learn.md               unchanged
-  commands/j-block-agent-commits.md unchanged
-  commands/j-update.md              unchanged
+  ...
 
-{N} file(s) updated, {M} unchanged.
+{X} file(s) updated, {Y} unchanged.
 
 Start a new session to pick up the changes.
 ```
 
-If all files are unchanged:
+If any downloads failed:
 
 ```
-Global config is already up to date with Junnn888/juns-claude-config.
-```
+Failed to download:
+  - {file}: {error reason}
 
-If any fetches failed:
-
-```
-Failed to fetch:
-  - {repo_path}: {error reason}
-
-{N} file(s) updated, {M} unchanged, {F} failed.
+{X} file(s) updated, {Y} unchanged, {F} failed.
 ```
