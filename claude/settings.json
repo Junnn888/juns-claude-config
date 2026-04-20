@@ -35,7 +35,7 @@
   },
   "alwaysThinkingEnabled": true,
   "skipDangerousModePermissionPrompt": true,
-  "effortLevel": "high",
+  "effortLevel": "max",
   "permissions": {
     "allow": [
       "Read",
@@ -86,6 +86,7 @@
       "Bash(npx jest *)",
       "Bash(npx supabase *)",
       "Bash(bun *)",
+      "Bash(bash ~/.claude/scripts/update.sh)",
       "mcp__context7__resolve-library-id",
       "mcp__context7__query-docs",
       "Agent",

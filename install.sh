@@ -30,6 +30,7 @@ FILES=(
   "claude/agents/lint-checker.md:agents/lint-checker.md"
   "claude/agents/test-writer.md:agents/test-writer.md"
   "claude/agents/debugger.md:agents/debugger.md"
+  "claude/scripts/update.sh:scripts/update.sh"
 )
 
 echo "Installing Claude Code config from $REPO..."
@@ -39,6 +40,7 @@ echo ""
 mkdir -p "$CLAUDE_DIR/hooks"
 mkdir -p "$CLAUDE_DIR/commands"
 mkdir -p "$CLAUDE_DIR/agents"
+mkdir -p "$CLAUDE_DIR/scripts"
 
 # Backup existing files
 backup_if_exists() {
@@ -69,6 +71,7 @@ done
 chmod +x "$CLAUDE_DIR/hooks/block-git-commit.js" 2>/dev/null || true
 chmod +x "$CLAUDE_DIR/hooks/verify-on-stop.js" 2>/dev/null || true
 chmod +x "$CLAUDE_DIR/hooks/restrict-to-project.js" 2>/dev/null || true
+chmod +x "$CLAUDE_DIR/scripts/update.sh" 2>/dev/null || true
 
 echo ""
 echo "Done. Config installed to $CLAUDE_DIR/"
