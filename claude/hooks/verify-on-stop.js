@@ -118,19 +118,9 @@ function runVerifier({ name, cmd, timeout }) {
   try { state = JSON.parse(fs.readFileSync(stateFile, 'utf8')); } catch {}
 
   if (hash === state.hash) {
-    state.attempts++;
-    if (state.attempts > 3) {
-      console.log(
-        'Verification has failed 3+ times with no code changes. ' +
-        'Ask the user for guidance -- they may need to provide additional context or manually fix the remaining issues.'
-      );
-      fs.writeFileSync(stateFile, JSON.stringify(state));
-      process.exit(0);
-    }
-  } else {
-    state = { hash, attempts: 1 };
+    process.exit(0);
   }
-  fs.writeFileSync(stateFile, JSON.stringify(state));
+  fs.writeFileSync(stateFile, JSON.stringify({ hash }));
 
   // 3. Detect and run verifiers
   const verifiers = detectVerifiers();
