@@ -1,4 +1,4 @@
-Generate a commit message and filled PR template from staged changes, ready to copy and paste.
+Generate a commit message and filled PR template from staged changes, ready to copy and paste. Optionally accepts a base branch argument (e.g., "compare against development/auth-refactor") to override auto-detection.
 
 ## Steps
 
@@ -10,15 +10,20 @@ If the output is empty:
 
 1. Run `git diff --stat` to check for unstaged changes.
 2. If unstaged changes exist, report: "No staged changes found. You have unstaged changes -- stage them with `git add <files>` first." and stop.
-3. If no changes at all, fall back to the last commit:
-   1. Run `git log -1 --format="%h %s"` to get the latest commit.
-   2. Run `git diff HEAD~1..HEAD` to get that commit's diff.
-   3. Report: "No uncommitted changes found. Using last commit: `<short hash> <subject>`"
-   4. Continue to Step 2 using this diff. Mark this as **post-commit mode**.
+3. If no changes at all, detect the base branch and diff against it:
+   1. Detect the base branch (first match wins):
+      a. If the user specified a branch (e.g., "compare against <branch>"), use that as the base.
+      b. Run `git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null` and strip the `refs/remotes/origin/` prefix. If it returns a valid branch name, use that as the base.
+      c. Probe common names in order: `main`, `master`, `dev`, `develop`, `development`. For each, run `git rev-parse --verify <name> 2>/dev/null`. Use the first one that exists.
+      d. If nothing matches (e.g., single-branch repo with no remote), fall back: set base to `HEAD~1`.
+   2. Run `git diff <base>...HEAD` (three-dot merge-base diff) to capture the branch diff.
+   3. Run `git log <base>..HEAD --oneline` to list the branch commits.
+   4. Report: "No uncommitted changes found. Using branch diff against `<base>` (<N> commits)."
+   5. Continue to Step 2 using this diff. Mark this as **post-commit mode**.
 
 Once confirmed there are staged changes (or falling back to last commit):
 
-1. Run `git diff --cached` (or `git diff HEAD~1..HEAD` in post-commit mode) to capture the full diff.
+1. Run `git diff --cached` (or `git diff <base>...HEAD` in post-commit mode) to capture the full diff.
 2. Run `git log --oneline -5` to see recent commit message style.
 
 ### Step 2: Search for a PR template in the project
