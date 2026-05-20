@@ -190,32 +190,3 @@ claude plugin install jun-lsp@juns-config --scope user
    need (see the design spec). LSP was the one expansion added, because it's
    a known, articulated, non-speculative need that catches a failure nothing
    else does. Add anything further only when repetition justifies it.
-
-## Repo layout
-
-```
-juns-claude-config/
-├── README.md
-├── install.sh
-├── uninstall.sh
-├── .claude-plugin/
-│   └── marketplace.json          # your own marketplace catalog
-├── plugins/
-│   └── jun-lsp/
-│       ├── .claude-plugin/
-│       │   └── plugin.json       # pinned, self-authored
-│       └── .lsp.json             # the unified language→server map
-└── claude/
-    ├── CLAUDE.md
-    ├── settings.json
-    ├── LEARNINGS.md
-    └── hooks/
-        ├── safety-bash.sh
-        ├── safety-files.sh
-        └── session-context.sh
-```
-
-Before publishing: confirm the repo path placeholder (`Junnn888/juns-claude-config`)
-in `install.sh`, `uninstall.sh`, and `.claude-plugin/marketplace.json` matches
-your actual GitHub repo. The repo must be public (or your git credentials
-available) for `curl` and the marketplace clone to work.
