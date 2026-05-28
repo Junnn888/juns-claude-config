@@ -32,6 +32,7 @@ if [ -d "$CLAUDE_DIR" ]; then
 fi
 
 mkdir -p "$CLAUDE_DIR/hooks"
+mkdir -p "$CLAUDE_DIR/commands"
 
 echo "==> Installing CLAUDE.md"
 cp "$SRC/CLAUDE.md" "$CLAUDE_DIR/CLAUDE.md"
@@ -44,6 +45,9 @@ cp "$SRC/settings.json" "$CLAUDE_DIR/settings.json"
 echo "==> Installing hooks"
 cp "$SRC/hooks/"*.sh "$CLAUDE_DIR/hooks/"
 chmod +x "$CLAUDE_DIR/hooks/"*.sh
+
+echo "==> Installing commands"
+cp "$SRC/commands/"*.md "$CLAUDE_DIR/commands/" 2>/dev/null || true
 
 if [ -f "$CLAUDE_DIR/LEARNINGS.md" ]; then
   echo "==> LEARNINGS.md already exists — leaving your copy untouched."
@@ -112,6 +116,7 @@ echo ""
 echo "Done. Installed to $CLAUDE_DIR"
 echo "  - CLAUDE.md            global behaviour/language/routing config"
 echo "  - settings.json        permissions.deny + hook wiring + LSP enabled"
+echo "  - commands/              custom slash commands (e.g. /pr-message)"
 echo "  - hooks/safety-bash.sh, safety-files.sh, session-context.sh"
 echo "  - LEARNINGS.md         manual lesson-capture log"
 echo "  - jun-lsp plugin       self-authored unified LSP map"
