@@ -9,20 +9,11 @@ set -euo pipefail
 
 CLAUDE_DIR="$HOME/.claude"
 TS="$(date +%Y%m%d-%H%M%S)"
-MARKETPLACE_NAME="juns-config"
-LSP_PLUGIN="jun-lsp"
 
-# Remove the self-authored LSP plugin + marketplace first (guarded).
-# Removing the marketplace also uninstalls plugins from it, but we do both
-# explicitly for clarity.
-if command -v claude >/dev/null 2>&1; then
-  echo "==> Removing LSP plugin + marketplace"
-  claude plugin uninstall "${LSP_PLUGIN}@${MARKETPLACE_NAME}" --scope user 2>/dev/null || true
-  claude plugin marketplace remove "$MARKETPLACE_NAME" 2>/dev/null || true
-else
-  echo "==> 'claude' not on PATH — remove the LSP plugin manually if needed:"
-  echo "      claude plugin marketplace remove $MARKETPLACE_NAME"
-fi
+# Official LSP plugins (claude-plugins-official) installed by install.sh are
+# left in place — they're shared first-party Anthropic infrastructure you may
+# rely on across projects. Remove any manually if you want, e.g.:
+#   claude plugin uninstall ruby-lsp@claude-plugins-official --scope user
 
 newest_backup="$(ls -d "$CLAUDE_DIR".backup.* 2>/dev/null | sort | tail -n1 || true)"
 

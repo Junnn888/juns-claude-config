@@ -10,6 +10,12 @@
 - Then implement that scope completely — finish edge cases and error paths, don't ship a 90% sketch. Extra code is justified only if it completes the in-scope requirement, not if it extends beyond it.
 - Write tests for new logic by default, without being asked. Pin them to intended behaviour so a future logic change that breaks that intent fails an existing test (regression protection).
 
+## Output
+- Lead with the answer. State the conclusion or result first; add reasoning or context only when it changes what I'd do next.
+- Default to the shortest response that fully answers. For explanations and summaries, give the core in a few sentences, then stop — expand only when I ask for depth.
+- Cut preamble and restatement: don't repeat my question back, don't narrate your process, don't open with "Great question" or "Let me…".
+- Keep caveats proportionate — a line, not a paragraph. Examples minimal; one is usually enough.
+
 ### Edit surface
 - Edit only what the request requires. Don't refactor adjacent code, "improve" formatting, or rewrite comments you didn't touch.
 - Match existing style and patterns in the file. If you intend to deviate, say so first.

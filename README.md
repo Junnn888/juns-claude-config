@@ -2,7 +2,7 @@
 
 A lean, portable Claude Code config. One curl on a fresh machine installs a
 provenance-traced global `CLAUDE.md`, a deny-list + safety hooks, a manual
-learnings log, and a self-authored LSP layer. Designed from Anthropic's
+learnings log, and official LSP plugins. Designed from Anthropic's
 official guidance and critically evaluated against (not copied from) gstack.
 
 Philosophy: **few things, each one justified.** Every component had to catch
@@ -18,8 +18,8 @@ Backs up any existing `~/.claude` to `~/.claude.backup.<timestamp>` first.
 
 ## After install
 
-The install script handled the file copies, hook setup, LSP marketplace and
-plugin registration, and ran the binary doctor (which printed any missing
+The install script handled the file copies, hook setup, pre-installed the
+official LSP plugins, and ran the binary doctor (which printed any missing
 language-server binaries with their install commands). You still need to do
 four things:
 
@@ -33,29 +33,27 @@ just won't get LSP for it. Common installs, grouped by toolchain:
 
 ```bash
 # npm-based (light, no toolchain beyond Node)
-npm i -g typescript-language-server typescript pyright \
-         vscode-langservers-extracted yaml-language-server \
-         bash-language-server intelephense
+npm i -g typescript-language-server typescript pyright intelephense
 
 # Toolchain-bundled (skip what you don't use)
 go install golang.org/x/tools/gopls@latest                            # Go
 rustup component add rust-analyzer                                    # Rust
 brew install ruby && gem install ruby-lsp                             # Ruby (Homebrew Ruby, not system)
 brew install --cask dotnet-sdk && dotnet tool install -g csharp-ls    # C# (needs .NET 10 SDK)
-brew install kotlin-language-server                                   # Kotlin
+brew install lua-language-server                                      # Lua
 xcode-select --install                                                # Swift + clangd (macOS)
+# Kotlin: install JetBrains kotlin-lsp (github.com/Kotlin/kotlin-lsp).
 # Java/jdtls: install a JDK + jdtls separately if you write Java.
 ```
 
-**3. Start a *new* Claude Code session.** Settings, hooks, and the LSP plugin
+**3. Start a *new* Claude Code session.** Settings, hooks, and the LSP plugins
 only load at session start — nothing applies mid-session.
 
 **4. Smoke-test it:**
-- `claude plugin list` (from anywhere) — should show `jun-lsp@juns-config`, enabled.
+- `claude plugin list` (from anywhere) — should show the official LSP plugins (e.g. `typescript-lsp@claude-plugins-official`), enabled.
 - Start a session in a git repo: the SessionStart context block (branch, dirty status, recent commits) should appear.
 - Ask Claude to `git push` — the safety hook should block it.
 - Open a file in a language whose server you installed — go-to-definition should work.
-- Optional schema check, from inside this repo: `claude plugin validate ./plugins/jun-lsp`.
 
 ## Re-checking your LSP binaries later
 
@@ -76,17 +74,13 @@ check pyright-langserver          "Python"         "npm i -g pyright"
 check clangd                      "C/C++"          "xcode-select --install (macOS) / LLVM"
 check rust-analyzer               "Rust"           "rustup component add rust-analyzer"
 check gopls                       "Go"             "go install golang.org/x/tools/gopls@latest"
-check bash-language-server        "Bash"           "npm i -g bash-language-server"
-check yaml-language-server        "YAML"           "npm i -g yaml-language-server"
-check vscode-json-language-server "JSON"           "npm i -g vscode-langservers-extracted"
-check vscode-html-language-server "HTML"           "npm i -g vscode-langservers-extracted"
-check vscode-css-language-server  "CSS"            "npm i -g vscode-langservers-extracted"
 check intelephense                "PHP"            "npm i -g intelephense"
 check sourcekit-lsp               "Swift"          "ships with Xcode/Swift toolchain"
 check ruby-lsp                    "Ruby"           "brew install ruby; gem install ruby-lsp"
 check jdtls                       "Java"           "install JDK + jdtls separately"
 check csharp-ls                   "C#"             "brew install --cask dotnet-sdk; dotnet tool install -g csharp-ls"
-check kotlin-language-server      "Kotlin"         "brew install kotlin-language-server"
+check kotlin-lsp                  "Kotlin"         "JetBrains kotlin-lsp (github.com/Kotlin/kotlin-lsp)"
+check lua-language-server         "Lua"            "brew install lua-language-server"
 ```
 
 ## Day-to-day
@@ -96,11 +90,8 @@ normal in your project directories — the global config applies to every
 session automatically.
 
 To update the config later: edit files in this repo, commit + push, and
-re-run the `curl` install command on each machine. **The one gotcha worth
-remembering:** if you change `plugins/jun-lsp/.lsp.json`, also bump the
-`version` in `plugins/jun-lsp/.claude-plugin/plugin.json`. The plugin
-version is pinned (no auto-update), so a `.lsp.json` change without a
-version bump silently won't propagate to Claude Code's plugin cache.
+re-run the `curl` install command on each machine. The official LSP plugins
+auto-update themselves on Claude Code start — nothing to version-bump.
 
 ## Uninstall
 
@@ -121,43 +112,45 @@ config installed.
 | `hooks/safety-files.sh` | PreToolUse (Write/Edit). Blocks edits to `.env*`, keys, credential files. |
 | `hooks/session-context.sh` | SessionStart. Injects branch + dirty state + last 5 commits. Minimal by design. |
 | `LEARNINGS.md` | Manual lesson-capture log (deliberately not a skill or auto-reflector). |
-| `settings.json` `env` | `ENABLE_LSP_TOOL=1` — turns on Claude Code's native LSP, portably. |
-| `jun-lsp` plugin | Self-authored unified LSP map (one `.lsp.json`). Installed via your own marketplace — zero third-party plugin code. |
 
 ## LSP layer
 
 LSP gives Claude real symbol intelligence (go-to-definition, find-references,
-diagnostics) instead of fuzzy grep. It's enabled portably via the
-`ENABLE_LSP_TOOL=1` env in `settings.json`, plus a **self-authored plugin**
-(`jun-lsp`) carrying one `.lsp.json` server map.
+diagnostics) instead of fuzzy grep. It's provided by Anthropic's **official,
+first-party LSP plugins** from the `claude-plugins-official` marketplace.
+Installing one of these plugins auto-enables Claude Code's built-in LSP tool —
+no env var, no self-authored plugin, no third-party marketplace.
 
-**Why a self-authored plugin (supply chain).** Custom LSP requires the plugin
-mechanism. Official per-language plugins only cover ~3 languages; the rest
-would mean trusting ~10 community marketplaces, each an unsandboxed
-auto-update vector. Your own plugin has zero third-party plugin code, no
-auto-update path (pinned `version`), and the only trust it needs — your repo
-— you already extend via `curl | bash`. The language-server *binaries* are
-the same supply-chain surface either way and are the irreducible risk; the
-install script only **checks and reports** missing binaries, never
-auto-installs them, so you control exactly what lands.
+**Why official plugins (supply chain).** Anthropic now ships first-party LSP
+plugins covering 12 languages, so there's nothing to self-author and no
+community marketplace to trust. `claude-plugins-official` is auto-registered
+on every fresh Claude Code start; the install script just pre-installs the 12
+plugins (no `marketplace add` needed). The language-server *binaries* remain
+the irreducible supply-chain surface, so the install script only **checks and
+reports** missing binaries — never auto-installs them — so you control exactly
+what lands.
 
-**Languages covered:** TypeScript/JS, Python, C/C++, Rust, Go, Bash, YAML,
-JSON, HTML, CSS, PHP, Swift, Ruby, Java, C#, Kotlin. Each needs its language
-server binary installed separately — run the install script and the LSP
-doctor prints the exact command for any that are missing. Install only the
-ones you actually use (LSP has no model-context cost, but each server adds a
-little session-start time; the JVM ones are the heaviest).
+**Languages covered (12):** TypeScript/JS, Python, C/C++, Rust, Go, PHP,
+Swift, Java, C#, Kotlin, Lua, Ruby. Bash, YAML, JSON, HTML and CSS are **not**
+covered — the official marketplace has no LSP plugin for them (low payoff:
+they have no cross-file symbol graph to navigate). Each language needs its
+server binary installed separately — the LSP doctor prints the exact command
+for any that are missing. Install only the ones you actually use (LSP has no
+model-context cost, but each server adds a little session-start time; the JVM
+ones are the heaviest).
 
-**Adding a new language later:** add one entry to
-`plugins/jun-lsp/.lsp.json` (`extensionToLanguage` is the extensibility
-surface), add a matching `lsp_check` row in `install.sh`, install that
-server's binary, bump the `version` in `plugin.json`. One row, no redesign.
+**Adding a new language later:** install the official plugin
+(`claude plugin install <name>-lsp@claude-plugins-official --scope user`), add
+the plugin name to the `LSP_PLUGINS` array (and a `lsp_check` row) in
+`install.sh` plus the README doctor snippet, then install that server's binary.
 
-**Manual registration fallback** (if `claude` wasn't on PATH during install):
+**Manual install fallback** (if `claude` wasn't on PATH during install):
 
 ```bash
-claude plugin marketplace add Junnn888/juns-claude-config --scope user
-claude plugin install jun-lsp@juns-config --scope user
+for p in typescript-lsp pyright-lsp clangd-lsp rust-analyzer-lsp gopls-lsp \
+         php-lsp swift-lsp jdtls-lsp csharp-lsp kotlin-lsp lua-lsp ruby-lsp; do
+  claude plugin install "$p@claude-plugins-official" --scope user
+done
 ```
 
 ## Prerequisites

@@ -60,29 +60,36 @@ command -v jq >/dev/null 2>&1 || \
   echo "WARNING: jq not installed. Safety hooks fail OPEN (warn+allow) until you install jq."
 
 # --- LSP layer ---------------------------------------------------------
-# LSP is enabled via ENABLE_LSP_TOOL=1 in the settings.json just installed.
-# Register Jun's own marketplace + LSP plugin (Option A: self-authored,
-# zero third-party plugin code). Pinned version, no auto-update.
-MARKETPLACE_SRC="Junnn888/juns-claude-config"   # CONFIRM: GitHub owner/repo
-MARKETPLACE_NAME="juns-config"
-LSP_PLUGIN="jun-lsp"
+# LSP is provided by Anthropic's official, first-party plugins from the
+# `claude-plugins-official` marketplace, which is auto-registered on every
+# fresh Claude Code start (no `marketplace add` needed). Installing an
+# official LSP plugin auto-enables Claude Code's built-in LSP tool.
+LSP_PLUGINS=(
+  typescript-lsp pyright-lsp clangd-lsp rust-analyzer-lsp gopls-lsp php-lsp
+  swift-lsp jdtls-lsp csharp-lsp kotlin-lsp lua-lsp ruby-lsp
+)
 
 echo ""
-echo "==> LSP: enabled via settings.json (ENABLE_LSP_TOOL=1)"
+echo "==> LSP: pre-installing official plugins (claude-plugins-official)"
 if command -v claude >/dev/null 2>&1; then
-  echo "==> Registering self-authored LSP plugin"
-  claude plugin marketplace add "$MARKETPLACE_SRC" --scope user 2>/dev/null || \
-    echo "    (marketplace add skipped — may already exist)"
-  claude plugin install "${LSP_PLUGIN}@${MARKETPLACE_NAME}" --scope user 2>/dev/null || \
-    echo "    (plugin install skipped — may already be installed)"
+  for p in "${LSP_PLUGINS[@]}"; do
+    if claude plugin install "${p}@claude-plugins-official" --scope user >/dev/null 2>&1; then
+      echo "    ok    $p"
+    else
+      echo "    skip  $p (already installed or unavailable)"
+    fi
+  done
 else
-  echo "    'claude' not on PATH. Register manually after install:"
-  echo "      claude plugin marketplace add $MARKETPLACE_SRC --scope user"
-  echo "      claude plugin install ${LSP_PLUGIN}@${MARKETPLACE_NAME} --scope user"
+  echo "    'claude' not on PATH. Install the LSP plugins manually after install:"
+  echo "      for p in ${LSP_PLUGINS[*]}; do"
+  echo "        claude plugin install \"\$p@claude-plugins-official\" --scope user"
+  echo "      done"
 fi
 
-# LSP doctor: check-and-report only (never auto-install — supply-chain +
-# robustness). Prints the exact command for any missing language server.
+# LSP doctor: check-and-report only (never auto-install — the language-server
+# binaries are the irreducible supply-chain surface, so you choose what lands).
+# A plugin stays inert until its binary is on PATH; this prints the exact
+# command for any that are missing.
 echo ""
 echo "==> LSP doctor (checking language-server binaries on PATH)"
 lsp_check() {
@@ -95,29 +102,25 @@ lsp_check() {
 }
 lsp_check typescript-language-server "TypeScript/JS" "npm i -g typescript-language-server typescript"
 lsp_check pyright-langserver        "Python"        "npm i -g pyright  (or: pip install pyright)"
-lsp_check clangd                    "C/C++"         "install LLVM/clangd for your OS"
+lsp_check clangd                    "C/C++"         "xcode-select --install (macOS) / install LLVM"
 lsp_check rust-analyzer             "Rust"          "rustup component add rust-analyzer"
 lsp_check gopls                     "Go"            "go install golang.org/x/tools/gopls@latest"
-lsp_check bash-language-server      "Bash"          "npm i -g bash-language-server"
-lsp_check yaml-language-server      "YAML"          "npm i -g yaml-language-server"
-lsp_check vscode-json-language-server "JSON"        "npm i -g vscode-langservers-extracted"
-lsp_check vscode-html-language-server "HTML"        "npm i -g vscode-langservers-extracted"
-lsp_check vscode-css-language-server  "CSS"         "npm i -g vscode-langservers-extracted"
 lsp_check intelephense              "PHP"           "npm i -g intelephense"
 lsp_check sourcekit-lsp             "Swift"         "ships with the Xcode / Swift toolchain"
 lsp_check ruby-lsp                  "Ruby"          "gem install ruby-lsp"
 lsp_check jdtls                     "Java"          "install Eclipse JDT LS (jdtls) + a JDK"
 lsp_check csharp-ls                 "C#"            "dotnet tool install -g csharp-ls"
-lsp_check kotlin-language-server    "Kotlin"        "install kotlin-language-server for your OS"
+lsp_check kotlin-lsp                "Kotlin"        "JetBrains kotlin-lsp (github.com/Kotlin/kotlin-lsp)"
+lsp_check lua-language-server       "Lua"           "brew install lua-language-server"
 echo "    (MISS = optional; install only the languages you actually use.)"
 # -----------------------------------------------------------------------
 
 echo ""
 echo "Done. Installed to $CLAUDE_DIR"
 echo "  - CLAUDE.md            global behaviour/language/routing config"
-echo "  - settings.json        permissions.deny + hook wiring + LSP enabled"
+echo "  - settings.json        permissions.deny + hook wiring"
 echo "  - commands/              custom slash commands (e.g. /pr-message)"
 echo "  - hooks/safety-bash.sh, safety-files.sh, session-context.sh"
 echo "  - LEARNINGS.md         manual lesson-capture log"
-echo "  - jun-lsp plugin       self-authored unified LSP map"
+echo "  - LSP plugins          12 official servers from claude-plugins-official"
 echo "Start a new Claude Code session for changes to take effect."
