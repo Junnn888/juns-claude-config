@@ -13,7 +13,7 @@ The config is built in layers, each with a governing principle: a component earn
 | Layer | Status | What |
 |-------|--------|------|
 | 1 — CLAUDE.md | Built | Global behaviour rules (~28 lines). Provenance-traced from Karpathy/gstack/Anthropic. |
-| 2 — Hooks | Built | 2 PreToolUse safety hooks (Bash dispatcher + file-path guard) + 1 SessionStart context loader + `permissions.deny` list. |
+| 2 — Hooks | Built | 2 PreToolUse safety command hooks (Bash dispatcher + file-path guard) + 1 PreToolUse plan-reviewer prompt hook (`ExitPlanMode`) + 1 SessionStart context loader + `permissions.deny` list. |
 | 3 — Skills | Deferred | Skills-layer governing principle locked. Build only when repetition justifies it (re-explained 3+ times, multi-step with gotchas, needs checkpoints or isolation). |
 | 4 — LSP | Built | Official LSP plugins (`claude-plugins-official`), 12 languages. Auto-enables Claude Code's built-in LSP tool. |
 

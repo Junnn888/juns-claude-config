@@ -10,6 +10,9 @@
 - Then implement that scope completely — finish edge cases and error paths, don't ship a 90% sketch. Extra code is justified only if it completes the in-scope requirement, not if it extends beyond it.
 - Write tests for new logic by default, without being asked. Pin them to intended behaviour so a future logic change that breaks that intent fails an existing test (regression protection).
 
+### Coding-plan assessment
+Any plan that writes or changes code carries a one-line, falsifiable note per axis — simplicity, over-engineering, logic/correctness, UX, performance — each naming a concrete concern OR a specific reason it's a non-issue. 'Fine'/'N/A' alone isn't acceptable; if an axis genuinely doesn't apply, say why in a few words. Flag only what would change the plan.
+
 ## Output
 - Lead with the answer. State the conclusion or result first; add reasoning or context only when it changes what I'd do next.
 - Default to the shortest response that fully answers. For explanations and summaries, give the core in a few sentences, then stop — expand only when I ask for depth.

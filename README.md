@@ -111,6 +111,7 @@ config installed.
 | `hooks/safety-bash.sh` | PreToolUse (Bash). Hard-blocks 9 categories of dangerous command (git state, DB/migrations, destructive FS, deploy, secrets, dep-adds, mutating HTTP, system, CI). Agent blocked → you run it yourself. |
 | `hooks/safety-files.sh` | PreToolUse (Write/Edit). Blocks edits to `.env*`, keys, credential files. |
 | `hooks/session-context.sh` | SessionStart. Injects branch + dirty state + last 5 commits. Minimal by design. |
+| `settings.json` → PreToolUse(`ExitPlanMode`) | Inline **prompt hook** (Sonnet, not a `.sh` file). At plan-exit it blocks a code plan unless each of the five axes — simplicity, over-engineering, logic, UX, performance — carries a falsifiable note; the deny reason is fed back so Claude revises. Pairs with the CLAUDE.md *Coding-plan assessment* rubric. |
 | `LEARNINGS.md` | Manual lesson-capture log (deliberately not a skill or auto-reflector). |
 
 ## LSP layer
@@ -178,8 +179,9 @@ done
 4. **Some files can't be `.md`.** `settings.json` must be valid JSON and the
    hooks must be executable shell, or the system doesn't function. They're
    still plain-text and downloadable — just not Markdown.
-5. **This is the lean core plus LSP, on purpose.** No skills, no
-   verification hook, no auto-format — deferred until real use proves the
-   need (see the design spec). LSP was the one expansion added, because it's
-   a known, articulated, non-speculative need that catches a failure nothing
-   else does. Add anything further only when repetition justifies it.
+5. **This is the lean core plus LSP, on purpose.** No skills, no auto-format —
+   deferred until real use proves the need (see the design spec). The two
+   expansions added are LSP and the plan-reviewer prompt hook (PreToolUse on
+   `ExitPlanMode`), each a known, articulated, non-speculative need that
+   catches a failure nothing else does. Add anything further only when
+   repetition justifies it.
