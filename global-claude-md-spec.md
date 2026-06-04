@@ -89,3 +89,30 @@ still change the outcome, using an independent model the planner can't talk past
 
 **Cost.** Matcher-scoped to `ExitPlanMode` → zero overhead on normal turns, Bash, or edits. One
 Sonnet single-turn eval per plan-exit.
+
+---
+
+## Deferred — response verbosity (2026-06-05)
+
+**Symptom.** Under ultracode / high-effort modes on Opus 4.8, responses run verbose — lines of
+code snippets that don't change the next action, plus sentence padding — despite the Layer 1
+Output concision rules already in `CLAUDE.md`.
+
+**Why deferred, not fixed (decided 2026-06-04 alongside the plan-reviewer work).** Kept out of that
+change to protect its scope and keep its test uncontaminated. More fundamentally, a global
+`CLAUDE.md` line is the wrong instrument: it loads in *every* session (would over-suppress useful
+code in ordinary work) and fights ultracode's own "be exhaustive, token cost is not a constraint"
+directive, so it would be weak anyway. The symptom is mode-specific; the fix must be too.
+
+**Intended fix (when built).** Scope it like the plan gate — one crisp, checkable thing, not "obey
+all of `CLAUDE.md`":
+- an ultracode/effort-scoped nudge — keep exhaustiveness in the *work* (verification, coverage),
+  not the *prose*; include a snippet only when it changes the next action; or
+- a narrow `Stop` hook flagging only code/padding that doesn't change what the user would do — lean
+  advisory to avoid the every-turn latency and `stop_hook_active` loop tax.
+
+**Interim.** Logged as a self-applied preference in Claude's file memory, so output is trimmed
+until a mechanism exists.
+
+**Governing-principle status.** Not yet earned as a component; must clear the same bar (crisp,
+deterministic where possible, catches a failure nothing else does) before it becomes a hook or rule.
