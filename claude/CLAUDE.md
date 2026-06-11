@@ -20,6 +20,11 @@ Any plan that writes or changes code carries a one-line, falsifiable note per ax
 - Keep caveats proportionate — a line, not a paragraph. Trust me to follow without hand-holding.
 - Before sending, cut anything that doesn't change the answer.
 
+## Markdown tables
+- Cells hold short, atomic values only — never file paths, comma-separated lists, or sentences.
+- If any row would exceed ~100 columns wide, don't use a table: use a bulleted/definition list or split into smaller tables.
+- Long detail and prose belong outside the table, not crammed into a cell.
+
 ### Edit surface
 - Edit only what the request requires. Don't refactor adjacent code, "improve" formatting, or rewrite comments you didn't touch.
 - Match existing style and patterns in the file. If you intend to deviate, say so first.
