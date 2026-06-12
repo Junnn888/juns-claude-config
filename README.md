@@ -83,6 +83,26 @@ check kotlin-lsp                  "Kotlin"         "JetBrains kotlin-lsp (github
 check lua-language-server         "Lua"            "brew install lua-language-server"
 ```
 
+## Neovim config (optional)
+
+The repo also carries a minimal Neovim setup (`nvim/`) for nicer Markdown
+viewing: lazy.nvim, treesitter, and render-markdown.nvim, with plugin
+versions pinned in `lazy-lock.json` so every machine runs identical commits.
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Junnn888/juns-claude-config/main/nvim-install.sh | bash
+```
+
+Requires `nvim` on PATH (the script prints install hints if missing) and a C
+compiler for the treesitter parser builds. Backs up any existing
+`~/.config/nvim` to `~/.config/nvim.backup.<timestamp>`, copies in
+`init.lua` + `lazy-lock.json`, then restores plugins headlessly to the
+pinned versions.
+
+When you change the nvim config locally, re-copy `init.lua` and
+`lazy-lock.json` into `nvim/` and commit — otherwise the script installs
+stale versions on the next machine.
+
 ## Day-to-day
 
 You don't go to `~/.claude/` or this repo folder again. Use Claude Code as
