@@ -20,6 +20,10 @@ Any plan that writes or changes code carries a one-line, falsifiable note per ax
 - Keep caveats proportionate — a line, not a paragraph. Trust me to follow without hand-holding.
 - Before sending, cut anything that doesn't change the answer.
 
+## Code style
+- Write self-documenting code: clear names, small focused functions, good structure. Do NOT add comments.
+- Only exception: a one-line WHY comment where the rationale is genuinely non-recoverable from the code (upstream-bug workaround, non-obvious invariant, ticket link).
+
 ## Markdown tables
 - Cells hold short, atomic values only — never file paths, comma-separated lists, or sentences.
 - If any row would exceed ~100 columns wide, don't use a table: use a bulleted/definition list or split into smaller tables.
