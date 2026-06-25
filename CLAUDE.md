@@ -25,7 +25,8 @@ Files at root level. The README documents an intended nested layout (`claude/`) 
 
 - `install.sh` — installs config to `~/.claude/`, backs up existing, runs LSP doctor
 - `uninstall.sh` — restores backup or removes installed files
-- `settings.json` — permissions.deny + hook wiring
+- `settings.json` — permissions.deny + hook wiring + status-line wiring + enabled plugins
+- `claude/statusLine.sh` — status line (model · token count · context %); installed to `~/.claude/`, needs `jq`
 - `global-claude-md-spec.md` — full design spec (layers 1-4, all decisions, provenance)
 - `README.md` — user-facing install/usage docs
 

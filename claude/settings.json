@@ -23,6 +23,7 @@
       "Write(./.env.*)"
     ]
   },
+  "model": "opus[1m]",
   "hooks": {
     "PreToolUse": [
       {
@@ -48,8 +49,8 @@
         "hooks": [
           {
             "type": "prompt",
-            "model": "sonnet",
-            "prompt": "You are reviewing a coding plan before it executes. The plan is in the hook input under tool_input.plan (the input JSON is in $ARGUMENTS). Check ONLY that each of the five axes — simplicity, over-engineering, logic/correctness, UX, performance — is addressed in the plan with a SPECIFIC, falsifiable note: a concrete concern, or a specific reason it's a non-issue. 'Fine', 'N/A', or silence on an axis fails. You are NOT judging whether the plan is good, and you CANNOT verify performance or correctness against the real codebase — only whether the assessment was actually done. If every axis has a specific note, approve. Otherwise deny and list each axis that is missing or hand-waved."
+            "prompt": "You are reviewing a coding plan before it executes. The plan is in the hook input under tool_input.plan (the input JSON is in $ARGUMENTS). Check ONLY that each of the five axes — simplicity, over-engineering, logic/correctness, UX, performance — is addressed in the plan with a SPECIFIC, falsifiable note: a concrete concern, or a specific reason it's a non-issue. 'Fine', 'N/A', or silence on an axis fails. You are NOT judging whether the plan is good, and you CANNOT verify performance or correctness against the real codebase — only whether the assessment was actually done. If every axis has a specific note, approve. Otherwise deny and list each axis that is missing or hand-waved.",
+            "model": "sonnet"
           }
         ]
       }
@@ -64,5 +65,28 @@
         ]
       }
     ]
-  }
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "~/.claude/statusLine.sh",
+    "padding": 0
+  },
+  "enabledPlugins": {
+    "typescript-lsp@claude-plugins-official": true,
+    "pyright-lsp@claude-plugins-official": true,
+    "clangd-lsp@claude-plugins-official": true,
+    "rust-analyzer-lsp@claude-plugins-official": true,
+    "gopls-lsp@claude-plugins-official": true,
+    "php-lsp@claude-plugins-official": true,
+    "swift-lsp@claude-plugins-official": true,
+    "jdtls-lsp@claude-plugins-official": true,
+    "csharp-lsp@claude-plugins-official": true,
+    "kotlin-lsp@claude-plugins-official": true,
+    "lua-lsp@claude-plugins-official": true,
+    "ruby-lsp@claude-plugins-official": true,
+    "frontend-design@claude-plugins-official": true,
+    "code-simplifier@claude-plugins-official": true
+  },
+  "effortLevel": "high",
+  "tui": "fullscreen"
 }

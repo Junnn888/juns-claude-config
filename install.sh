@@ -3,7 +3,8 @@
 # Usage:  curl -fsSL <raw-url>/install.sh | bash
 #
 # Prerequisites: git, bash. Recommended: jq (the safety hooks fail OPEN
-# without it — they warn and allow rather than block).
+# without it — they warn and allow rather than block; the status line also
+# needs jq to render and prints nothing without it).
 
 set -euo pipefail
 
@@ -42,6 +43,10 @@ echo "    NOTE: this OVERWRITES ~/.claude/settings.json (backup taken above)."
 echo "    If you had custom settings, merge them back from the backup."
 cp "$SRC/settings.json" "$CLAUDE_DIR/settings.json"
 
+echo "==> Installing status line"
+cp "$SRC/statusLine.sh" "$CLAUDE_DIR/statusLine.sh"
+chmod +x "$CLAUDE_DIR/statusLine.sh"
+
 echo "==> Installing hooks"
 cp "$SRC/hooks/"*.sh "$CLAUDE_DIR/hooks/"
 chmod +x "$CLAUDE_DIR/hooks/"*.sh
@@ -69,10 +74,16 @@ LSP_PLUGINS=(
   swift-lsp jdtls-lsp csharp-lsp kotlin-lsp lua-lsp ruby-lsp
 )
 
+# Non-LSP official plugins enabled in settings.json. Declaring a plugin in
+# enabledPlugins only enables it once present, so install them here too.
+EXTRA_PLUGINS=(frontend-design code-simplifier)
+
+ALL_PLUGINS=("${LSP_PLUGINS[@]}" "${EXTRA_PLUGINS[@]}")
+
 echo ""
-echo "==> LSP: pre-installing official plugins (claude-plugins-official)"
+echo "==> Plugins: pre-installing official plugins (claude-plugins-official)"
 if command -v claude >/dev/null 2>&1; then
-  for p in "${LSP_PLUGINS[@]}"; do
+  for p in "${ALL_PLUGINS[@]}"; do
     if claude plugin install "${p}@claude-plugins-official" --scope user >/dev/null 2>&1; then
       echo "    ok    $p"
     else
@@ -80,8 +91,8 @@ if command -v claude >/dev/null 2>&1; then
     fi
   done
 else
-  echo "    'claude' not on PATH. Install the LSP plugins manually after install:"
-  echo "      for p in ${LSP_PLUGINS[*]}; do"
+  echo "    'claude' not on PATH. Install the plugins manually after install:"
+  echo "      for p in ${ALL_PLUGINS[*]}; do"
   echo "        claude plugin install \"\$p@claude-plugins-official\" --scope user"
   echo "      done"
 fi
@@ -118,9 +129,10 @@ echo "    (MISS = optional; install only the languages you actually use.)"
 echo ""
 echo "Done. Installed to $CLAUDE_DIR"
 echo "  - CLAUDE.md            global behaviour/language/routing config"
-echo "  - settings.json        permissions.deny + hook wiring"
+echo "  - settings.json        permissions.deny + hook wiring + status line"
+echo "  - statusLine.sh        model · token-count · context-% status line (needs jq)"
 echo "  - commands/              custom slash commands (e.g. /pr-message)"
 echo "  - hooks/safety-bash.sh, safety-files.sh, session-context.sh"
 echo "  - LEARNINGS.md         manual lesson-capture log"
-echo "  - LSP plugins          12 official servers from claude-plugins-official"
+echo "  - plugins              12 official LSP servers + frontend-design + code-simplifier"
 echo "Start a new Claude Code session for changes to take effect."

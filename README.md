@@ -127,7 +127,8 @@ config installed.
 | File | Purpose |
 |---|---|
 | `CLAUDE.md` | Global behaviour (Karpathy 4 + gstack nudges), scoped British-English rule, routing rules. ~28 lines, loads every session. |
-| `settings.json` | Coarse `permissions.deny` list + wiring for the three hooks. |
+| `settings.json` | Coarse `permissions.deny` list + wiring for the three hooks + status-line wiring + enabled plugins. |
+| `statusLine.sh` | Status line showing model · token count · context-window %. Needs `jq`; prints nothing without it. |
 | `hooks/safety-bash.sh` | PreToolUse (Bash). Hard-blocks 9 categories of dangerous command (git state, DB/migrations, destructive FS, deploy, secrets, dep-adds, mutating HTTP, system, CI). Agent blocked → you run it yourself. |
 | `hooks/safety-files.sh` | PreToolUse (Write/Edit). Blocks edits to `.env*`, keys, credential files. |
 | `hooks/session-context.sh` | SessionStart. Injects branch + dirty state + last 5 commits. Minimal by design. |
@@ -174,12 +175,15 @@ for p in typescript-lsp pyright-lsp clangd-lsp rust-analyzer-lsp gopls-lsp \
 done
 ```
 
+The install also enables two non-LSP official plugins, `frontend-design` and
+`code-simplifier` (declared in `settings.json` and pre-installed by the script).
+
 ## Prerequisites
 
 - `git`, `bash` — required.
 - `jq` — **strongly recommended.** The safety hooks parse tool input with
-  `jq`. Without it they **fail open** (warn and allow, not block). Install
-  `jq` or the safety layer is advisory only.
+  `jq`, and the status line renders with it. Without `jq` the hooks **fail
+  open** (warn and allow, not block) and the status line prints nothing.
 
 ## Honest caveats (read these)
 

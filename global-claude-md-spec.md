@@ -92,6 +92,20 @@ Sonnet single-turn eval per plan-exit.
 
 ---
 
+## Layer 2 addendum — status line & settings sync (2026-06-25)
+
+**Status line.** `claude/statusLine.sh` renders `model · <n>k tok (<pct>%)` from the harness's
+status JSON via `jq`; wired through `settings.json` → `statusLine` (command type, `~/.claude/
+statusLine.sh`). `install.sh` copies it to `~/.claude/` and `chmod +x`; `jq` is already a documented
+prerequisite, and the script prints nothing without it (graceful degrade, no error).
+
+**Settings folded in from live config.** `model: opus[1m]`, `effortLevel: high`, `tui: fullscreen`,
+and an `enabledPlugins` block (12 LSP + `frontend-design` + `code-simplifier`). Deliberately **not**
+shipped: `coderabbit` (left to per-user opt-in), `skipWorkflowUsageWarning`, `agentPushNotifEnabled`
+(personal UX prefs). The two non-LSP plugins are pre-installed by `install.sh` alongside the LSP loop.
+
+---
+
 ## Deferred — response verbosity (2026-06-05)
 
 **Symptom.** Under ultracode / high-effort modes on Opus 4.8, responses run verbose — lines of

@@ -30,6 +30,7 @@ else
   echo "==> No backup found. Removing installed files only."
   rm -f "$CLAUDE_DIR/CLAUDE.md" \
         "$CLAUDE_DIR/settings.json" \
+        "$CLAUDE_DIR/statusLine.sh" \
         "$CLAUDE_DIR/hooks/safety-bash.sh" \
         "$CLAUDE_DIR/hooks/safety-files.sh" \
         "$CLAUDE_DIR/hooks/session-context.sh"
