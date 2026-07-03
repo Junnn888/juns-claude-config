@@ -134,6 +134,7 @@ config installed.
 | `hooks/session-context.sh` | SessionStart. Injects branch + dirty state + last 5 commits. Minimal by design. |
 | `settings.json` → PreToolUse(`ExitPlanMode`) | Inline **prompt hook** (Sonnet, not a `.sh` file). At plan-exit it blocks a code plan unless each of the five axes — simplicity, over-engineering, logic, UX, performance — carries a falsifiable note; the deny reason is fed back so Claude revises. Pairs with the CLAUDE.md *Coding-plan assessment* rubric. |
 | `LEARNINGS.md` | Manual lesson-capture log (deliberately not a skill or auto-reflector). |
+| `mcp.json` | Tolaria MCP server. Only installed when `/Applications/Tolaria.app` exists, and never overwrites an existing `mcp.json`. |
 
 ## LSP layer
 
@@ -175,8 +176,9 @@ for p in typescript-lsp pyright-lsp clangd-lsp rust-analyzer-lsp gopls-lsp \
 done
 ```
 
-The install also enables two non-LSP official plugins, `frontend-design` and
-`code-simplifier` (declared in `settings.json` and pre-installed by the script).
+The install also enables three non-LSP official plugins — `frontend-design`,
+`code-simplifier` and `coderabbit` (declared in `settings.json` and
+pre-installed by the script).
 
 ## Prerequisites
 

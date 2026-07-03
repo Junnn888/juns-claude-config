@@ -23,7 +23,7 @@
       "Write(./.env.*)"
     ]
   },
-  "model": "opus[1m]",
+  "model": "claude-fable-5[1m]",
   "hooks": {
     "PreToolUse": [
       {
@@ -85,8 +85,11 @@
     "lua-lsp@claude-plugins-official": true,
     "ruby-lsp@claude-plugins-official": true,
     "frontend-design@claude-plugins-official": true,
-    "code-simplifier@claude-plugins-official": true
+    "code-simplifier@claude-plugins-official": true,
+    "coderabbit@claude-plugins-official": true
   },
   "effortLevel": "high",
-  "tui": "fullscreen"
+  "tui": "fullscreen",
+  "skipWorkflowUsageWarning": true,
+  "agentPushNotifEnabled": true
 }

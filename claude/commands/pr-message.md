@@ -12,7 +12,7 @@ description: Generate a PR message from branch commits
 
 Generate a pull request description for the current branch.
 
-**Base branch:** if arguments were provided above, use the first word as the base branch. Otherwise default to `main`.
+**Base branch:** if arguments were provided above, use the first word as the base branch. Otherwise default to `development`.
 
 ### Step 1 — Gather context
 

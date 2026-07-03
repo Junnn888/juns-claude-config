@@ -61,6 +61,20 @@ else
   cp "$SRC/LEARNINGS.md" "$CLAUDE_DIR/LEARNINGS.md"
 fi
 
+# Tolaria MCP server: only wired up on machines that actually have Tolaria,
+# and never clobbers an existing mcp.json (it may hold other servers).
+if [ ! -d "/Applications/Tolaria.app" ]; then
+  echo "==> Tolaria.app not found — skipping mcp.json (Tolaria MCP server)."
+elif [ -f "$CLAUDE_DIR/mcp.json" ]; then
+  echo "==> mcp.json already exists — leaving your copy untouched."
+  echo "    To add Tolaria, merge claude/mcp.json from the repo by hand."
+else
+  echo "==> Installing mcp.json (Tolaria MCP server)"
+  cp "$SRC/mcp.json" "$CLAUDE_DIR/mcp.json"
+  [ -x /opt/homebrew/bin/node ] || \
+    echo "    WARNING: /opt/homebrew/bin/node not found — edit mcp.json's \"command\" to your node path."
+fi
+
 command -v jq >/dev/null 2>&1 || \
   echo "WARNING: jq not installed. Safety hooks fail OPEN (warn+allow) until you install jq."
 
@@ -76,7 +90,7 @@ LSP_PLUGINS=(
 
 # Non-LSP official plugins enabled in settings.json. Declaring a plugin in
 # enabledPlugins only enables it once present, so install them here too.
-EXTRA_PLUGINS=(frontend-design code-simplifier)
+EXTRA_PLUGINS=(frontend-design code-simplifier coderabbit)
 
 ALL_PLUGINS=("${LSP_PLUGINS[@]}" "${EXTRA_PLUGINS[@]}")
 
@@ -134,5 +148,6 @@ echo "  - statusLine.sh        model · token-count · context-% status line (ne
 echo "  - commands/              custom slash commands (e.g. /pr-message)"
 echo "  - hooks/safety-bash.sh, safety-files.sh, session-context.sh"
 echo "  - LEARNINGS.md         manual lesson-capture log"
-echo "  - plugins              12 official LSP servers + frontend-design + code-simplifier"
+echo "  - mcp.json             Tolaria MCP server (only if Tolaria.app is installed)"
+echo "  - plugins              12 official LSP servers + frontend-design + code-simplifier + coderabbit"
 echo "Start a new Claude Code session for changes to take effect."

@@ -34,7 +34,8 @@ else
         "$CLAUDE_DIR/hooks/safety-bash.sh" \
         "$CLAUDE_DIR/hooks/safety-files.sh" \
         "$CLAUDE_DIR/hooks/session-context.sh"
-  echo "==> Removed. LEARNINGS.md (if present) was left in place on purpose."
+  echo "==> Removed. LEARNINGS.md and mcp.json (if present) were left in place"
+  echo "    on purpose — they may hold your own lessons / extra MCP servers."
   echo "    Note: a fresh ~/.claude/settings.json was NOT recreated — Claude"
   echo "    Code will fall back to defaults. Re-add any settings you need."
 fi

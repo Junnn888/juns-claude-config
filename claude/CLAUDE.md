@@ -19,7 +19,7 @@
 - Write tests for new logic by default, without being asked. Pin them to intended behaviour so a future logic change that breaks that intent fails an existing test (regression protection).
 
 ### Coding-plan assessment
-Any plan that writes or changes code carries a one-line, falsifiable note per axis — simplicity, over-engineering, logic/correctness, UX, performance — each naming a concrete concern OR a specific reason it's a non-issue. 'Fine'/'N/A' alone isn't acceptable; if an axis genuinely doesn't apply, say why in a few words. Flag only what would change the plan.
+For non-trivial plans that write or change code, carry a one-line, falsifiable note per axis — simplicity, over-engineering, logic/correctness, UX, performance — each naming a concrete concern. Flag only axes that would change the plan; stay silent on the rest rather than writing 'Fine'/'N/A' filler. Skip the assessment entirely for trivial or mechanical edits.
 
 ### Edit surface
 - Edit only what the request requires. Don't refactor adjacent code, "improve" formatting, or rewrite comments you didn't touch.
@@ -60,3 +60,9 @@ Any plan that writes or changes code carries a one-line, falsifiable note per ax
 
 ### External tools
 - Use installed browse/web-search skills for web access. Don't reach for ad-hoc alternatives when a curated skill exists.
+
+## Markdown lives in two places — check both
+- **Committed repo `.md`** (README, AGENTS.md, CONTRIBUTING, `docs/`, `.planning/`, `.claude/rules`, ADRs) is authoritative for that project — read it for architecture, conventions, specs, and design docs. It travels with the code; treat it as first-class, not secondary to Tolaria.
+- **Tolaria MCP vaults (Work, Personal)** hold my personal, cross-project markdown I deliberately keep out of repos — planning, triage, research, meeting notes.
+- When I ask "where did we track X" / about notes or planning: search whichever fits, and if one comes up empty, try the other (`search_notes` for Tolaria) before concluding it's lost. Don't skip committed repo docs just because a topic sounds like "notes", and don't assume repo-only when it may be a personal Tolaria note.
+- If the Tolaria MCP isn't connected in a session, say so rather than concluding a note doesn't exist.
