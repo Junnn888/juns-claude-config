@@ -31,8 +31,15 @@ block() {
 
 lc="$(printf '%s' "$cmd" | tr '[:upper:]' '[:lower:]')"
 
+# quoted text is data, not commands; a command runs at start-of-string or after
+# ; & | ( — optionally preceded by VAR=val assignments; dash-flags (with an
+# optional value argument, e.g. -C <path>) may sit between git and its subcommand
+stripped="$(printf '%s' "$lc" | sed -E "s/'[^']*'//g; s/\"[^\"]*\"//g")"
+CMD_POS='(^|[;&|(])[[:space:]]*([a-z_][a-z0-9_]*=[^[:space:]]*[[:space:]]+)*'
+GIT_FLAGS='([[:space:]]+-[^[:space:]]+([[:space:]]+[^-[:space:]][^[:space:]]*)?)*'
+
 # 1. Version control
-echo "$lc" | grep -Eq '(^|[;&| ])git[[:space:]]+(commit|add|push|reset|rebase|clean)([[:space:]]|$)' \
+echo "$stripped" | grep -Eq "${CMD_POS}git${GIT_FLAGS}[[:space:]]+(commit|add|push|reset|rebase|clean)([[:space:]]|\$)" \
   && block "version-control" "git state changes are the user's call"
 echo "$lc" | grep -Eq 'git[[:space:]]+push.*(--force|-f)([[:space:]]|$)' \
   && block "version-control" "force-push is destructive and user-only"

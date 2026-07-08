@@ -19,7 +19,7 @@
 - Write tests for new logic by default, without being asked. Pin them to intended behaviour so a future logic change that breaks that intent fails an existing test (regression protection).
 
 ### Coding-plan assessment
-For non-trivial plans that write or change code, carry a one-line, falsifiable note per axis — simplicity, over-engineering, logic/correctness, UX, performance — each naming a concrete concern. Flag only axes that would change the plan; stay silent on the rest rather than writing 'Fine'/'N/A' filler. Skip the assessment entirely for trivial or mechanical edits.
+For non-trivial plans that write or change code, carry a one-line, falsifiable note per axis — simplicity, over-engineering, logic/correctness, UX, performance, verification plan. A note is a concrete concern or a specific reason the axis is a non-issue; bare 'Fine'/'N/A' fails. The verification-plan axis names the commands or tests that will demonstrate correctness, chosen before implementing. Skip the assessment entirely for trivial or mechanical edits.
 
 ### Edit surface
 - Edit only what the request requires. Don't refactor adjacent code, "improve" formatting, or rewrite comments you didn't touch.

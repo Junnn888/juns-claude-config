@@ -106,6 +106,34 @@ shipped: `coderabbit` (left to per-user opt-in), `skipWorkflowUsageWarning`, `ag
 
 ---
 
+## Layer 1+2 addendum — six-axis plan gate & hardened git rule (2026-07-08)
+
+Applied from the 2026-07-08 config audit (audit, playbook, and eval kit kept
+privately outside this repo, in `~/claude-fable-kit/`).
+
+**Plan gate reconciled and extended.** The CLAUDE.md rubric ("stay silent on fine
+axes") contradicted the ExitPlanMode hook ("silence fails") — a deterministic
+deny-loop, acute on literal models. Resolution: a note is now a concrete concern
+*or* a specific reason the axis is a non-issue; silence fails. A sixth axis —
+**verification plan** (the commands/tests that will demonstrate correctness, named
+before implementing) — was added to both rubric and hook prompt: unprompted
+verification is the largest Fable-vs-fallback gap (PLAYBOOK.md §1), and plan-exit
+is the one deterministic moment to demand it.
+
+**`safety-bash.sh` rule 1 hardened.** Named bypass: `git -C <path> commit` /
+`git -c k=v commit` (subcommand not adjacent to `git`); named false positives:
+quoted/argument-position matches (`echo git commit …`, `printf 'note: git push …'`).
+Fix: strip quoted segments, anchor to command position (start or after `;&|(`,
+allowing `VAR=val` prefixes), tolerate dash-flags with an optional value argument
+before the subcommand. Verified against a 13-case block/allow harness (in the
+private eval kit, `04-hook-hardening`) plus 12 sanity cases across the other rule
+categories. Those other rules
+still match the raw lowercased string — migrating each to the stripped form needs
+its own harness cases per category, deliberately not done as a drive-by. Known
+residual (documented, accepted): `bash -c "…"`, `xargs`, `eval` remain regex-unclosable.
+
+---
+
 ## Deferred — response verbosity (2026-06-05)
 
 **Symptom.** Under ultracode / high-effort modes on Opus 4.8, responses run verbose — lines of

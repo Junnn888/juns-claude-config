@@ -49,7 +49,7 @@
         "hooks": [
           {
             "type": "prompt",
-            "prompt": "You are reviewing a coding plan before it executes. The plan is in the hook input under tool_input.plan (the input JSON is in $ARGUMENTS). Check ONLY that each of the five axes — simplicity, over-engineering, logic/correctness, UX, performance — is addressed in the plan with a SPECIFIC, falsifiable note: a concrete concern, or a specific reason it's a non-issue. 'Fine', 'N/A', or silence on an axis fails. You are NOT judging whether the plan is good, and you CANNOT verify performance or correctness against the real codebase — only whether the assessment was actually done. If every axis has a specific note, approve. Otherwise deny and list each axis that is missing or hand-waved.",
+            "prompt": "You are reviewing a coding plan before it executes. The plan is in the hook input under tool_input.plan (the input JSON is in $ARGUMENTS). Check ONLY that each of the six axes — simplicity, over-engineering, logic/correctness, UX, performance, verification plan — is addressed with a SPECIFIC, falsifiable note: a concrete concern, or a specific reason it's a non-issue. For the verification-plan axis the plan must name the concrete commands or tests that will demonstrate correctness, or state specifically why none apply. 'Fine', 'N/A', or silence on an axis fails. You are NOT judging whether the plan is good, and you CANNOT verify performance or correctness against the real codebase — only whether the assessment was actually done. If every axis has a specific note, approve. Otherwise deny and list each axis that is missing or hand-waved.",
             "model": "sonnet"
           }
         ]
