@@ -129,7 +129,11 @@ before the subcommand. Verified against a 13-case block/allow harness (in the
 private eval kit, `04-hook-hardening`) plus 12 sanity cases across the other rule
 categories. Those other rules
 still match the raw lowercased string — migrating each to the stripped form needs
-its own harness cases per category, deliberately not done as a drive-by. Known
+its own harness cases per category, deliberately not done as a drive-by.
+(2026-07-09: rule 9 — `gh`/CI — was migrated after a live false positive: with no
+anchor, "hi**gh run**" inside quoted text matched `gh run`. Same fix shape, 9-case
+harness + 13/13 regression. Rules 2-8 remain on the raw string, pending the same
+treatment.) Known
 residual (documented, accepted): `bash -c "…"`, `xargs`, `eval` remain regex-unclosable.
 
 ---

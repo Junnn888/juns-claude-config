@@ -106,8 +106,9 @@ echo "$lc" | grep -Eq '>>?[[:space:]]*~?/?\.?(zshrc|bashrc|bash_profile|profile)
 echo "$lc" | grep -Eq '(^|[;&| ])(shutdown|reboot|kill[[:space:]]+-9|killall|chsh)([[:space:]]|$)' \
   && block "system" "system control command is user-only"
 
-# 9. CI / automation
-echo "$lc" | grep -Eq 'gh[[:space:]]+(workflow[[:space:]]+run|run[[:space:]]|secret[[:space:]]|api.*-x[[:space:]]*(post|put|delete))' \
+# 9. CI / automation — command-position anchored on the quote-stripped string:
+# the bare pattern matched "gh" as a word suffix ("high run" → "gh run")
+echo "$stripped" | grep -Eq "${CMD_POS}gh[[:space:]]+(workflow[[:space:]]+run|run[[:space:]]|secret[[:space:]]|api.*-x[[:space:]]*(post|put|delete))" \
   && block "ci-automation" "CI/automation mutation is user-only"
 
 exit 0
