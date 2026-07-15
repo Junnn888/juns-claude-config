@@ -88,5 +88,14 @@ EOF
 )"
 ```
 
-- **Title:** a concise imperative summary of the branch's changes (not the raw branch name).
-- After creation, output the PR URL and the filled template in a single ` ```markdown ` code fence.
+- **Title:** a concise imperative summary of the branch's changes (not the raw branch name), prefixed by the change type. Derive the prefix from the dominant checked Type of Change:
+  - New feature → `Feature: `
+  - Bug fix → `Bugfix: `
+  - Enhancement to existing feature → `Enhancement: `
+  - Refactoring → `Refactor: `
+  - Documentation → `Docs: `
+  - CI / build configuration → `CI: `
+  - Small corrective change that fits none of the above → `Patch: `
+
+  If multiple types are checked, pick the one that best describes the PR's primary purpose — exactly one prefix.
+- After creation, output only the PR URL — do not print the filled template.
