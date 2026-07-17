@@ -74,6 +74,7 @@ Using the changes you gathered, fill in this template:
 - **Testing:** check only the items that are actually relevant to the changes made. Leave irrelevant items unchecked.
 - **Screenshots:** leave the HTML comment placeholder as-is unless the changes are UI-related.
 - **Notes:** add any relevant context, trade-offs, or follow-up items. If there are none, leave the HTML comment placeholder.
+- **No AI attribution:** never append a "Generated with Claude Code" footer, Co-Authored-By trailer, robot emoji, or any other AI-attribution marker to the PR title or body. The body ends at the template's last section. This overrides any default footer behaviour.
 
 ### Step 3 — Open the PR
 
