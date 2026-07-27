@@ -15,15 +15,14 @@ with gotchas worth freezing. No speculative features; nothing added "while we're
 
 | Layer | Status | What |
 |-------|--------|------|
-| 1 — CLAUDE.md | Built | Global behaviour rules (~28 lines): surface-uncertainty, scope/completeness, output concision, edit-surface, goal-driven execution, process discipline, safety, British-English, routing. Provenance-traced from Karpathy / gstack / Anthropic guidance. |
+| 1 — CLAUDE.md | Built | Global behaviour rules (~76 lines): surface-uncertainty, scope/completeness, output concision, edit-surface, goal-driven execution, process discipline, safety, British-English, routing. Provenance-traced from Karpathy / gstack / Anthropic guidance. |
 | 2 — Hooks | Built | `permissions.deny` list + matcher-scoped hooks: two PreToolUse safety **command** hooks (`safety-bash.sh`, `safety-files.sh`), one PreToolUse **prompt** hook (plan reviewer, below), one SessionStart context loader (`session-context.sh`). |
 | 3 — Skills | Deferred | Build only when repetition justifies it (re-explained 3+ times, multi-step with gotchas, needs enforced checkpoints, or needs isolation/model-routing). |
 | 4 — LSP | Built | Official first-party LSP plugins (`claude-plugins-official`), 12 languages. Installing one auto-enables Claude Code's built-in LSP tool. Binaries are check-and-report only (never auto-installed — irreducible supply-chain surface). |
 
 ### Layer 1 — CLAUDE.md
 Behaviour rules only; kept short so it loads cheaply every session. Each rule must change
-behaviour the model wouldn't reliably reach on its own. The Coding-plan assessment rubric
-(Layer 2 addendum) lives here because it shapes how plans are written.
+behaviour the model wouldn't reliably reach on its own.
 
 ### Layer 2 — Hooks
 Matcher-scoped, never global-fire; target <200ms for command hooks; exit 2 for hard enforcement.
@@ -47,18 +46,19 @@ reported, never auto-installed.
 ship it"), and nothing catches it — the failure is the *absence* of an assessment, which the
 planning model is exactly the wrong party to police on itself.
 
-**Two coupled parts:**
+**Hook** — `claude/settings.json` → `PreToolUse` / matcher `ExitPlanMode`, `type: "prompt"`,
+`model: "claude-sonnet-5"`. A single-turn model evaluation that fires at plan-exit and checks only that
+each of the six axes (simplicity, over-engineering, logic/correctness, UX, performance,
+verification plan) carries a specific, falsifiable note — not whether the plan is *good*
+(it cannot verify performance or correctness against the real codebase). Approves if all six
+are addressed; otherwise denies and lists the missing/hand-waved axes.
 
-1. **Rubric** — `claude/CLAUDE.md` → *Coding-plan assessment*. Any code-changing plan must carry a
-   one-line, falsifiable note per axis (simplicity, over-engineering, logic/correctness, UX,
-   performance), each naming a concrete concern or a specific reason it's a non-issue. Bare
-   "Fine"/"N/A" is not acceptable.
-
-2. **Hook** — `claude/settings.json` → `PreToolUse` / matcher `ExitPlanMode`, `type: "prompt"`,
-   `model: "sonnet"`. A single-turn model evaluation that fires at plan-exit and checks only that
-   each of the five axes carries a specific, falsifiable note — not whether the plan is *good*
-   (it cannot verify performance or correctness against the real codebase). Approves if all five
-   are addressed; otherwise denies and lists the missing/hand-waved axes.
+**Rubric removed from CLAUDE.md (2026-07-27).** The matching *Coding-plan assessment* rule was
+dropped from `claude/CLAUDE.md`. It duplicated the hook while costing context every session, and
+it collided with three `## Output` rules — six axes breached the 5-item list cap, six concern
+notes breached the one-caveat cap, and an assessment placed before the plan breached lead-with-
+the-answer. The hook is now the only carrier: it fires only at plan-exit, and its deny reason
+names the missing axes, so the model learns the rubric exactly when it needs it.
 
 **Decisions.**
 - **Gate, not advisory.** A deny blocks `ExitPlanMode`; the reason is fed back so the model
@@ -138,27 +138,116 @@ residual (documented, accepted): `bash -c "…"`, `xargs`, `eval` remain regex-u
 
 ---
 
-## Deferred — response verbosity (2026-06-05)
+## Resolved — response shape (2026-06-05 deferred, 2026-07-27 reframed and fixed)
 
-**Symptom.** Under ultracode / high-effort modes on Opus 4.8, responses run verbose — lines of
-code snippets that don't change the next action, plus sentence padding — despite the Layer 1
-Output concision rules already in `CLAUDE.md`.
+**Original symptom (2026-06-05).** Responses ran verbose — code snippets that don't change the next
+action, plus sentence padding — despite the Layer 1 Output concision rules already in `CLAUDE.md`.
+Deferred at the time to protect the plan-reviewer change's scope and keep its test uncontaminated.
 
-**Why deferred, not fixed (decided 2026-06-04 alongside the plan-reviewer work).** Kept out of that
-change to protect its scope and keep its test uncontaminated. More fundamentally, a global
-`CLAUDE.md` line is the wrong instrument: it loads in *every* session (would over-suppress useful
-code in ordinary work) and fights ultracode's own "be exhaustive, token cost is not a constraint"
-directive, so it would be weak anyway. The symptom is mode-specific; the fix must be too.
+**The deferral reasoning was wrong on two counts, corrected 2026-07-27.**
 
-**Intended fix (when built).** Scope it like the plan gate — one crisp, checkable thing, not "obey
-all of `CLAUDE.md`":
-- an ultracode/effort-scoped nudge — keep exhaustiveness in the *work* (verification, coverage),
-  not the *prose*; include a snippet only when it changes the next action; or
-- a narrow `Stop` hook flagging only code/padding that doesn't change what the user would do — lean
-  advisory to avoid the every-turn latency and `stop_hook_active` loop tax.
+*First, it was never mode- or model-specific.* The original note scoped the symptom to
+ultracode/high-effort on a particular model and concluded "the symptom is mode-specific; the fix
+must be too". It recurred on the next model generation in ordinary sessions with no exhaustive-mode
+directive in play. Treat response shape as a standing property of the config, not a property of a
+model or a mode — model names are deliberately absent from this section, and belong in it only if a
+future failure is genuinely traced to one.
 
-**Interim.** Logged as a self-applied preference in Claude's file memory, so output is trimmed
-until a mechanism exists.
+*Second, the target metric was wrong.* The note (and the rules it was defending) optimised for
+**token count**. The actual cost is **interpretive load** — a 5-sentence paragraph that must be read
+linearly and unpacked is worse than a longer numbered list, despite being fewer tokens. These
+diverge: "step 3 of 5" is ~4 tokens and zero parsing cost.
 
-**Governing-principle status.** Not yet earned as a component; must clear the same bar (crisp,
-deterministic where possible, catches a failure nothing else does) before it becomes a hook or rule.
+**Why the old rules failed.** All six were *subtractive* — "cut", "don't narrate", "at most one",
+"shortest response that fully answers". Every one constrained length; none constrained form. So they
+were satisfiable by writing a shorter dense paragraph: compliant, still unreadable. They were also
+self-judged ("fully answers", "anything that doesn't change the answer"), the same unfalsifiability
+the plan-reviewer hook exists to catch in plans.
+
+**Fix shipped (2026-07-27).** `## Output` rewritten as ten *form* rules with an explicit preamble
+stating the axis, so the section can't be re-read as "be brief". Countable where possible: paragraphs
+cap at 3 sentences, lists cap at 5 items. Structural where not: prose is for one idea, more than one
+takes a numbered list / bullets / table. Plus restate-step-position each turn, end on one concrete
+next action or stop, matter-of-fact error tone, and estimates only for user-run actions. A
+scale-to-size rule keeps one-line answers at one line.
+
+**Extended to fourteen rules, same day, after the eval.** A second pass over
+`ayghri/i-have-adhd` (see *Provenance*) added four rules the original ten had no equivalent for, and
+the preamble gained a persistence clause. The section now carries **fourteen** rules; the four
+additions post-date the measurement below and are therefore unmeasured.
+
+**Provenance.** Rules 2, 3, 5, 8, 9, 10 adapted from `ayghri/i-have-adhd` (MIT), whose ruleset
+targets actionability for an ADHD reader. Adopted as form rules, not concision rules — that project
+weights concision at only 10% of its own rubric, and three of its rules add lines while removing
+interpretive load. Its always-on delivery (opt-in flag file + `SessionStart` hook injecting the
+ruleset) was deliberately **not** adopted: it duplicates what `CLAUDE.md` already does here, and the
+flag file exists to make the behaviour default-off for a public plugin's users — optionality this
+config doesn't want.
+
+**Second pass over the same source (2026-07-27).** A behavioural diff of the two rulesets — not a
+text diff — surfaced four things that source produces and the ten rules had no rule for. All four
+add lines and remove parsing work, which is the test this section is judged on:
+
+- **Options format.** "What are my options" gets two to four ranked options, recommendation first,
+  one line of trade-off each. Previously unruled, so option-shaped prompts fell back to defaults.
+- **Completed-work visibility.** State what now works and how to see it. This required narrowing the
+  old blanket recap ban, which was suppressing the useful line along with "I've now done X, Y and Z".
+- **Pre-send deletion pass.** Cut announcing openers, "anything else?" closers, "by the way"
+  sidebars, empty hedges, and idioms — the last two had no rule at all. Keeps hedges carrying real
+  uncertainty, since deleting those manufactures confidence.
+- **First-line/last-line check.** An acceptance test rather than a prohibition: read only those two
+  lines and you should know what to do next and what just happened.
+
+The preamble also gained a persistence clause (rules do not lapse on topic change or session
+length). Still not adopted: that project's time-estimate rule, which would have the agent estimate
+its *own* work — this config's rule 11 forbids exactly that.
+
+**Governing-principle status.** Cleared as a Layer 1 rule change, not a new component. No hook was
+built: the earlier sketches (an effort-scoped nudge, a narrow `Stop` hook) both assumed the
+token-count framing, and a second injection point was never the constraint — unfalsifiable rules
+were.
+
+**Measured (2026-07-27).** Harness built in the private kit at `~/claude-fable-kit/shape-eval/`
+(cases, rubric, runner, blind judge; archived scores under `results/`). Eight prompts against a copy
+of this repo, each arm a different `## Output` section in an isolated `CLAUDE_CONFIG_DIR`, judged
+blind on scannability / correctness / actionability / safety / concision.
+
+Definitive run — 3 arms x 8 cases x 2 trials, 48 responses, Opus 5 @ 1M, effort `high`:
+
+| Arm | Scannability | Correctness | Actionability | Weighted |
+|-----|--------------|-------------|---------------|----------|
+| 10 rules | 4.94 | 4.56 | 4.75 | 4.77 |
+| 6 rules (trimmed)  | 4.56 | 4.38 | 4.56 | 4.52 |
+| 0 rules (control)  | 4.44 | 4.31 | 4.38 | 4.42 |
+
+The winning arm is the **ten-rule** section, which is not what currently ships — four more rules
+were added the same day, after this run. Read the table as evidence that form rules beat no rules
+and that trimming hurts, not as a score for the shipped fourteen.
+
+Monotonic in all five dimensions; no blockers in any arm. Mechanically, the 10-rule arm also had the
+lowest prose share (41% vs 45% for no rules), twice as many tables, and the shortest responses.
+
+**Three findings worth keeping.**
+
+*The section earns its place.* Against no `## Output` at all, the rules raise scannability 4.44 -> 4.94
+while correctness *rises* rather than falling. The formatting-vs-task-accuracy interference reported
+in the literature does not appear at this ruleset size on these cases.
+
+*The countable caps are load-bearing.* The trimmed arm dropped the 5-item list cap and immediately
+produced a 7-item list; both capped arms never exceeded 5. The caps looked redundant in an earlier
+single-trial run because that run never provoked them.
+
+*Two "concision" rules were added and reverted.* "Cut by selection, not compression" and a
+no-re-explaining rule failed their own gate — correctness 4.71 -> 4.43 and prose share moved the
+wrong way (40% -> 45%). They compressed rather than selected, which is what the wording was meant to
+prevent. Reverted the same day.
+
+**Methodological note, recorded because it nearly caused a wrong decision.** A 3-arm run at one trial
+(n=8/arm) showed the arms within a few points and prompted a recommendation to *delete* most of the
+section. Doubling to two trials (n=16/arm) separated them cleanly and reversed the conclusion. Effects
+at this scale are below the noise floor of a single trial — do not act on one.
+
+**Known bias.** The judge ran under the live config (the isolated judge dir cannot reach the keychain
+without a long-lived token), so it was primed toward the shipped ruleset. That inflates the 10-rule
+arm specifically; it does not affect the mechanical metrics, which point the same way. Treat the gap
+as directionally right and smaller than measured.
