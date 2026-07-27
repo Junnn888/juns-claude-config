@@ -126,14 +126,14 @@ config installed.
 
 | File | Purpose |
 |---|---|
-| `CLAUDE.md` | Global behaviour (Karpathy 4 + gstack nudges), scoped British-English rule, routing rules. ~76 lines, loads every session. |
+| `CLAUDE.md` | Global behaviour (Karpathy 4 + gstack nudges), scoped British-English rule, routing rules. ~69 lines, loads every session. |
+| `skills/notes-routing/` | On-demand skill: where markdown lives (committed repo docs vs Tolaria vaults). Description loads every session; body only when the task matches. |
 | `settings.json` | Coarse `permissions.deny` list + wiring for the three hooks + status-line wiring + enabled plugins. |
 | `statusLine.sh` | Status line showing model · token count · context-window %. Needs `jq`; prints nothing without it. |
 | `hooks/safety-bash.sh` | PreToolUse (Bash). Hard-blocks 9 categories of dangerous command (git state, DB/migrations, destructive FS, deploy, secrets, dep-adds, mutating HTTP, system, CI). Agent blocked → you run it yourself. |
 | `hooks/safety-files.sh` | PreToolUse (Write/Edit). Blocks edits to `.env*`, keys, credential files. |
 | `hooks/session-context.sh` | SessionStart. Injects branch + dirty state + last 5 commits. Minimal by design. |
 | `settings.json` → PreToolUse(`ExitPlanMode`) | Inline **prompt hook** (Sonnet, not a `.sh` file). At plan-exit it blocks a code plan unless each of the six axes — simplicity, over-engineering, logic, UX, performance, verification plan — carries a falsifiable note; the deny reason is fed back so Claude revises. Sole carrier of the rubric; the CLAUDE.md duplicate was removed. |
-| `LEARNINGS.md` | Manual lesson-capture log (deliberately not a skill or auto-reflector). |
 | `mcp.json` | Tolaria MCP server. Only installed when `/Applications/Tolaria.app` exists, and never overwrites an existing `mcp.json`. |
 
 ## LSP layer

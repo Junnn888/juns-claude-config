@@ -35,8 +35,7 @@ These are rules about the *shape* of a response, not its length. A short dense p
 - Remove only the orphans your change created. Leave pre-existing dead code alone — mention it, don't delete.
 
 ### Execution
-- Verify against the success criteria before declaring done.
-- Run tests/typecheck/lint where applicable. Treat exit 0 as a starting point, not proof of correctness.
+- Run tests/typecheck/lint where applicable.
 - Investigate the root cause before attempting any fix. If three attempts still haven't worked, stop and rethink rather than retry.
 - Track multi-step work with the todo tool and let it show progress. Where a response needs to convey position, use the one-line restatement from the Output rules — never prose commentary on what was completed or skipped.
 
@@ -68,9 +67,3 @@ These are rules about the *shape* of a response, not its length. A short dense p
 
 ### External tools
 - Use installed browse/web-search skills for web access. Don't reach for ad-hoc alternatives when a curated skill exists.
-
-## Markdown lives in two places — check both
-- **Committed repo `.md`** (README, AGENTS.md, CONTRIBUTING, `docs/`, `.planning/`, `.claude/rules`, ADRs) is authoritative for that project — read it for architecture, conventions, specs, and design docs. It travels with the code; treat it as first-class, not secondary to Tolaria.
-- **Tolaria MCP vaults (Work, Personal)** hold my personal, cross-project markdown I deliberately keep out of repos — planning, triage, research, meeting notes.
-- When I ask "where did we track X" / about notes or planning: search whichever fits, and if one comes up empty, try the other (`search_notes` for Tolaria) before concluding it's lost. Don't skip committed repo docs just because a topic sounds like "notes", and don't assume repo-only when it may be a personal Tolaria note.
-- If the Tolaria MCP isn't connected in a session, say so rather than concluding a note doesn't exist.

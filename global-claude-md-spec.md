@@ -15,9 +15,9 @@ with gotchas worth freezing. No speculative features; nothing added "while we're
 
 | Layer | Status | What |
 |-------|--------|------|
-| 1 — CLAUDE.md | Built | Global behaviour rules (~76 lines): surface-uncertainty, scope/completeness, output concision, edit-surface, goal-driven execution, process discipline, safety, British-English, routing. Provenance-traced from Karpathy / gstack / Anthropic guidance. |
+| 1 — CLAUDE.md | Built | Global behaviour rules (~69 lines): surface-uncertainty, scope/completeness, output concision, edit-surface, goal-driven execution, process discipline, safety, British-English, routing. Provenance-traced from Karpathy / gstack / Anthropic guidance. |
 | 2 — Hooks | Built | `permissions.deny` list + matcher-scoped hooks: two PreToolUse safety **command** hooks (`safety-bash.sh`, `safety-files.sh`), one PreToolUse **prompt** hook (plan reviewer, below), one SessionStart context loader (`session-context.sh`). |
-| 3 — Skills | Deferred | Build only when repetition justifies it (re-explained 3+ times, multi-step with gotchas, needs enforced checkpoints, or needs isolation/model-routing). |
+| 3 — Skills | Built | 1 skill (`notes-routing`). Two qualifying triggers: a workflow repeated 3+ times with gotchas / checkpoints / isolation, **or** situational reference material that would otherwise sit always-on in CLAUDE.md (added 2026-07-27, below). |
 | 4 — LSP | Built | Official first-party LSP plugins (`claude-plugins-official`), 12 languages. Installing one auto-enables Claude Code's built-in LSP tool. Binaries are check-and-report only (never auto-installed — irreducible supply-chain surface). |
 
 ### Layer 1 — CLAUDE.md
@@ -90,6 +90,13 @@ still change the outcome, using an independent model the planner can't talk past
 **Cost.** Matcher-scoped to `ExitPlanMode` → zero overhead on normal turns, Bash, or edits. One
 Sonnet single-turn eval per plan-exit.
 
+**Post-migration watch (2026-07-27).** The gate is unvalidated against the current planner
+generation (the judge model, Sonnet 5, did not change in the migration — only the planner did).
+The check it performs is presence-of-assessment, which is planner-independent, so no harness is
+being built pre-emptively. Watch condition: if the gate denies a plan twice in a row on the same
+axes, or starts denying plans that visibly address all six, record the transcript and revisit —
+that is the deny-loop failure the 2026-07-08 reconciliation existed to prevent.
+
 ---
 
 ## Layer 2 addendum — status line & settings sync (2026-06-25)
@@ -99,7 +106,7 @@ status JSON via `jq`; wired through `settings.json` → `statusLine` (command ty
 statusLine.sh`). `install.sh` copies it to `~/.claude/` and `chmod +x`; `jq` is already a documented
 prerequisite, and the script prints nothing without it (graceful degrade, no error).
 
-**Settings folded in from live config.** `model: opus[1m]`, `effortLevel: high`, `tui: fullscreen`,
+**Settings folded in from live config.** `effortLevel: high`, `tui: fullscreen`,
 and an `enabledPlugins` block (12 LSP + `frontend-design` + `code-simplifier`). Deliberately **not**
 shipped: `coderabbit` (left to per-user opt-in), `skipWorkflowUsageWarning`, `agentPushNotifEnabled`
 (personal UX prefs). The two non-LSP plugins are pre-installed by `install.sh` alongside the LSP loop.
@@ -251,3 +258,59 @@ at this scale are below the noise floor of a single trial — do not act on one.
 without a long-lived token), so it was primed toward the shipped ruleset. That inflates the 10-rule
 arm specifically; it does not affect the mechanical metrics, which point the same way. Treat the gap
 as directionally right and smaller than measured.
+
+---
+
+## Removed — default model pin (2026-07-27)
+
+`settings.json` no longer ships a `model` key. The config is model-agnostic by design: the
+user picks the model per task (`/model`, which persists their own default), and a shipped pin
+silently overwrote that choice on every reinstall — which happened in practice the day this
+was removed. Everything the config enforces (hooks, deny list, plan gate, output rules) is
+written to work on any model; the only pinned model anywhere is the plan-gate judge
+(`claude-sonnet-5`, alias form), which is a hook implementation detail, not the user's
+working model. Model-conditional tuning decisions (effort, rule deletions) go through the
+eval kit against whichever model the user actually runs, not through shipped defaults.
+
+## Removed — LEARNINGS.md (2026-07-27)
+
+The manual lesson-capture log shipped in May was deleted from the repo and the installed
+config: zero entries in ten weeks, and Claude Code's auto-memory now captures the same
+material with less friction. The promote-to-CLAUDE.md loop it existed for never ran once,
+so the component fails the governing principle — it caught nothing that nothing else
+catches. `install.sh`, `uninstall.sh`, and the README were updated to match.
+
+---
+
+## Layer 1→3 — Tolaria routing moved to a skill (2026-07-27)
+
+The "Markdown lives in two places" block (5 lines, ~700 bytes) was removed from `CLAUDE.md`
+and reinstated as `claude/skills/notes-routing/`. It is routing knowledge that only applies
+when Jun asks where something was tracked, but it was loading in every session of every
+project. A path-scoped `.claude/rules/` entry was rejected: rules trigger on file paths, and
+this triggers on a *question type*, so a scoped rule would never fire.
+
+**Principle amendment.** Layer 3 previously admitted only repeated workflows. It now also
+admits situational reference material displaced from CLAUDE.md. The workflow bar is
+unchanged — this widening covers content that already earned its place, only at the wrong
+layer, and does not license new workflow skills below the 3+ repetition bar.
+
+**Cost.** ~175 tokens per request always-on becomes ~25 tokens (the description) plus an
+on-demand body load. The saving is small; the reason to do it is that Tolaria-specific
+routing was loading into unrelated projects. `install.sh` (skills dir + per-skill copy),
+`uninstall.sh` (targeted removal so a user's own skills survive), the README table and the
+repo `CLAUDE.md` layout list were updated to match.
+
+## Layer 1 — verification rules removed (2026-07-27)
+
+Two `### Execution` rules were deleted: "Verify against the success criteria before declaring
+done" and "Treat exit 0 as a starting point, not proof of correctness." Anthropic's Opus 5
+prompting guidance states that the model verifies its own work unprompted, and that explicit
+verification instructions "cause over-verification on Claude Opus 5, and removing them reduces
+wasted tokens with no loss in quality." "Run tests/typecheck/lint where applicable" was kept —
+it directs which checks to run rather than adding a verification pass on top.
+
+**Open, not closed.** The six-axis plan gate carries the same category of instruction and was
+validated on Opus 4.8 in the July benchmark, before this behaviour changed. It is deliberately
+left in place pending a re-run on Opus 5. Do not treat the CLAUDE.md deletion as settling the
+hook.

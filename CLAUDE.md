@@ -12,21 +12,25 @@ The config is built in layers, each with a governing principle: a component earn
 
 | Layer | Status | What |
 |-------|--------|------|
-| 1 — CLAUDE.md | Built | Global behaviour rules (~28 lines). Provenance-traced from Karpathy/gstack/Anthropic. |
+| 1 — CLAUDE.md | Built | Global behaviour rules (~76 lines). Provenance-traced from Karpathy/gstack/Anthropic. |
 | 2 — Hooks | Built | 2 PreToolUse safety command hooks (Bash dispatcher + file-path guard) + 1 PreToolUse plan-reviewer prompt hook (`ExitPlanMode`) + 1 SessionStart context loader + `permissions.deny` list. |
-| 3 — Skills | Deferred | Skills-layer governing principle locked. Build only when repetition justifies it (re-explained 3+ times, multi-step with gotchas, needs checkpoints or isolation). |
+| 3 — Skills | Built | 1 skill (`notes-routing`). Principle widened 2026-07-27 to admit situational reference material that would otherwise sit always-on in CLAUDE.md. Workflow skills still need the 3+ repetition bar. |
 | 4 — LSP | Built | Official LSP plugins (`claude-plugins-official`), 12 languages. Auto-enables Claude Code's built-in LSP tool. |
 
 Full design decisions and rationale live in `global-claude-md-spec.md`.
 
-## Current repo layout (flat — not yet restructured)
+## Current repo layout
 
-Files at root level. The README documents an intended nested layout (`claude/`) but the repo hasn't been restructured yet.
+Working config files live under `claude/`; install scripts and docs sit at root.
 
 - `install.sh` — installs config to `~/.claude/`, backs up existing, runs LSP doctor
 - `uninstall.sh` — restores backup or removes installed files
-- `settings.json` — permissions.deny + hook wiring + status-line wiring + enabled plugins
-- `claude/statusLine.sh` — status line (model · token count · context %); installed to `~/.claude/`, needs `jq`
+- `claude/CLAUDE.md` — the global behaviour rules installed to `~/.claude/`
+- `claude/settings.json` — permissions.deny + hook wiring + status-line wiring + enabled plugins
+- `claude/hooks/` — the three safety/context hooks; `claude/commands/` — custom slash commands
+- `claude/skills/` — on-demand skills installed to `~/.claude/skills/`
+- `claude/statusLine.sh` — status line (model · token count · context %); needs `jq`
+- `claude/mcp.json` — Tolaria MCP server config (installed only when Tolaria.app exists)
 - `global-claude-md-spec.md` — full design spec (layers 1-4, all decisions, provenance)
 - `README.md` — user-facing install/usage docs
 

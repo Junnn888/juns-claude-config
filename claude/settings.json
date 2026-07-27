@@ -1,6 +1,20 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "permissions": {
+    "allow": [
+      "Bash(bun run test)",
+      "Bash(bun run test *)",
+      "Bash(bun run lint)",
+      "Bash(bun run lint *)",
+      "Bash(bun run typecheck)",
+      "Bash(bun run typecheck *)",
+      "Bash(bunx tsc --noEmit)",
+      "Bash(bunx tsc --noEmit *)",
+      "Bash(bunx prettier --check *)",
+      "mcp__tolaria__get_note",
+      "mcp__tolaria__search_notes",
+      "mcp__tolaria__list_vaults"
+    ],
     "deny": [
       "Bash(git push:*)",
       "Bash(git commit:*)",
@@ -11,7 +25,7 @@
       "Bash(rm -rf:*)",
       "Bash(rm -fr:*)",
       "Bash(sudo:*)",
-      "Bash(curl *)",
+      "Bash(curl:*)",
       "Bash(npm publish:*)",
       "Read(./.env)",
       "Read(./.env.*)",
@@ -23,7 +37,6 @@
       "Edit(./**/.env.*)"
     ]
   },
-  "model": "claude-fable-5[1m]",
   "attribution": {
     "commit": "",
     "pr": ""

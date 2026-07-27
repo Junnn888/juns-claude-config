@@ -34,6 +34,7 @@ fi
 
 mkdir -p "$CLAUDE_DIR/hooks"
 mkdir -p "$CLAUDE_DIR/commands"
+mkdir -p "$CLAUDE_DIR/skills"
 
 echo "==> Installing CLAUDE.md"
 cp "$SRC/CLAUDE.md" "$CLAUDE_DIR/CLAUDE.md"
@@ -54,12 +55,9 @@ chmod +x "$CLAUDE_DIR/hooks/"*.sh
 echo "==> Installing commands"
 cp "$SRC/commands/"*.md "$CLAUDE_DIR/commands/" 2>/dev/null || true
 
-if [ -f "$CLAUDE_DIR/LEARNINGS.md" ]; then
-  echo "==> LEARNINGS.md already exists — leaving your copy untouched."
-else
-  echo "==> Installing LEARNINGS.md"
-  cp "$SRC/LEARNINGS.md" "$CLAUDE_DIR/LEARNINGS.md"
-fi
+# Copied per-skill rather than wholesale so a user's own skills survive.
+echo "==> Installing skills"
+cp -a "$SRC/skills/"*/ "$CLAUDE_DIR/skills/" 2>/dev/null || true
 
 # Tolaria MCP server: only wired up on machines that actually have Tolaria,
 # and never clobbers an existing mcp.json (it may hold other servers).
@@ -146,8 +144,8 @@ echo "  - CLAUDE.md            global behaviour/language/routing config"
 echo "  - settings.json        permissions.deny + hook wiring + status line"
 echo "  - statusLine.sh        model · token-count · context-% status line (needs jq)"
 echo "  - commands/              custom slash commands (e.g. /pr-branch)"
+echo "  - skills/notes-routing   where markdown lives (repo docs vs Tolaria vaults)"
 echo "  - hooks/safety-bash.sh, safety-files.sh, session-context.sh"
-echo "  - LEARNINGS.md         manual lesson-capture log"
 echo "  - mcp.json             Tolaria MCP server (only if Tolaria.app is installed)"
 echo "  - plugins              12 official LSP servers + frontend-design + code-simplifier + coderabbit"
 echo "Start a new Claude Code session for changes to take effect."
