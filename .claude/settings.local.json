@@ -3,7 +3,6 @@
     "allow": [
       "WebSearch",
       "WebFetch(domain:docs.claude.com)",
-      "Read(//Users/bryanlim/.claude/skills/review/**)",
       "Read(//Users/bryanlim/.claude/**)"
     ]
   }

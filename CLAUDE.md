@@ -1,6 +1,6 @@
 # juns-claude-config
 
-Portable Claude Code configuration repo. Installs a global `~/.claude/` setup via `curl | bash`: locked CLAUDE.md (behaviour rules), deny-list + safety hooks, session-context loader, and official LSP plugins.
+Portable Claude Code configuration repo. Installs a global `~/.claude/` setup via `curl | bash`: locked CLAUDE.md (behaviour rules), deny-list + safety hooks, and official LSP plugins.
 
 ## Repo purpose
 
@@ -12,27 +12,14 @@ The config is built in layers, each with a governing principle: a component earn
 
 | Layer | Status | What |
 |-------|--------|------|
-| 1 — CLAUDE.md | Built | Global behaviour rules (~76 lines). Provenance-traced from Karpathy/gstack/Anthropic. |
-| 2 — Hooks | Built | 2 PreToolUse safety command hooks (Bash dispatcher + file-path guard) + 1 PreToolUse plan-reviewer prompt hook (`ExitPlanMode`) + 1 SessionStart context loader + `permissions.deny` list. |
+| 1 — CLAUDE.md | Built | Global behaviour rules and output preferences. Provenance-traced from Karpathy/gstack/Anthropic. |
+| 2 — Hooks | Built | 2 PreToolUse safety command hooks (Bash dispatcher + file-path guard) + `permissions.deny` list. |
 | 3 — Skills | Built | 1 skill (`notes-routing`). Principle widened 2026-07-27 to admit situational reference material that would otherwise sit always-on in CLAUDE.md. Workflow skills still need the 3+ repetition bar. |
 | 4 — LSP | Built | Official LSP plugins (`claude-plugins-official`), 12 languages. Auto-enables Claude Code's built-in LSP tool. |
 
 Full design decisions and rationale live in `global-claude-md-spec.md`.
 
-## Current repo layout
-
-Working config files live under `claude/`; install scripts and docs sit at root.
-
-- `install.sh` — installs config to `~/.claude/`, backs up existing, runs LSP doctor
-- `uninstall.sh` — restores backup or removes installed files
-- `claude/CLAUDE.md` — the global behaviour rules installed to `~/.claude/`
-- `claude/settings.json` — permissions.deny + hook wiring + status-line wiring + enabled plugins
-- `claude/hooks/` — the three safety/context hooks; `claude/commands/` — custom slash commands
-- `claude/skills/` — on-demand skills installed to `~/.claude/skills/`
-- `claude/statusLine.sh` — status line (model · token count · context %); needs `jq`
-- `claude/mcp.json` — Tolaria MCP server config (installed only when Tolaria.app exists)
-- `global-claude-md-spec.md` — full design spec (layers 1-4, all decisions, provenance)
-- `README.md` — user-facing install/usage docs
+Working config files live under `claude/` and are installed to `~/.claude/`; install scripts and docs sit at root.
 
 ## Development principles
 
@@ -42,17 +29,10 @@ Working config files live under `claude/`; install scripts and docs sit at root.
 - **Deny-list is belt-and-braces:** hooks are the real enforcement. Deny patterns are fragile (can't cover subprocesses).
 - **No speculative features.** If you're tempted to add something "while we're here," don't. It must pass the governing principle first.
 
-## When adding a new skill
+## Adding components
 
-1. Validate against the skills-layer governing principle (see `global-claude-md-spec.md`, Layer 3).
-2. The skill must satisfy at least one: genuinely repeated workflow, multi-step with gotchas worth freezing, needs enforced checkpoints, or needs isolation/model-routing.
-3. If it passes, add the skill and update `global-claude-md-spec.md` with the decision and rationale.
-
-## When adding a new LSP language
-
-1. Add the plugin name (`<name>-lsp`) to the `LSP_PLUGINS` array in `install.sh`.
-2. Add a matching `lsp_check` row in `install.sh` and the README doctor snippet.
-3. Install that language's server binary (the doctor prints the command).
+- New skill: validate against the Layer 3 governing principle in `global-claude-md-spec.md`, then record the decision and rationale there.
+- New LSP language: follow "Adding a new language later" in README's LSP layer section (install.sh array + doctor row + binary).
 
 ## Key references
 

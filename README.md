@@ -51,7 +51,6 @@ only load at session start — nothing applies mid-session.
 
 **4. Smoke-test it:**
 - `claude plugin list` (from anywhere) — should show the official LSP plugins (e.g. `typescript-lsp@claude-plugins-official`), enabled.
-- Start a session in a git repo: the SessionStart context block (branch, dirty status, recent commits) should appear.
 - Ask Claude to `git push` — the safety hook should block it.
 - Open a file in a language whose server you installed — go-to-definition should work.
 
@@ -126,16 +125,14 @@ config installed.
 
 | File | Purpose |
 |---|---|
-| `CLAUDE.md` | Global behaviour (Karpathy 4 + gstack nudges), scoped British-English rule, routing rules. ~69 lines, loads every session. |
+| `CLAUDE.md` | Global behaviour and output preferences (Karpathy 4 + gstack nudges), scoped British-English rule. Loads every session. |
 | `skills/notes-routing/` | On-demand skill: where markdown lives (committed repo docs vs Tolaria vaults). Description loads every session; body only when the task matches. |
-| `settings.json` | Coarse `permissions.deny` list + wiring for the three hooks + status-line wiring + enabled plugins. |
+| `settings.json` | Coarse `permissions.deny` list + wiring for the safety hooks + status-line wiring + enabled plugins. |
 | `statusLine.sh` | Status line showing model · token count · context-window %. Needs `jq`; prints nothing without it. |
 | `hooks/safety-bash.sh` | PreToolUse (Bash). Hard-blocks 9 categories of dangerous command (git state, DB/migrations, destructive FS, deploy, secrets, dep-adds, mutating HTTP, system, CI). Agent blocked → you run it yourself. |
 | `hooks/safety-files.sh` | PreToolUse (Write/Edit). Blocks edits to `.env*`, keys, credential files. |
-| `hooks/session-context.sh` | SessionStart. Injects branch + dirty state + last 5 commits. Minimal by design. |
-| `settings.json` → PreToolUse(`ExitPlanMode`) | Inline **prompt hook** (Sonnet, not a `.sh` file). At plan-exit it blocks a code plan unless each of the six axes — simplicity, over-engineering, logic, UX, performance, verification plan — carries a falsifiable note; the deny reason is fed back so Claude revises. Sole carrier of the rubric; the CLAUDE.md duplicate was removed. |
 | `mcp.json` | Tolaria MCP server. Only installed when `/Applications/Tolaria.app` exists, and never overwrites an existing `mcp.json`. |
-| `commands/` | Custom slash commands: `/pr-branch` (PR message + open PR) and `/fan` (fan a task out to an unrestricted multi-agent workflow with adversarial verification). |
+| `commands/` | Custom slash commands: `/pr-branch` (PR message + open PR) and `/fan` (fan a task out to a multi-agent workflow with adversarial verification). |
 
 ## LSP layer
 
@@ -206,9 +203,6 @@ pre-installed by the script).
 4. **Some files can't be `.md`.** `settings.json` must be valid JSON and the
    hooks must be executable shell, or the system doesn't function. They're
    still plain-text and downloadable — just not Markdown.
-5. **This is the lean core plus LSP, on purpose.** No skills, no auto-format —
-   deferred until real use proves the need (see the design spec). The two
-   expansions added are LSP and the plan-reviewer prompt hook (PreToolUse on
-   `ExitPlanMode`), each a known, articulated, non-speculative need that
-   catches a failure nothing else does. Add anything further only when
-   repetition justifies it.
+5. **This is the lean core plus LSP, on purpose.** No auto-format, one skill —
+   everything else is deferred until real use proves the need (see the design
+   spec). Add anything further only when repetition justifies it.

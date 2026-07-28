@@ -32,8 +32,7 @@ else
         "$CLAUDE_DIR/settings.json" \
         "$CLAUDE_DIR/statusLine.sh" \
         "$CLAUDE_DIR/hooks/safety-bash.sh" \
-        "$CLAUDE_DIR/hooks/safety-files.sh" \
-        "$CLAUDE_DIR/hooks/session-context.sh"
+        "$CLAUDE_DIR/hooks/safety-files.sh"
   rm -rf "$CLAUDE_DIR/skills/notes-routing"
   echo "==> Removed. mcp.json (if present) was left in place on purpose —"
   echo "    it may hold your own extra MCP servers."

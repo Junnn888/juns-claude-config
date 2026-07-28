@@ -1,21 +1,18 @@
 ## Output
 
-These are rules about the *shape* of a response, not its length. A short dense paragraph fails them; a longer structured answer passes. They hold for every response in a session — they don't lapse when the topic changes or the session runs long. If you're unsure whether they still apply, they do.
+Optimise for scannability and low interpretive load, not brevity: a longer structured answer beats a shorter dense paragraph. These preferences hold for the whole session, whatever the topic.
 
-- Lead with the answer. The first line is the conclusion, the result, or the thing to do — not context, not your plan, not a restatement of what I asked. Never open with "Great question" or "Let me…".
-- Prose is for one idea. Carrying more than one means it takes a form: numbered steps for a sequence, bullets for parallel items, a table for a comparison. Cap any paragraph at 3 sentences — if it needs a fourth, it was a list.
-- Cap any list at 5 items. Past five, split it: "do now" vs "later", or "must" vs "nice to have".
-- On multi-step work, restate position every turn — which step, out of how many, in one line. Don't make me reconstruct it from history.
-- End with one concrete next action if anything is open, otherwise stop. No summary of what you just said, no closing pleasantries.
-- When I ask for options, give two to four, ranked, recommendation first, one line of trade-off each. The options are the answer — don't collapse them to a single pick.
-- After changing something, state what now works and how I'd see it, concretely: "magic-link login works — `npm run dev`, open `/login`". That is not the banned recap; the banned recap is "I've now done X, Y and Z, which means…".
-- Scale structure to the answer. A one-line answer stays one line — never wrap something short in headings or a frame.
-- When you change code, give a one-line rationale per non-obvious decision — *why* this approach, not just what changed. This is in-scope, not padding.
-- State errors matter-of-factly: cause, then fix. Never "Uh oh", "Oh no", or "There seems to be a problem".
-- Estimate duration only for actions I run, in concrete units. Never estimate your own work.
-- At most one caveat line per response unless I ask for more. Trust me to follow without hand-holding.
-- Before sending, cut: any opener announcing what you're about to do, any closing "anything else?", any "by the way" sidebar, any hedge carrying no real uncertainty, and any idiom — say the literal thing ("circle back" → "I'll check X on Thursday"). Keep hedges that carry genuine uncertainty; deleting those manufactures confidence.
-- Then check: reading only the first line and the last line, do I know what to do next and what just happened?
+- Lead with the outcome — the first line is the conclusion, the result, or the thing to do; context and reasoning follow it.
+- Prefer structure over dense prose: sequences as numbered steps, parallel items as bullets, comparisons as tables. One idea per paragraph; split long lists into meaningful groups ("do now" vs "later").
+- On multi-step work, restate position each turn in one line — which step, out of how many.
+- End with the one concrete next action if anything is open; otherwise just stop — no recap, no closing pleasantries.
+- When I ask for options, give a few, ranked, recommendation first, one line of trade-off each — the options are the answer, not a single pick.
+- After changing something, state what now works and how I'd see it, concretely: "magic-link login works — `npm run dev`, open `/login`".
+- When you change code, give a one-line why per non-obvious decision.
+- State errors matter-of-factly: cause, then fix.
+- Estimate durations only for actions I run, in concrete units.
+- Scale structure to the answer — a one-line answer stays one line — and trust me to follow without hand-holding: keep the caveats carrying real uncertainty, and cut announcing openers, sidebars, and idioms in favour of the literal thing.
+- Acceptance check: from the first and last lines alone I should know what just happened and what to do next.
 
 ## Behaviour & Workflow
 
@@ -37,33 +34,16 @@ These are rules about the *shape* of a response, not its length. A short dense p
 ### Execution
 - Run tests/typecheck/lint where applicable.
 - Investigate the root cause before attempting any fix. If three attempts still haven't worked, stop and rethink rather than retry.
-- Track multi-step work with the todo tool and let it show progress. Where a response needs to convey position, use the one-line restatement from the Output rules — never prose commentary on what was completed or skipped.
 
 ### Safety
 - Never run git commit/add/push/reset — leave all git operations to the user. (Also hook-enforced.)
 
 ## Code style
-- Write self-documenting code: clear names, small focused functions, good structure. Do NOT add comments.
-- Only exception: a one-line WHY comment where the rationale is genuinely non-recoverable from the code (upstream-bug workaround, non-obvious invariant, ticket link).
+- Write self-documenting code: clear names, small focused functions, good structure.
+- Comments: match the surrounding file's comment density and idiom. When in doubt, prefer none — a new comment is a one-line WHY whose rationale is genuinely non-recoverable from the code (upstream-bug workaround, non-obvious invariant, ticket link), never a restatement of what the code does.
 
 ## Markdown tables
-- Cells hold short, atomic values only — never file paths, comma-separated lists, or sentences.
-- If a row would exceed ~100 characters wide, don't use a table: use a bulleted/definition list or split into smaller tables.
-- Long detail and prose belong outside the table, not crammed into a cell.
+- Keep table cells short and atomic. Long detail, file paths, and prose usually read better in surrounding text or a definition list than crammed into cells — unless I've asked for the table.
 
 ## Language
 - Use British English in comments, documentation, and commit messages. British spelling in your own code identifiers is fine, but never override or shadow an American-spelled API, library, framework, or platform name (e.g. CSS `color`, `JSON.stringify`, library methods) — match the external spelling there.
-
-## Routing
-
-### Skills
-- If a request maps to an installed skill, delegate to the skill rather than handling inline.
-- When the match is ambiguous, default to delegating — don't reinvent what the skill does.
-
-### Search and navigation
-- For conceptual or semantic queries (where you don't yet know the exact identifier), prefer semantic/symbol search over grep.
-- For known identifiers, grep is fine.
-- For multi-file symbol references, prefer LSP go-to-definition / find-all-references over text search.
-
-### External tools
-- Use installed browse/web-search skills for web access. Don't reach for ad-hoc alternatives when a curated skill exists.

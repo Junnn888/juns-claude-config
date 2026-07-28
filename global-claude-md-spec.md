@@ -15,8 +15,8 @@ with gotchas worth freezing. No speculative features; nothing added "while we're
 
 | Layer | Status | What |
 |-------|--------|------|
-| 1 — CLAUDE.md | Built | Global behaviour rules (~69 lines): surface-uncertainty, scope/completeness, output concision, edit-surface, goal-driven execution, process discipline, safety, British-English, routing. Provenance-traced from Karpathy / gstack / Anthropic guidance. |
-| 2 — Hooks | Built | `permissions.deny` list + matcher-scoped hooks: two PreToolUse safety **command** hooks (`safety-bash.sh`, `safety-files.sh`), one PreToolUse **prompt** hook (plan reviewer, below), one SessionStart context loader (`session-context.sh`). |
+| 1 — CLAUDE.md | Built | Global behaviour rules and output preferences: surface-uncertainty, scope/completeness, output shape, edit-surface, execution discipline, safety, British-English. Provenance-traced from Karpathy / gstack / Anthropic guidance. |
+| 2 — Hooks | Built | `permissions.deny` list + matcher-scoped hooks: two PreToolUse safety **command** hooks (`safety-bash.sh`, `safety-files.sh`). |
 | 3 — Skills | Built | 1 skill (`notes-routing`). Two qualifying triggers: a workflow repeated 3+ times with gotchas / checkpoints / isolation, **or** situational reference material that would otherwise sit always-on in CLAUDE.md (added 2026-07-27, below). |
 | 4 — LSP | Built | Official first-party LSP plugins (`claude-plugins-official`), 12 languages. Installing one auto-enables Claude Code's built-in LSP tool. Binaries are check-and-report only (never auto-installed — irreducible supply-chain surface). |
 
@@ -32,7 +32,6 @@ subprocesses, so the **hooks** are the real enforcement.
 - `safety-bash.sh` — PreToolUse(Bash). Hard-blocks dangerous command categories (git state,
   DB/migrations, destructive FS, deploy, secrets, dep-adds, mutating HTTP, system, CI).
 - `safety-files.sh` — PreToolUse(Write|Edit|MultiEdit). Blocks edits to `.env*`, keys, credentials.
-- `session-context.sh` — SessionStart. Injects branch + dirty state + last 5 commits.
 
 ### Layer 4 — LSP
 See README "LSP layer". Official plugins over self-authored/third-party (supply chain); binaries
@@ -281,6 +280,58 @@ command is the user pricing the task as worth a workflow. Pairs with the user-si
 **Governing-principle justification.** Passes: deterministic delivery of a behaviour the
 model won't reliably reach on its own, and a correction the user was already repeating 3+
 times by hand.
+
+## Removed — plan gate; Output/tables reframed as intent; /fan slimmed (2026-07-28)
+
+Second pass of the Claude 5 audit, applied after reading Anthropic's context-engineering
+article for Claude 5-generation models ("rules → judgement"; "examples constrain
+exploration"). Bryan explicitly chose the article's guidance over the 2026-07-27 shape
+eval — the eval sections above stand as history, but their "keep the 10 rules" conclusion
+is superseded by this decision, not by a counter-measurement.
+
+- **Plan-gate prompt hook removed** (PreToolUse/`ExitPlanMode`, both settings copies).
+  The six-axis presence check forced six notes of assessment boilerplate onto every plan —
+  exactly the mandated-verification pattern Anthropic reports causes over-verification on
+  Claude 5 models. The 2026-07-08/27 addenda above record its design and its always-open
+  revalidation condition; that revalidation is now moot.
+- **`## Output` rewritten as intent-based preferences.** Countable caps (5-item lists,
+  3-sentence paragraphs, one-caveat) and "never …" phrasing replaced by the intent they
+  encoded: scannability and low interpretive load over brevity, structure over dense prose,
+  lead with the outcome, scale to the answer. Substance retained, prohibition dropped.
+- **`## Markdown tables` collapsed to one preference line** with an explicit
+  unless-I-ask-for-it escape, closing the conflict with prompts that request such tables.
+- **`/fan` cut from 3,068 to ~1,000 bytes.** The "Shapes to reach for" catalogue and most
+  rules paraphrased the Workflow tool description; the command now carries only what it
+  uniquely provides — the explicit opt-in, the don't-shrink-the-structure mandate, and the
+  adversarial-verification requirement.
+
+## Removed — harness-duplicated components (2026-07-28)
+
+From an audit of the config against the Claude 5-generation harness, whose system prompt and
+tool descriptions now carry material this config was written to supply. Each removal fails the
+governing principle post-harness-change: the harness catches it deterministically, so the config
+line caught nothing extra.
+
+- **`session-context.sh` deleted** (script + `SessionStart` wiring, uninstall.sh entry). The
+  harness now injects an identical branch / dirty-state / recent-commits block at session start —
+  both copies were observed side by side in a live session. ~80 duplicated tokens per session.
+- **CLAUDE.md `## Routing` deleted** (Skills / Search / External tools, 649 bytes). The Skill
+  tool description instructs skill delegation, and the harness's own guidance covers search-tool
+  and LSP routing. The todo-tool `### Execution` rule went with it — task-tool reminders carry
+  that behaviour, and the rule named a tool that no longer exists under that name.
+- **Comments rule reframed from prohibition to context.** "Do NOT add comments" contradicted the
+  harness's "match the surrounding comment density" and this config's own edit-surface rule in
+  comment-dense files (including our own hooks). Now: match surrounding density; when in doubt
+  prefer none; a new comment is a one-line non-recoverable WHY only.
+- **Deny `Bash(curl:*)` narrowed to the four mutating `-X <verb>` forms.** The blanket entry made
+  `safety-bash.sh` rule 7 (mutating HTTP) unreachable dead code and blocked read-only curl
+  (health checks, header inspection). The hook remains the real enforcement across flag orderings;
+  the deny entries are belt-and-braces for the common literal forms only (`-XPOST`, `--request`
+  and `-d` variants rely on the hook).
+
+Deliberately **not** removed in the same audit: the `## Output` section (2026-07-27 eval evidence,
+above), the plan-gate hook (open item — re-eval on the current planner generation before touching),
+and the CLAUDE.md git-safety line (kept as an intent signal; the hook and deny list enforce it).
 
 ## Removed — default model pin (2026-07-27)
 
