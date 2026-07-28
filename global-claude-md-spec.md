@@ -261,6 +261,27 @@ as directionally right and smaller than measured.
 
 ---
 
+## Commands addendum — /fan (2026-07-28)
+
+**Need.** Fable-class models fan work out to subagents naturally; Opus-class models
+under-delegate unless prompted with per-message magic words ("ultracode", "fan out",
+"adversarially verify"), which the user was typing repeatedly. A CLAUDE.md rule would be
+probabilistic (prose compliance) and always-on; a command is deterministic on invocation
+and free otherwise.
+
+**Decision.** `claude/commands/fan.md` — `/fan <task>` loads a prescriptive fan-out recipe:
+brief inline scout → Workflow-tool orchestration, wide decomposition with no agent-count
+ceiling, adversarial majority-vote verification of substantive findings, synthesis plus a
+completeness critic with a two-dry-rounds stop. The ambition is encoded in the command body
+precisely so a conservative model cannot shrink the structure; invocation itself satisfies
+the Workflow tool's explicit-opt-in requirement. Cost control is the opt-in: typing the
+command is the user pricing the task as worth a workflow. Pairs with the user-side
+"workflow size: unrestricted" setting.
+
+**Governing-principle justification.** Passes: deterministic delivery of a behaviour the
+model won't reliably reach on its own, and a correction the user was already repeating 3+
+times by hand.
+
 ## Removed — default model pin (2026-07-27)
 
 `settings.json` no longer ships a `model` key. The config is model-agnostic by design: the

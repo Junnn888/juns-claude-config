@@ -135,6 +135,7 @@ config installed.
 | `hooks/session-context.sh` | SessionStart. Injects branch + dirty state + last 5 commits. Minimal by design. |
 | `settings.json` → PreToolUse(`ExitPlanMode`) | Inline **prompt hook** (Sonnet, not a `.sh` file). At plan-exit it blocks a code plan unless each of the six axes — simplicity, over-engineering, logic, UX, performance, verification plan — carries a falsifiable note; the deny reason is fed back so Claude revises. Sole carrier of the rubric; the CLAUDE.md duplicate was removed. |
 | `mcp.json` | Tolaria MCP server. Only installed when `/Applications/Tolaria.app` exists, and never overwrites an existing `mcp.json`. |
+| `commands/` | Custom slash commands: `/pr-branch` (PR message + open PR) and `/fan` (fan a task out to an unrestricted multi-agent workflow with adversarial verification). |
 
 ## LSP layer
 
