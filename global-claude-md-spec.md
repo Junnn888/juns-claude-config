@@ -281,6 +281,34 @@ command is the user pricing the task as worth a workflow. Pairs with the user-si
 model won't reliably reach on its own, and a correction the user was already repeating 3+
 times by hand.
 
+## Commands addendum — /tidy (2026-07-29)
+
+**Need.** The built-in `/simplify` reviews the diff on four angles (reuse, simplification,
+efficiency, altitude) but none of them covers Bryan's self-explanatory-code policy
+(CLAUDE.md `## Code style`): a comment is a symptom that the code failed to explain
+itself, and the fix is restructuring first, deletion second — which he was correcting by
+hand. The built-in is compiled into the Claude Code binary, so it cannot be edited or
+extended in place.
+
+**Decision.** `claude/commands/tidy.md` — a fork of `/simplify` v2.1.220 with a fifth
+Self-explanatory-code angle. Phases 0–2 and the four original angle texts were extracted
+verbatim from the binary (provenance: `~/.local/share/claude/versions/2.1.220`, American
+spelling preserved); the fifth angle is new and encodes the CLAUDE.md comment rule with
+Bryan's 2026-07-29 refinement: restructure the code (rename, extract, de-clever) until the
+comment has nothing left to say, then delete; deletion alone only for comments with no
+information to fold back in; a kept comment is a one-line non-recoverable why; match
+surrounding density; don't touch comments outside the diff. Named `/tidy` rather than
+`/simplify` because shadowing behaviour between user commands and built-in skills is
+undefined — a distinct name is deterministic. The official `code-simplifier` plugin was
+evaluated and rejected as the vehicle: it is a single edit-as-it-goes agent (no fan-out,
+no findings/apply separation) with another repo's style rules hardcoded; this fork makes
+it redundant.
+
+**Governing-principle justification.** Passes: the self-explanatory-code failure is caught
+by nothing else deterministically (the built-in's angles miss it; the CLAUDE.md rule is
+probabilistic prose), and the fix rides an already-proven command shape rather than adding
+a new component class.
+
 ## Removed — plan gate; Output/tables reframed as intent; /fan slimmed (2026-07-28)
 
 Second pass of the Claude 5 audit, applied after reading Anthropic's context-engineering

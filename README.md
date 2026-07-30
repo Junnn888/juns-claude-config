@@ -132,7 +132,7 @@ config installed.
 | `hooks/safety-bash.sh` | PreToolUse (Bash). Hard-blocks 9 categories of dangerous command (git state, DB/migrations, destructive FS, deploy, secrets, dep-adds, mutating HTTP, system, CI). Agent blocked → you run it yourself. |
 | `hooks/safety-files.sh` | PreToolUse (Write/Edit). Blocks edits to `.env*`, keys, credential files. |
 | `mcp.json` | Tolaria MCP server. Only installed when `/Applications/Tolaria.app` exists, and never overwrites an existing `mcp.json`. |
-| `commands/` | Custom slash commands: `/pr-branch` (PR message + open PR) and `/fan` (fan a task out to a multi-agent workflow with adversarial verification). |
+| `commands/` | Custom slash commands: `/pr-branch` (PR message + open PR), `/fan` (fan a task out to a multi-agent workflow with adversarial verification) and `/tidy` (fork of the built-in `/simplify` with a fifth self-explanatory-code angle). |
 
 ## LSP layer
 

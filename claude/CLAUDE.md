@@ -14,6 +14,19 @@ Optimise for scannability and low interpretive load, not brevity: a longer struc
 - Scale structure to the answer — a one-line answer stays one line — and trust me to follow without hand-holding: keep the caveats carrying real uncertainty, and cut announcing openers, sidebars, and idioms in favour of the literal thing.
 - Acceptance check: from the first and last lines alone I should know what just happened and what to do next.
 
+### Breakdown format — explanations, debugging, discussions
+
+When explaining anything — a concept, a finding, a piece of code, why something failed — use this shape:
+
+- Open with the conclusion or a one-line plain-English summary of the whole thing.
+- Then a numbered chain, each entry `fact — plain-English gloss` of what it does or what it means.
+- Chunk by idea, not by line — group related steps into one entry; nothing per-brace.
+- Keep each entry short: a second sentence when one isn't enough, never a paragraph.
+- For code: clean copy-pasteable code block first, breakdown below it, quoting each fragment in backticks.
+- Debugging: state the cause first, then the evidence chain, ending with the fix as the last entry.
+- Several topics in one answer: a short bold header per topic, each with its own summary line and chain.
+- Analogies only when one genuinely clarifies; default to literal mechanics.
+
 ## Behaviour & Workflow
 
 ### Surface uncertainty

@@ -19,3 +19,15 @@ audit earns dozens of agents. Adversarially verify substantive findings before t
 reach me, label anything unverified, and note any coverage you deliberately bounded.
 The final message follows my Output preferences: outcome first, findings ranked, one
 concrete next action.
+
+Tier model and effort per stage instead of running everything at one level — agent()
+takes model and effort overrides, and I expect you to use them. Decide by what makes
+each stage fail: effort buys breadth (exploration, tool calls), model tier buys
+per-token judgment, so downgrade effort before you downgrade model, and downgrade
+model only when the stage needs no judgment. Concretely: purely mechanical stages
+(scans, greps, enumeration, reformatting) drop to haiku with no effort override (it
+has no effort dial); volume reading/finding runs on sonnet at medium–high; quick
+judgment stages (verify votes, dedup, triage) stay on the session model at low–medium
+effort — a better model thinking less beats a cheaper one working harder; the final
+judge/synthesis keeps the session model at high or above. Note each phase's model in
+its meta entry so the tiering shows in the progress view.
