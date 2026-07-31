@@ -103,7 +103,11 @@ echo "$lc" | grep -Eq '(^|[;&| ])sudo([[:space:]]|$)' \
   && block "system" "sudo is user-only"
 echo "$lc" | grep -Eq '>>?[[:space:]]*~?/?\.?(zshrc|bashrc|bash_profile|profile)' \
   && block "system" "editing shell rc files is user-only"
-echo "$lc" | grep -Eq '(^|[;&| ])(shutdown|reboot|kill[[:space:]]+-9|killall|chsh)([[:space:]]|$)' \
+# command-position anchored on the quote-stripped string: the bare pattern
+# matched these words in prose (a PR body / commit message mentioning "shutdown")
+echo "$stripped" | grep -Eq "${CMD_POS}(shutdown|reboot|killall|chsh)([[:space:]]|\$)" \
+  && block "system" "system control command is user-only"
+echo "$stripped" | grep -Eq "${CMD_POS}kill[[:space:]]+-9([[:space:]]|\$)" \
   && block "system" "system control command is user-only"
 
 # 9. CI / automation — command-position anchored on the quote-stripped string:
