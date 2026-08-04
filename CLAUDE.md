@@ -16,6 +16,7 @@ The config is built in layers, each with a governing principle: a component earn
 | 2 — Hooks | Built | 2 PreToolUse safety command hooks (Bash dispatcher + file-path guard) + `permissions.deny` list. |
 | 3 — Skills | Built | 1 skill (`notes-routing`). Principle widened 2026-07-27 to admit situational reference material that would otherwise sit always-on in CLAUDE.md. Workflow skills still need the 3+ repetition bar. |
 | 4 — LSP | Built | Official LSP plugins (`claude-plugins-official`), 12 languages. Auto-enables Claude Code's built-in LSP tool. |
+| 5 — Orchestration | Built | `Orchestrator` output style (opt-in) + `scout`/`patch`/`builder`/`deep` agent roster pinning model+effort tiers. Scale fan-outs stay behind `/fan`. |
 
 Full design decisions and rationale live in `global-claude-md-spec.md`.
 

@@ -1,12 +1,12 @@
 ---
 name: notes-routing
-description: Where Jun's markdown lives — committed repo docs vs Tolaria MCP vaults. Use when asked where something was tracked, noted, planned or written down, when searching for notes/planning/triage/research/meeting notes, or before concluding a note or doc doesn't exist.
+description: Where the user's markdown lives — committed repo docs vs Tolaria MCP vaults. Use when asked where something was tracked, noted, planned or written down, when searching for notes/planning/triage/research/meeting notes, or before concluding a note or doc doesn't exist.
 ---
 
 # Markdown lives in two places — check both
 
 - **Committed repo `.md`** (README, AGENTS.md, CONTRIBUTING, `docs/`, `.planning/`, `.claude/rules`, ADRs) is authoritative for that project — read it for architecture, conventions, specs, and design docs. It travels with the code; treat it as first-class, not secondary to Tolaria.
-- **Tolaria MCP vaults (Work, Personal)** hold Jun's personal, cross-project markdown deliberately kept out of repos — planning, triage, research, meeting notes.
+- **Tolaria MCP vaults (Work, Personal)** hold the user's personal, cross-project markdown deliberately kept out of repos — planning, triage, research, meeting notes.
 
 ## How to search
 

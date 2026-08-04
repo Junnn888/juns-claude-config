@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Installs Jun's Claude Code config into ~/.claude.
+# Installs juns-claude-config into ~/.claude.
 # Usage:  curl -fsSL <raw-url>/install.sh | bash
 #
 # Prerequisites: git, bash. Recommended: jq (the safety hooks fail OPEN
@@ -35,6 +35,8 @@ fi
 mkdir -p "$CLAUDE_DIR/hooks"
 mkdir -p "$CLAUDE_DIR/commands"
 mkdir -p "$CLAUDE_DIR/skills"
+mkdir -p "$CLAUDE_DIR/agents"
+mkdir -p "$CLAUDE_DIR/output-styles"
 
 echo "==> Installing CLAUDE.md"
 cp "$SRC/CLAUDE.md" "$CLAUDE_DIR/CLAUDE.md"
@@ -58,6 +60,13 @@ cp "$SRC/commands/"*.md "$CLAUDE_DIR/commands/" 2>/dev/null || true
 # Copied per-skill rather than wholesale so a user's own skills survive.
 echo "==> Installing skills"
 cp -a "$SRC/skills/"*/ "$CLAUDE_DIR/skills/" 2>/dev/null || true
+
+# Per-file copies so a user's own agents and output styles survive.
+echo "==> Installing agents (orchestrator roster: scout / patch / builder / deep)"
+cp "$SRC/agents/"*.md "$CLAUDE_DIR/agents/" 2>/dev/null || true
+
+echo "==> Installing output styles"
+cp "$SRC/output-styles/"*.md "$CLAUDE_DIR/output-styles/" 2>/dev/null || true
 
 # Tolaria MCP server: only wired up on machines that actually have Tolaria,
 # and never clobbers an existing mcp.json (it may hold other servers).
@@ -145,6 +154,8 @@ echo "  - settings.json        permissions.deny + hook wiring + status line"
 echo "  - statusLine.sh        model · token-count · context-% status line (needs jq)"
 echo "  - commands/              custom slash commands (e.g. /pr-branch)"
 echo "  - skills/notes-routing   where markdown lives (repo docs vs Tolaria vaults)"
+echo "  - agents/                scout/patch/builder/deep roster (model+effort tiers for delegation)"
+echo "  - output-styles/         Orchestrator style (opt in via /config > Output style)"
 echo "  - hooks/safety-bash.sh, safety-files.sh"
 echo "  - mcp.json             Tolaria MCP server (only if Tolaria.app is installed)"
 echo "  - plugins              12 official LSP servers + frontend-design + code-simplifier + coderabbit"

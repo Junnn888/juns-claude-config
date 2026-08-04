@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Installs Jun's Neovim config into ~/.config/nvim.
+# Installs the juns-claude-config Neovim config into ~/.config/nvim.
 # Usage:  curl -fsSL <raw-url>/nvim-install.sh | bash
 #
 # Prerequisites: git, nvim. Plugin builds (treesitter) also need a C

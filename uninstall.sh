@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Uninstalls Jun's Claude Code config.
+# Uninstalls juns-claude-config.
 # Usage:  curl -fsSL <raw-url>/uninstall.sh | bash
 #
 # If a backup from install.sh exists, restores the newest one.
@@ -32,7 +32,12 @@ else
         "$CLAUDE_DIR/settings.json" \
         "$CLAUDE_DIR/statusLine.sh" \
         "$CLAUDE_DIR/hooks/safety-bash.sh" \
-        "$CLAUDE_DIR/hooks/safety-files.sh"
+        "$CLAUDE_DIR/hooks/safety-files.sh" \
+        "$CLAUDE_DIR/agents/scout.md" \
+        "$CLAUDE_DIR/agents/patch.md" \
+        "$CLAUDE_DIR/agents/builder.md" \
+        "$CLAUDE_DIR/agents/deep.md" \
+        "$CLAUDE_DIR/output-styles/orchestrator.md"
   rm -rf "$CLAUDE_DIR/skills/notes-routing"
   echo "==> Removed. mcp.json (if present) was left in place on purpose —"
   echo "    it may hold your own extra MCP servers."

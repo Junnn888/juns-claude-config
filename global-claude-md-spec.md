@@ -19,6 +19,7 @@ with gotchas worth freezing. No speculative features; nothing added "while we're
 | 2 — Hooks | Built | `permissions.deny` list + matcher-scoped hooks: two PreToolUse safety **command** hooks (`safety-bash.sh`, `safety-files.sh`). |
 | 3 — Skills | Built | 1 skill (`notes-routing`). Two qualifying triggers: a workflow repeated 3+ times with gotchas / checkpoints / isolation, **or** situational reference material that would otherwise sit always-on in CLAUDE.md (added 2026-07-27, below). |
 | 4 — LSP | Built | Official first-party LSP plugins (`claude-plugins-official`), 12 languages. Installing one auto-enables Claude Code's built-in LSP tool. Binaries are check-and-report only (never auto-installed — irreducible supply-chain surface). |
+| 5 — Orchestration | Built | `Orchestrator` output style (opt-in via `/config`) + agent roster (`scout`/`patch`/`builder`/`deep`) pinning model+effort tiers for delegation. Steady-state delegation only; scale fan-outs stay behind `/fan`. |
 
 ### Layer 1 — CLAUDE.md
 Behaviour rules only; kept short so it loads cheaply every session. Each rule must change
@@ -281,10 +282,76 @@ command is the user pricing the task as worth a workflow. Pairs with the user-si
 model won't reliably reach on its own, and a correction the user was already repeating 3+
 times by hand.
 
+## Layer 5 — Orchestrator output style & agent roster (2026-08-03)
+
+**Need.** On expensive main-loop models the user was re-typing the same delegation
+preamble ("act as an orchestrator, dispatch opus/sonnet agents at varying effort, do the
+work yourself only when it's genuinely hard") session after session. Two gaps, two
+mechanisms:
+
+1. *Session-wide role* — a `UserPromptSubmit` hook was considered and rejected: it re-pays
+   the injection every turn, can't reach the system prompt, and catches nothing an output
+   style doesn't already catch deterministically. Output styles are the purpose-built
+   mechanism: appended to the system prompt once (cached), with built-in adherence
+   reminders, toggled per-session via `/config`, and scoped to the main conversation only
+   (subagents don't inherit them, so the role can't recursively infect workers).
+2. *Effort tiering* — the Agent tool's inputs are `description`/`prompt`/`subagent_type`/
+   `model`/`isolation`: **no effort parameter**. Per-dispatch effort exists only in
+   Workflow's `agent()` opts (already /fan's domain) and in agent-definition `effort:`
+   frontmatter. So a roster of definition files is the only way ordinary delegation can
+   vary effort — and the built-ins can't substitute, because they `model: inherit` (on a
+   Fable session, `general-purpose` runs Fable, defeating the purpose).
+
+**Decision.** `claude/output-styles/orchestrator.md` (`keep-coding-instructions: true` —
+the role changes *who does the work*, not the engineering rules) + three agents pinning
+model×effort by what makes each stage fail: `scout` (sonnet/medium, read-only tools —
+breadth needs tool calls more than thinking), `builder` (opus/high — implementation kept
+a tier below the fable main loop, effort pinned so it doesn't track the session), `deep`
+(opus/xhigh — the one place per-token judgment is the point; promote to fable only on
+demonstrated misses). Tiers revised same day from sonnet/low and sonnet/high on the user's
+call. Custom names rather than overriding the
+built-in `Explore`, so behaviour changes only when the style is selected. The style tells
+the model to suggest `/fan` for genuine fan-outs rather than improvise one — Workflow
+opt-in and cost control stay with the user. Not enabled by default: `outputStyle` is left
+out of `settings.json`; selection is per-user via `/config`.
+
+**Governing-principle justification.** Passes: deterministic delivery of a behaviour the
+model won't reliably hold across a session (delegation discipline decays), replacing a
+preamble the user was already re-typing 3+ times; the effort-tier roster catches a gap
+(per-agent effort) nothing else in the config can express.
+
+**Revision — strict manager (2026-08-04).** The original style kept a "do the work
+yourself when" escape hatch (context too expensive to hand over, dispatch prompt dearer
+than the edit, genuinely hard). In practice Fable used it to self-execute whenever it
+judged itself best placed — correct on quality, wrong on the whole point of the layer,
+which is protecting main-loop usage. The hatch is removed: Fable never edits, writes, or
+implements; a hard task means a Fable-authored plan handed to `deep`/`builder` in full
+(files, constraints, restated context, acceptance criteria), and a failed dispatch means
+sharper instructions or a tier escalation, never a takeover. Direct reads and read-only
+commands stay allowed where routing or verification demands them — the manager still has
+to judge the work — and answering from held context needs no agent.
+
+**Revision — `patch` agent (2026-08-04).** Removing the escape hatch made every trivial
+one-liner cost an opus `builder` dispatch. The user's call: add a fourth roster agent,
+`patch` (sonnet/medium), for small fully-specified fixes where the whole change fits in
+the dispatch prompt. Model tier follows the roster's own rule — the orchestrator has
+already done the thinking, so the fix needs no per-token judgment. Effort was initially
+low, raised to medium the same day on the user's call: medium is the roster-wide effort
+floor. The agent self-polices scope: if it finds itself
+exploring or designing, it stops and reports the task as builder-sized rather than
+guessing.
+
+**Revision — scout on 1M context (2026-08-04).** `scout`'s frontmatter pins `model:
+sonnet[1m]` — the suffix is accepted there (verified by a live dispatch) and gives
+repo-wide sweeps the full 1M window. `patch` stays on plain sonnet (200k) on the user's
+call: a fix that can't fit a 200k window isn't a patch — it escalates to an opus agent.
+The 1M variant bills at premium rates only for requests exceeding 200k, so the scout pin
+is free until a sweep actually needs the headroom.
+
 ## Commands addendum — /tidy (2026-07-29)
 
 **Need.** The built-in `/simplify` reviews the diff on four angles (reuse, simplification,
-efficiency, altitude) but none of them covers Bryan's self-explanatory-code policy
+efficiency, altitude) but none of them covers the user's self-explanatory-code policy
 (CLAUDE.md `## Code style`): a comment is a symptom that the code failed to explain
 itself, and the fix is restructuring first, deletion second — which he was correcting by
 hand. The built-in is compiled into the Claude Code binary, so it cannot be edited or
@@ -294,7 +361,7 @@ extended in place.
 Self-explanatory-code angle. Phases 0–2 and the four original angle texts were extracted
 verbatim from the binary (provenance: `~/.local/share/claude/versions/2.1.220`, American
 spelling preserved); the fifth angle is new and encodes the CLAUDE.md comment rule with
-Bryan's 2026-07-29 refinement: restructure the code (rename, extract, de-clever) until the
+the user's 2026-07-29 refinement: restructure the code (rename, extract, de-clever) until the
 comment has nothing left to say, then delete; deletion alone only for comments with no
 information to fold back in; a kept comment is a one-line non-recoverable why; match
 surrounding density; don't touch comments outside the diff. Named `/tidy` rather than
@@ -313,7 +380,7 @@ a new component class.
 
 Second pass of the Claude 5 audit, applied after reading Anthropic's context-engineering
 article for Claude 5-generation models ("rules → judgement"; "examples constrain
-exploration"). Bryan explicitly chose the article's guidance over the 2026-07-27 shape
+exploration"). The user explicitly chose the article's guidance over the 2026-07-27 shape
 eval — the eval sections above stand as history, but their "keep the 10 rules" conclusion
 is superseded by this decision, not by a counter-measurement.
 
@@ -386,7 +453,7 @@ catches. `install.sh`, `uninstall.sh`, and the README were updated to match.
 
 The "Markdown lives in two places" block (5 lines, ~700 bytes) was removed from `CLAUDE.md`
 and reinstated as `claude/skills/notes-routing/`. It is routing knowledge that only applies
-when Jun asks where something was tracked, but it was loading in every session of every
+when the user asks where something was tracked, but it was loading in every session of every
 project. A path-scoped `.claude/rules/` entry was rejected: rules trigger on file paths, and
 this triggers on a *question type*, so a scoped rule would never fire.
 

@@ -133,6 +133,8 @@ config installed.
 | `hooks/safety-files.sh` | PreToolUse (Write/Edit). Blocks edits to `.env*`, keys, credential files. |
 | `mcp.json` | Tolaria MCP server. Only installed when `/Applications/Tolaria.app` exists, and never overwrites an existing `mcp.json`. |
 | `commands/` | Custom slash commands: `/pr-branch` (PR message + open PR), `/fan` (fan a task out to a multi-agent workflow with adversarial verification) and `/tidy` (fork of the built-in `/simplify` with a fifth self-explanatory-code angle). |
+| `agents/` | Orchestrator roster: `scout` (sonnet 1M context, medium effort, read-only search), `patch` (sonnet, medium effort, small fully-specified fixes), `builder` (opus, high effort, well-specified implementation), `deep` (opus, xhigh effort, hard problems). Agent-file frontmatter is the only place ordinary delegation can pin model *and* effort. |
+| `output-styles/` | `Orchestrator` style: main loop is a strict manager — it plans, routes to the roster, and judges results, but never edits or implements itself; scale fan-outs defer to `/fan`. Opt-in per user via `/config` → Output style; takes effect from the next session. |
 
 ## LSP layer
 
