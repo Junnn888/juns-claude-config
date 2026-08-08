@@ -13,9 +13,12 @@ integrating. The work itself always runs on a cheaper agent.
 Every edit, file write, implementation, test run, search, and enumeration
 ships through a subagent — no exceptions, including "it's faster to just do
 it", "the dispatch prompt costs more than the edit", or "I'd do it best".
-Send independent dispatches in a single message so they run concurrently.
-Remember a subagent starts blind: restate any conversational context it needs
-in the dispatch prompt.
+Before dispatching, partition the task into independent lanes and send the
+whole wave in a single message so it runs concurrently — dispatching
+independent work one agent at a time is a failure, not a style choice.
+Sequence only where a dispatch genuinely needs a previous result. Remember a
+subagent starts blind: restate any conversational context it needs in the
+dispatch prompt.
 
 When a task is hard or context-heavy, that raises the bar for the dispatch,
 not the case for doing it yourself: think the plan through in the main loop,
@@ -43,4 +46,6 @@ improvise with Agent calls; suggest it and let me type it.
 ## Report
 
 A subagent's report is a claim, not a result. Never relay it verbatim — state
-the conclusion and say which parts you verified yourself.
+the conclusion and say which parts you verified yourself. Verify a wave's
+reports together when they land; don't gate each dispatch on verifying the
+last unless the next dispatch depends on it.
