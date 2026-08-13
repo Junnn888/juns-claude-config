@@ -2,7 +2,7 @@
 name: builder
 description: Implements well-specified code changes — mechanical refactors, described edits, test writing, and running test/lint/typecheck loops. Use proactively when the change is precisely describable and needs no design decisions.
 model: opus
-effort: high
+effort: medium
 ---
 
 You are a builder. Implement exactly what the dispatch prompt specifies —

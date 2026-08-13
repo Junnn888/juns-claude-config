@@ -51,7 +51,7 @@ cp "$SRC/statusLine.sh" "$CLAUDE_DIR/statusLine.sh"
 chmod +x "$CLAUDE_DIR/statusLine.sh"
 
 echo "==> Installing hooks"
-cp "$SRC/hooks/"*.sh "$CLAUDE_DIR/hooks/"
+cp "$SRC/hooks/"*.sh "$SRC/hooks/"*.mjs "$CLAUDE_DIR/hooks/"
 chmod +x "$CLAUDE_DIR/hooks/"*.sh
 
 echo "==> Installing commands"
@@ -84,6 +84,8 @@ fi
 
 command -v jq >/dev/null 2>&1 || \
   echo "WARNING: jq not installed. Safety hooks fail OPEN (warn+allow) until you install jq."
+command -v node >/dev/null 2>&1 || \
+  echo "WARNING: node not installed. The comment-cleanup Stop hook is inert until you install node."
 
 # --- LSP layer ---------------------------------------------------------
 # LSP is provided by Anthropic's official, first-party plugins from the
@@ -157,6 +159,7 @@ echo "  - skills/notes-routing   where markdown lives (repo docs vs Tolaria vaul
 echo "  - agents/                scout/patch/builder/deep roster (model+effort tiers for delegation)"
 echo "  - output-styles/         Orchestrator style (opt in via /config > Output style)"
 echo "  - hooks/safety-bash.sh, safety-files.sh"
+echo "  - hooks/comment-suspects.mjs, comment-baseline.sh (Stop-hook comment-cleanup pass, needs node)"
 echo "  - mcp.json             Tolaria MCP server (only if Tolaria.app is installed)"
 echo "  - plugins              12 official LSP servers + frontend-design + code-simplifier + coderabbit"
 echo "Start a new Claude Code session for changes to take effect."

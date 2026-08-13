@@ -13,7 +13,7 @@ The config is built in layers, each with a governing principle: a component earn
 | Layer | Status | What |
 |-------|--------|------|
 | 1 — CLAUDE.md | Built | Global behaviour rules and output preferences. Provenance-traced from Karpathy/gstack/Anthropic. |
-| 2 — Hooks | Built | 2 PreToolUse safety command hooks (Bash dispatcher + file-path guard) + `permissions.deny` list. |
+| 2 — Hooks | Built | 2 PreToolUse safety command hooks (Bash dispatcher + file-path guard) + `permissions.deny` list + Stop/SessionStart comment-cleanup hook (`comment-suspects.mjs`: nominates comments added this turn, bounces the stop once; narration suspects get delete-or-keep, long doc blocks above exports get a compress instruction; model keeps content judgment). |
 | 3 — Skills | Built | 1 skill (`notes-routing`). Principle widened 2026-07-27 to admit situational reference material that would otherwise sit always-on in CLAUDE.md. Workflow skills still need the 3+ repetition bar. |
 | 4 — LSP | Built | Official LSP plugins (`claude-plugins-official`), 12 languages. Auto-enables Claude Code's built-in LSP tool. |
 | 5 — Orchestration | Built | `Orchestrator` output style (opt-in) + `scout`/`patch`/`builder`/`deep` agent roster pinning model+effort tiers. Scale fan-outs stay behind `/fan`. |

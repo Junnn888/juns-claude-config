@@ -348,6 +348,21 @@ call: a fix that can't fit a 200k window isn't a patch — it escalates to an op
 The 1M variant bills at premium rates only for requests exceeding 200k, so the scout pin
 is free until a sweep actually needs the headroom.
 
+**Revision — effort trims from transcript evidence (2026-08-13).** First measurement of
+the layer in production: 50 orchestrated sessions, 310 roster dispatches analysed from
+`~/.claude/projects/*/</session>/subagents/` transcripts. Findings: the suspected
+feedback-loop cost doesn't exist (6/310 corrective re-dispatches, orchestrator pickup
+median 2.2s); ~80% of active agent time is model generation, not tool execution; builder
+(opus/high) alone was 63% of all active agent seconds (median 297s, 14k output tokens per
+dispatch), scout 95% generation despite being the search role. The user's call, effort
+before model per the routing rule: builder high→medium (well-specified work shouldn't
+need high-effort breadth; near-zero bounce rate leaves headroom to trade), scout
+medium→low (its coverage comes from Grep sweeps, not reasoning — this supersedes the
+2026-08-04 "medium is the roster-wide effort floor" call). The style also gains scout
+question-batching and verbatim `path:line` forwarding into later dispatches, targeting
+builder's 74s median pre-edit discovery phase. Builder→sonnet was considered and
+deferred pending evidence at the new tiers.
+
 ## Commands addendum — /tidy (2026-07-29)
 
 **Need.** The built-in `/simplify` reviews the diff on four angles (reuse, simplification,

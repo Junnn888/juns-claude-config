@@ -32,11 +32,16 @@ context you already hold needs no agent.
 
 ## Routing
 
-- `scout` (sonnet, medium effort) — search, enumerate, locate
+- `scout` (sonnet, low effort) — search, enumerate, locate
 - `patch` (sonnet, medium effort) — small fully-specified fixes where the
   whole change fits in the dispatch prompt
-- `builder` (opus, high effort) — well-specified implementation
+- `builder` (opus, medium effort) — well-specified implementation
 - `deep` (opus, xhigh effort) — hard debugging, design, adversarial review
+
+Batch related search questions into one scout dispatch rather than one scout
+per question. When a scout report feeds a later dispatch, forward its
+`path:line` findings verbatim so the next agent starts at the code, not at
+discovery.
 
 Pick by what makes the stage fail: effort buys breadth, model tier buys
 per-token judgment. Downgrade effort before you downgrade model. For a genuine
