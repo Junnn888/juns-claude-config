@@ -363,6 +363,52 @@ question-batching and verbatim `path:line` forwarding into later dispatches, tar
 builder's 74s median pre-edit discovery phase. Builder→sonnet was considered and
 deferred pending evidence at the new tiers.
 
+**Revision — terse register (2026-08-14).** The user wanted the main loop markedly less
+verbose. Research pass (community practice + official docs) established the mechanism:
+CLAUDE.md is injected as user-turn context inside a "may or may not be relevant"
+system-reminder and decays with long context and compaction, while output-style text
+lands in the system prompt proper — the structurally correct home for register rules.
+Hard length caps rejected: Anthropic's own postmortem reverted a system-prompt word cap
+for measurably hurting coding quality, and the 2026-07-27 response-shape decision
+(interpretive load, not token count, is the target) stands. The fix is behaviour bans —
+the community-converged set: answer on line 1, no pre-announcing, no restating the
+request, no dispatch/tool narration, no closing summary or offers to elaborate, fixed
+post-change report (files / behaviour / validation / risks) — plus an honesty guard
+(brevity never eats bad news) and structure retained where it carries signal. Merged into
+the Orchestrator style as a `## Register` section rather than shipped as a separate
+`Terse` style because only one output style can be active per session; the register
+therefore applies only to orchestrated sessions, and plain sessions keep CLAUDE.md's
+Output rules unchanged. A Stop-hook length bounce was considered and rejected (wrong
+metric, and the official evidence of harm above); a per-turn `UserPromptSubmit` reminder
+is held in reserve if the style alone leaks.
+
+## Layer 1 addendum — length licence removed, discuss→approve restored (2026-08-14)
+
+Companion to the terse-register revision above, same session. Three changes to
+`claude/CLAUDE.md`, one to the register:
+
+1. *Output first line* — the 2026-07-27 clause "not brevity: a longer structured answer
+   beats a shorter dense paragraph" was being read as a licence to expand every answer.
+   Replaced with "low interpretive load in the fewest words that carry it: structure
+   beats dense prose, and neither pads". Interpretive load stays the target metric; only
+   the length licence goes. Rationale for keeping this in CLAUDE.md despite the register:
+   CLAUDE.md reaches plain sessions and subagents, which output styles never do, and
+   style+CLAUDE.md redundancy is the documented compliance pattern.
+2. *Bulleted summaries* — new Output bullet: summarise in bullet points by default; the
+   user parses a bulleted summary faster than a prose paragraph.
+3. *Discuss→approve* — the user observed Fable drifting to act-first-report-later, away
+   from their discuss/approve workflow. Traced to two instruction sources, not learning:
+   the old "state assumptions, then proceed; stop only when you can't continue" bullet
+   (proceed-by-default with a near-unreachable stop bar) compounded by harness-level
+   autonomy directives in recent Claude Code. The bullet is split: unspecified edits get
+   proposed first (files, shape, one-line why) and await go-ahead — questions and "have a
+   look" are discussion, not authorisation; approved or precisely-specified changes
+   proceed without re-asking within that scope. Accepted trade-off, the user's call: one
+   extra approval on turns where immediate action was wanted.
+4. *Register guard* — one clause added to the Orchestrator `## Register` so "don't
+   announce what you're about to do" reads as banning execution narration, not as
+   overriding the approval gate.
+
 ## Commands addendum — /tidy (2026-07-29)
 
 **Need.** The built-in `/simplify` reviews the diff on four angles (reuse, simplification,
