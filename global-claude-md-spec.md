@@ -409,6 +409,62 @@ Companion to the terse-register revision above, same session. Three changes to
    announce what you're about to do" reads as banning execution narration, not as
    overriding the approval gate.
 
+## Layer 1 addendum — plan drift recorded in the plan doc (2026-09-02)
+
+Repeated-workflow admission (3+ occurrences). In long sessions the user plans an
+implementation, then makes on-the-fly calls during the build — a rejected approach, a
+taste decision, a scope trim — and had to tell the orchestrator every time to note them
+in the docs so the next touch of that area knows about them.
+
+**Decision.** One bullet under `### Execution` in `claude/CLAUDE.md`: when implementation
+departs from the agreed plan or settles something it left open, record what changed, why,
+and what it rules out in the plan doc (nearest committed doc for the area as fallback)
+before reporting done. Plus one clause in the Orchestrator `## Register` ship-report
+checklist ("any plan deviations with where they were recorded") so the report can't be
+completed without having done it.
+
+Placement rationale: CLAUDE.md because the drift happens in plain sessions too, not only
+under the Orchestrator style; the register clause because a checklist item is
+self-enforcing where a standalone rule is not. Not a hook — a hook cannot tell a design
+decision from a mechanical step. Not a skill — always-on behaviour, not situational
+reference. The plan doc is the recording target because it is the file the next session
+reads before touching the area, so the deviation sits beside the plan it overrode; this
+matches the existing "PLAN.md in the repo, memory is only a pointer" convention.
+
+## Commands addendum — /jun-review (2026-09-02)
+
+**Need.** The user runs three reviewers on a branch — `/blast-radius` (omissions),
+`/tidy` (quality), CodeRabbit (bugs) — and then fixes what they find. Run separately, each
+reviewer fixes or reports in isolation: `/tidy` applies its own fixes before CodeRabbit
+has looked, CodeRabbit's skill fixes as it goes, and one root cause reported by two
+reviewers gets patched twice or at the wrong altitude. The orchestrator never sees the
+three sets side by side, so the user was sequencing the reviews and the interpretation
+by hand each time.
+
+**Decision.** `claude/commands/jun-review.md` — a gather → interpret → eliminate
+pipeline driven by the main loop. Reviewers are findings-only: CodeRabbit runs as a
+background CLI call (`coderabbit review --agent --base <base>`, deliberately not via its
+skill, whose autonomous-fix step is the behaviour being removed), `/blast-radius` is
+already report-only, `/tidy` is stopped after its Phase 1. The main loop merges, clusters
+by mechanism rather than line, ranks by consequence, spot-checks severe claims, then
+dispatches one tiered agent per cluster (`patch` / `builder` / `deep`) in a single wave
+with the findings verbatim. Verification is tests/typecheck plus one CodeRabbit re-run,
+no loop. Fix gate: auto-apply, skipping only behaviour-changing or false findings — the
+user's choice 2026-09-02, matching `/tidy`; "outside the diff" is explicitly not a skip
+reason because blast-radius findings are outside the diff by construction. The main loop
+drives all three rather than three parallel subagents because subagents cannot spawn
+subagents: blast-radius would lose its sweep/classify fan-out and tidy would degrade to
+single-pass.
+
+**Side change.** `blast-radius.md` had only ever lived in `~/.claude/commands/`, never in
+the repo; copied into `claude/commands/` unchanged so the install ships everything
+`/jun-review` depends on.
+
+**Governing-principle justification.** Passes on the repetition bar: the
+three-reviewers-then-fix sequence was being typed by hand every time, and the holistic
+interpretation step — the thing the command exists for — is a workflow no single reviewer
+can perform.
+
 ## Commands addendum — /tidy (2026-07-29)
 
 **Need.** The built-in `/simplify` reviews the diff on four angles (reuse, simplification,

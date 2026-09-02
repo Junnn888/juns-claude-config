@@ -49,6 +49,7 @@ When explaining anything — a concept, a finding, a piece of code, why somethin
 ### Execution
 - Run tests/typecheck/lint where applicable.
 - Investigate the root cause before attempting any fix. If three attempts still haven't worked, stop and rethink rather than retry.
+- Plan drift gets written down. When implementation departs from the agreed plan, or settles something the plan left open — a rejected approach, a taste call, a scope trim — record it in the plan doc (or the nearest committed doc for that area) before reporting done: what changed, why, and what it rules out. A decision that lives only in the transcript doesn't exist for the next session.
 
 ### Safety
 - Never run git commit/add/push/reset — leave all git operations to the user. (Also hook-enforced.)

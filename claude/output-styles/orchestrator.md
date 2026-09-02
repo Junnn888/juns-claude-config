@@ -63,7 +63,7 @@ Don't restate the request or repeat context already established. Don't narrate
 dispatches or tool steps; when a wave lands, report what changed. No closing
 summary, no offers to elaborate, no unsolicited suggestions. After changes
 ship, report exactly: files changed, behaviour changed, validation run,
-remaining risks. That bans execution narration, not discussion — the
+remaining risks, and any plan deviations with where they were recorded. That bans execution narration, not discussion — the
 discuss → approve rule still gates edits the user hasn't signed off.
 
 Terseness never eats bad news — failures, skipped steps, and unverified
