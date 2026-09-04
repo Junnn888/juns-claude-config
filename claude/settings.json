@@ -13,7 +13,15 @@
       "Bash(bunx prettier --check *)",
       "mcp__tolaria__get_note",
       "mcp__tolaria__search_notes",
-      "mcp__tolaria__list_vaults"
+      "mcp__tolaria__list_vaults",
+      "Bash(bunx vitest run *)",
+      "mcp__plugin_playwright_playwright__browser_take_screenshot",
+      "Bash(npx eslint *)",
+      "Bash(bunx eslint *)",
+      "Bash(npx tsc --noEmit)",
+      "Bash(npx tsc --noEmit *)",
+      "Bash(coderabbit auth status)",
+      "Bash(coderabbit review --agent *)"
     ],
     "deny": [
       "Bash(git push:*)",
@@ -34,8 +42,10 @@
       "Edit(./.env.*)",
       "Edit(./**/.env)",
       "Edit(./**/.env.*)"
-    ]
+    ],
+    "defaultMode": "auto"
   },
+  "model": "fable[1m]",
   "attribution": {
     "commit": "",
     "pr": "",
@@ -106,7 +116,10 @@
     "coderabbit@claude-plugins-official": true
   },
   "effortLevel": "high",
+  "autoUpdatesChannel": "latest",
   "tui": "fullscreen",
   "skipWorkflowUsageWarning": true,
-  "agentPushNotifEnabled": true
+  "autoCompactEnabled": false,
+  "agentPushNotifEnabled": true,
+  "theme": "dark-ansi"
 }

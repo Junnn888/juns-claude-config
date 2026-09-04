@@ -127,7 +127,7 @@ config installed.
 |---|---|
 | `CLAUDE.md` | Global behaviour and output preferences (Karpathy 4 + gstack nudges), scoped British-English rule. Loads every session. |
 | `skills/notes-routing/` | On-demand skill: where markdown lives (committed repo docs vs Tolaria vaults). Description loads every session; body only when the task matches. |
-| `settings.json` | Coarse `permissions.deny` list + wiring for the safety hooks + status-line wiring + enabled plugins. |
+| `settings.json` | Coarse `permissions.deny` list + read-only tooling allow list + wiring for the safety hooks + status-line wiring + enabled plugins + session defaults (auto mode, `fable[1m]`, auto-compact off, dark-ansi theme). |
 | `statusLine.sh` | Status line showing model · token count · context-window %. Needs `jq`; prints nothing without it. |
 | `hooks/safety-bash.sh` | PreToolUse (Bash). Hard-blocks 9 categories of dangerous command (git state, DB/migrations, destructive FS, deploy, secrets, dep-adds, mutating HTTP, system, CI). Agent blocked → you run it yourself. |
 | `hooks/safety-files.sh` | PreToolUse (Read/Write/Edit). Blocks reads and edits of `.env*`, keys, credential files. |
