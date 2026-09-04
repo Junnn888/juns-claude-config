@@ -130,7 +130,7 @@ config installed.
 | `settings.json` | Coarse `permissions.deny` list + wiring for the safety hooks + status-line wiring + enabled plugins. |
 | `statusLine.sh` | Status line showing model · token count · context-window %. Needs `jq`; prints nothing without it. |
 | `hooks/safety-bash.sh` | PreToolUse (Bash). Hard-blocks 9 categories of dangerous command (git state, DB/migrations, destructive FS, deploy, secrets, dep-adds, mutating HTTP, system, CI). Agent blocked → you run it yourself. |
-| `hooks/safety-files.sh` | PreToolUse (Write/Edit). Blocks edits to `.env*`, keys, credential files. |
+| `hooks/safety-files.sh` | PreToolUse (Read/Write/Edit). Blocks reads and edits of `.env*`, keys, credential files. |
 | `hooks/comment-suspects.mjs` | Stop + SessionStart (needs `node`). Scans lines added this turn for generation-narration comments ("First we loop over…") and bounces the stop once with a delete-or-keep list — the script nominates, the model judges. Allowlists rationale markers (TODO, workaround, because, URLs, lint pragmas); fingerprints suspects per session so nothing is re-nagged; SessionStart pre-seeds leftovers already in the dirty tree. Logs every pass to `hooks/comment-bounce.log`. |
 | `hooks/comment-baseline.sh` | Measurement utility, not wired as a hook. Runs the same detector over the last N commits of whatever repo it's invoked from and prints suspects per 100 added lines — for baselining a codebase before judging the Stop hook. |
 | `mcp.json` | Tolaria MCP server. Only installed when `/Applications/Tolaria.app` exists, and never overwrites an existing `mcp.json`. |
@@ -193,8 +193,13 @@ pre-installed by the script).
 
 1. **`permissions.deny` is a coarse net, not the real gate.** Anthropic's own
    docs note Bash deny patterns are fragile and don't fully cover
-   subprocesses (`Read(./.env)` blocks the Read tool but not `cat .env`).
+   subprocesses (a `Read(./.env)` rule blocks the Read tool but not `cat .env`).
    The **hooks** are the real enforcement; the deny-list is belt-and-braces.
+   No `Read()` deny rules ship at all: from Claude Code 2.1.259 any `Read()`
+   deny rule arms a guard that turns every `grep -r`/`rg` over a directory
+   holding a matching file into an approval prompt, even in auto mode and
+   even with `Bash(grep:*)` allowed, so `.env` read-protection lives in
+   `safety-files.sh` instead.
    Verify/extend the deny rules against the current
    [permission syntax docs](https://code.claude.com/docs/en/settings) if you
    rely on them.

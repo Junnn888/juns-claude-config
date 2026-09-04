@@ -15,13 +15,14 @@ Optimise for low interpretive load in the fewest words that carry it: structure 
 - Scale structure to the answer — a one-line answer stays one line — and trust me to follow without hand-holding: keep the caveats carrying real uncertainty, and cut announcing openers, sidebars, and idioms in favour of the literal thing.
 - Acceptance check: from the first and last lines alone I should know what just happened and what to do next.
 
-### Breakdown format — explanations, debugging, discussions
+### Breakdown format — any informational answer
 
-When explaining anything — a concept, a finding, a piece of code, why something failed — use this shape:
+When explaining anything — a concept, a finding, a piece of code, why something failed — use this shape. Triage, review findings, plan summaries, blockers, and status reports are explanations too, not engineer-to-engineer reports; they get the same shape unprompted:
 
 - Open with the conclusion or a one-line plain-English summary of the whole thing.
 - Then a numbered chain, each entry `fact — plain-English gloss` of what it does or what it means.
 - Chunk by idea, not by line — group related steps into one entry; nothing per-brace.
+- A set of findings, blockers, or fixes: one bold name line each, then `Problem / What you'd see / Fix` bullets — the plain-English consequence is mandatory, the code path optional.
 - Keep each entry short: a second sentence when one isn't enough, never a paragraph.
 - For code: clean copy-pasteable code block first, breakdown below it, quoting each fragment in backticks.
 - Debugging: state the cause first, then the evidence chain, ending with the fix as the last entry.

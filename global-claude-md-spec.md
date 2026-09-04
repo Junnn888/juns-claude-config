@@ -32,7 +32,7 @@ subprocesses, so the **hooks** are the real enforcement.
 
 - `safety-bash.sh` — PreToolUse(Bash). Hard-blocks dangerous command categories (git state,
   DB/migrations, destructive FS, deploy, secrets, dep-adds, mutating HTTP, system, CI).
-- `safety-files.sh` — PreToolUse(Write|Edit|MultiEdit). Blocks edits to `.env*`, keys, credentials.
+- `safety-files.sh` — PreToolUse(Read|Write|Edit|MultiEdit). Blocks reads and edits of `.env*`, keys, credentials.
 
 ### Layer 4 — LSP
 See README "LSP layer". Official plugins over self-authored/third-party (supply chain); binaries
@@ -544,6 +544,65 @@ line caught nothing extra.
 Deliberately **not** removed in the same audit: the `## Output` section (2026-07-27 eval evidence,
 above), the plan-gate hook (open item — re-eval on the current planner generation before touching),
 and the CLAUDE.md git-safety line (kept as an intent signal; the hook and deny list enforce it).
+
+## Changed — `.env` read guard moved from deny rules to hook (2026-09-03)
+
+`settings.json` no longer ships any `Read()` deny rule; `safety-files.sh` now also matches the
+Read tool and blocks the same secret paths it already blocked for Write/Edit.
+
+Trigger: Claude Code 2.1.259 (auto-updated 2026-09-03 10:21) added a guard — changelog: "`grep -r`/
+`cp -r` over a directory holding a denied file now asks". With `Read(./.env.*)` configured and
+`.env.local` at every repo root, every `grep -rn … .` became an approval prompt. Verified headless in
+auto mode on Sonnet: root grep → "requires approval"; the same grep scoped to `components/` → allowed;
+`rg`, `--exclude`, and a `Bash(grep:*)` allow rule do not bypass it (the guard outranks allow rules,
+like protected-path writes). Ask rules resolve before the classifier, so auto mode cannot absorb them,
+and subagent asks surface as prompts in the parent session — which is where it was felt first, since
+scout/builder read via Bash.
+
+Why hook not narrower globs: the deny list was belt-and-braces by design (Layer 2 principle above);
+any surviving `Read()` rule still arms the guard for a bare `.env`, and the hook already carried the
+secret-path list. Cost: a hook is exit-2 block, not ask, so a secret read cannot be approved through —
+the user reads it outside the agent, same contract as `safety-bash.sh`. `.env.example` is blocked
+too, unchanged from the old `Read(./.env.*)` rule. Upstream: anthropics/claude-code#91690 tracks the
+guard's behaviour; revisit if a later release lets allow rules override it.
+
+**Addendum — the guard fires on any `Read()` deny in effect, not only the shipped one
+(2026-09-04).** A project-local `settings.local.json` carrying `Read(//…/tolaria/…)` denies
+(client/personal note separation — a legitimate local addition, kept) re-armed the same guard for
+that repo. The prompt this time was `cd <repo> && grep … <relative path>`: after a `cd` the engine
+cannot resolve the relative path against the denied set, so it asks. Fix on the command shape, not
+the rules: all four roster agents now carry "use Grep/Glob/Read for searching and reading, never
+`cd` in Bash, always absolute paths" (the Grep tool takes an absolute `path` and resolves cleanly;
+subagents already start in the project cwd so the `cd` was redundant). Scout's softer "Bash is for
+ls/git/wc" line had already been ignored once, hence the explicit failure named in the rule.
+Considered and deferred: an exit-2 bounce in `safety-bash.sh` for `cd` + relative-path compounds —
+deterministic, but costs a wasted agent turn per hit and a hook run per Bash call; add only if the
+instruction doesn't stick.
+
+## Changed — breakdown trigger widened; Register audience line (2026-09-03)
+
+Evidence: 26 "explain it simply / in bullet points" re-asks in `history.jsonl` since 2026-08-10
+(~1 per working day), all in Orchestrator-style sessions. Reading the reply before and after three
+of them: the preceding reply was never a malformed explanation — it was a work report (CodeRabbit
+triage scoreboard with 64-word paragraphs and four headers; "briefs are above" where the briefs were
+builder dispatch prompts; a wave status update). The reply *after* the re-ask landed every time and
+shared one shape: bold name line, then `Problem / What you'd see / Fix`, no headers, plain-English
+consequences. So the format works; the model wasn't treating reports as explanations, and the
+Register's "write like a terse engineer" set the audience to an engineer — the register the user
+kept asking it to translate out of.
+
+Two wording changes, no relocation (per the 2026-07-30 trial note: adjust wording before moving):
+
+1. `claude/CLAUDE.md` `### Breakdown format` — header and trigger widened to triage, review
+   findings, plan summaries, blockers, and status reports; the `Problem / What you'd see / Fix`
+   shape added as the worked example for sets of findings.
+2. Orchestrator `## Register` — "terse engineer, not a narrator" replaced with an audience line:
+   write for the user, every item carries its plain-English consequence; terse cuts narration, not
+   the gloss. The ship-report checklist is unchanged.
+
+Measure: re-count re-asks from `history.jsonl` after a week. If not clearly down, run the
+shape-eval harness with Orchestrator on/off as arms, two trials minimum (see "Resolved — response
+shape").
 
 ## Removed — default model pin (2026-07-27)
 

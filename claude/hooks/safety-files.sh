@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# PreToolUse hook (matcher: Write|Edit|MultiEdit).
-# Blocks edits to secret / credential files. Matchers filter by tool NAME
+# PreToolUse hook (matcher: Read|Write|Edit|MultiEdit).
+# Blocks reads and edits of secret / credential files. Matchers filter by tool NAME
 # only, so the path is checked here (per Anthropic hooks docs).
 # exit 2 = block. exit 0 = allow.
 
@@ -20,8 +20,8 @@ fi
 base="$(basename "$path")"
 
 block() {
-  echo "BLOCKED (secrets): editing '$path' is the user's manual step." >&2
-  echo "Do NOT retry or work around it. Ask the user to make this change themselves." >&2
+  echo "BLOCKED (secrets): reading or editing '$path' is the user's manual step." >&2
+  echo "Do NOT retry or work around it. Ask the user to read or change it themselves." >&2
   exit 2
 }
 

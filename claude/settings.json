@@ -30,10 +30,6 @@
       "Bash(curl -X DELETE:*)",
       "Bash(curl -X PATCH:*)",
       "Bash(npm publish:*)",
-      "Read(./.env)",
-      "Read(./.env.*)",
-      "Read(./**/.env)",
-      "Read(./secrets/**)",
       "Edit(./.env)",
       "Edit(./.env.*)",
       "Edit(./**/.env)",
@@ -57,7 +53,7 @@
         ]
       },
       {
-        "matcher": "Write|Edit|MultiEdit",
+        "matcher": "Read|Write|Edit|MultiEdit",
         "hooks": [
           {
             "type": "command",

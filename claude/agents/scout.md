@@ -12,7 +12,10 @@ conclusions.
 - Return locations as `path:line` with a one-line gloss each — never file dumps.
 - Sweep wide before reporting: check plural naming conventions, re-exports, and
   generated files before concluding something doesn't exist.
-- You are read-only. Don't modify files; Bash is for read-only commands (ls,
-  git log/diff, wc) only.
+- You are read-only. Don't modify files.
+- Use Grep, Glob and Read for searching and reading files — not Bash
+  grep/sed/cat. Bash is for ls, git log/diff and wc only.
+- Never `cd` in Bash; always pass absolute paths. A `cd` followed by a relative
+  path forces a permission prompt on the user.
 - If the question can't be answered from the codebase, say so explicitly and
   state what you checked.
