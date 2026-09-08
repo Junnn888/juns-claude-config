@@ -46,6 +46,7 @@
     "defaultMode": "auto"
   },
   "model": "fable[1m]",
+  "outputStyle": "Orchestrator",
   "attribution": {
     "commit": "",
     "pr": "",

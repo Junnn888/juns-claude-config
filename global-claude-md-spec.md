@@ -19,7 +19,7 @@ with gotchas worth freezing. No speculative features; nothing added "while we're
 | 2 — Hooks | Built | `permissions.deny` list + matcher-scoped hooks: two PreToolUse safety **command** hooks (`safety-bash.sh`, `safety-files.sh`). |
 | 3 — Skills | Built | 1 skill (`notes-routing`). Two qualifying triggers: a workflow repeated 3+ times with gotchas / checkpoints / isolation, **or** situational reference material that would otherwise sit always-on in CLAUDE.md (added 2026-07-27, below). |
 | 4 — LSP | Built | Official first-party LSP plugins (`claude-plugins-official`), 12 languages. Installing one auto-enables Claude Code's built-in LSP tool. Binaries are check-and-report only (never auto-installed — irreducible supply-chain surface). |
-| 5 — Orchestration | Built | `Orchestrator` output style (opt-in via `/config`) + agent roster (`scout`/`patch`/`builder`/`deep`) pinning model+effort tiers for delegation. Steady-state delegation only; scale fan-outs stay behind `/fan`. |
+| 5 — Orchestration | Built | `Orchestrator` output style (default via `outputStyle`; switch with `/config`) + agent roster (`scout`/`patch`/`builder`/`deep`) pinning model+effort tiers for delegation. Steady-state delegation only; scale fan-outs stay behind `/fan`. |
 
 ### Layer 1 — CLAUDE.md
 Behaviour rules only; kept short so it loads cheaply every session. Each rule must change
@@ -312,8 +312,15 @@ demonstrated misses). Tiers revised same day from sonnet/low and sonnet/high on 
 call. Custom names rather than overriding the
 built-in `Explore`, so behaviour changes only when the style is selected. The style tells
 the model to suggest `/fan` for genuine fan-outs rather than improvise one — Workflow
-opt-in and cost control stay with the user. Not enabled by default: `outputStyle` is left
-out of `settings.json`; selection is per-user via `/config`.
+opt-in and cost control stay with the user. Not enabled by default at first: `outputStyle` was left
+out of `settings.json`; selection was per-user via `/config` (superseded 2026-09-08, below).
+
+**Revision — default on (2026-09-08).** `"outputStyle": "Orchestrator"` now ships in
+`claude/settings.json`, so a fresh install starts every session in the strict-manager
+role. Rationale: every session since 2026-08-04 ran under the style anyway, so per-user
+opt-in had become a step re-done on each machine for no decision it still protected.
+Cost control is unchanged — the style delegates to the roster, and scale fan-outs still
+wait on `/fan`. Opting out is `/config` → Output style → Default, per user.
 
 **Governing-principle justification.** Passes: deterministic delivery of a behaviour the
 model won't reliably hold across a session (delegation discipline decays), replacing a

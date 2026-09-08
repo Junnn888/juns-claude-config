@@ -157,7 +157,7 @@ echo "  - statusLine.sh        model · token-count · context-% status line (ne
 echo "  - commands/              custom slash commands (e.g. /pr-branch)"
 echo "  - skills/notes-routing   where markdown lives (repo docs vs Tolaria vaults)"
 echo "  - agents/                scout/patch/builder/deep roster (model+effort tiers for delegation)"
-echo "  - output-styles/         Orchestrator style (opt in via /config > Output style)"
+echo "  - output-styles/         Orchestrator style (default; switch via /config > Output style)"
 echo "  - hooks/safety-bash.sh, safety-files.sh"
 echo "  - hooks/comment-suspects.mjs, comment-baseline.sh (Stop-hook comment-cleanup pass, needs node)"
 echo "  - mcp.json             Tolaria MCP server (only if Tolaria.app is installed)"

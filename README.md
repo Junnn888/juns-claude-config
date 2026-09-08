@@ -136,7 +136,7 @@ config installed.
 | `mcp.json` | Tolaria MCP server. Only installed when `/Applications/Tolaria.app` exists, and never overwrites an existing `mcp.json`. |
 | `commands/` | Custom slash commands: `/pr-branch` (PR message + open PR), `/fan` (fan a task out to a multi-agent workflow with adversarial verification), `/tidy` (fork of the built-in `/simplify` with a fifth self-explanatory-code angle), `/blast-radius` (find consumers the diff should have updated and didn't) and `/jun-review` (run all three reviewers findings-only, cluster by root cause in the main loop, fix in one targeted wave). |
 | `agents/` | Orchestrator roster: `scout` (sonnet 1M context, low effort, read-only search), `patch` (sonnet, medium effort, small fully-specified fixes), `builder` (opus, medium effort, well-specified implementation), `deep` (opus, xhigh effort, hard problems). Agent-file frontmatter is the only place ordinary delegation can pin model *and* effort. |
-| `output-styles/` | `Orchestrator` style: main loop is a strict manager — it plans, routes to the roster, and judges results, but never edits or implements itself; scale fan-outs defer to `/fan`. Opt-in per user via `/config` → Output style; takes effect from the next session. |
+| `output-styles/` | `Orchestrator` style: main loop is a strict manager — it plans, routes to the roster, and judges results, but never edits or implements itself; scale fan-outs defer to `/fan`. Default output style (`outputStyle` in `settings.json`); switch via `/config` → Output style, takes effect from the next session. |
 
 ## LSP layer
 
