@@ -1,5 +1,5 @@
 ---
-description: "Fork of the built-in /simplify with a fifth angle for self-explanatory code. Review the changed code for reuse, simplification, efficiency, altitude, and self-explanation cleanups, then apply the fixes. Quality only — it does not hunt for bugs; use /code-review for that."
+description: "Fork of the built-in /simplify with a fifth angle for self-explanatory code. Review the changed code for reuse-and-abstraction, simplification, efficiency, altitude, and self-explanation cleanups, then apply the fixes. Quality only — it does not hunt for bugs; use /code-review for that."
 argument-hint: "[<target>]"
 ---
 
@@ -8,9 +8,9 @@ Review target: $ARGUMENTS
 `/tidy → 5 cleanup agents in parallel → apply the fixes`
 
 You are improving the quality of the changed code, not hunting for bugs. Review
-it for reuse, simplification, efficiency, altitude, and self-explanation issues,
-then fix what you find. Do not look for correctness bugs — that is what `/code-review` is
-for.
+it for reuse and abstraction, simplification, efficiency, altitude, and
+self-explanation issues, then fix what you find. Do not look for correctness
+bugs — that is what `/code-review` is for.
 
 ## Phase 0 — Gather the diff
 
@@ -31,11 +31,27 @@ maintain). If the Agent tool is unavailable in this context, work through all
 five angles yourself in one pass — do not skip an angle for lack of fan-out,
 and say in the summary that the review was single-pass.
 
-### Reuse
+### Reuse and abstraction
 
-Flag new code that re-implements something the codebase
-already has — Grep shared/utility modules and files adjacent to the change,
-and name the existing helper to call instead.
+Flag new code that implements a capability something already provides, and
+abstraction the diff adds without a second caller.
+
+- Re-implementation: for each general capability the diff writes — parsing,
+  retries, formatting, validation, config, HTTP, caching, auth checks —
+  whether as a helper or inline, look for the existing provider before
+  flagging: read the manifest (package.json, pyproject.toml, go.mod,
+  Cargo.toml) for a dependency that already covers it, Grep the project by
+  the capability's synonyms rather than the diff's chosen name, then consider
+  the stdlib. Name the exact thing to call instead (import path and
+  signature), or state what was searched and that none was found.
+- Duplication: logic the diff repeats from code outside the diff — Grep for
+  the same shape elsewhere in the codebase, not only in adjacent files.
+- Single-use abstraction: a helper, wrapper, interface, generic parameter, or
+  config object the diff adds with one caller or one implementation. Name the
+  inline form that does the same job.
+
+Scope includes SQL, migrations, database policies, and config files, not only
+application code.
 
 ### Simplification
 

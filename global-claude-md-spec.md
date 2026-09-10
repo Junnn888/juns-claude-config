@@ -611,6 +611,74 @@ Measure: re-count re-asks from `history.jsonl` after a week. If not clearly down
 shape-eval harness with Orchestrator on/off as arms, two trials minimum (see "Resolved — response
 shape").
 
+## Changed — reuse check made an artefact (2026-09-08)
+
+Observed failure: helpers hand-rolled that the project, stdlib, or an installed dependency
+already provided — parsing, retries, formatting, config, HTTP — written fresh instead of called.
+
+Root cause, two halves. The `### Scope and completeness` rule in `claude/CLAUDE.md` said to
+"check" before writing a utility: a mental step with no required output, so nothing ever showed
+whether it ran. And under Layer 5 the writing happens in subagents that start blind — `builder`
+and `patch` never received the check at all, and a dispatch prompt reading "add X" gives a blind
+agent no reason to look for X first.
+
+Fix: make the check produce an artefact at each of the three points.
+
+1. `claude/CLAUDE.md` `### Scope and completeness` — wording now demands a named provider or an
+   explicit "searched and found none", plus the observation that the capability almost always
+   already exists.
+2. Orchestrator `## Routing` — a dispatch that adds new code must carry the `path:line` of the
+   thing to call or the line "scouted for <capability>: none found"; without it a reuse scout is
+   the first wave, not an optional one.
+3. `claude/agents/builder.md` and `claude/agents/patch.md` — each agent Greps for an existing
+   equivalent before adding a helper, and the report carries a `Reused: <path:line>` /
+   `Wrote new: … none found` line (terser in `patch`, whose changes are tiny by definition).
+
+Deferred: a `comment-suspects`-style Stop hook nominating new top-level definitions whose names
+collide with existing symbols. It fails the governing principle for now — the prompt-level fix
+above is untested, and a hook that catches what three layers of wording already catch earns
+nothing. Revisit only after three recurrences post-change show the wording insufficient.
+
+Addendum (2026-09-09) — review-time counterpart. The three prevention points above run
+per dispatch and start blind; the branch-level catch-net is `/tidy`'s Reuse angle, which
+`/jun-review` already runs as a findings-only gatherer in its Phase 1. That angle had the
+same flaw as the old CLAUDE.md wording — it searched by name and neighbourhood, never the
+manifest or stdlib — and no angle covered premature abstraction (Altitude flags the
+opposite). Renamed "Reuse and abstraction" in `claude/commands/tidy.md`: the same search
+recipe the agents will use (manifest → capability synonyms → stdlib), duplication against
+code outside the diff, single-use abstractions, and scope that includes SQL, migrations,
+database policies and config. Rejected: a fourth `/jun-review` reviewer — it would overlap
+tidy:reuse and fail the governing principle. Also rejected: orchestrator-side verification
+of every `Wrote new` claim — this branch-level check does that once instead of per dispatch.
+
+Addendum 2 (2026-09-09) — trigger and recipe. The 2026-09-08 wording fired on code shape
+("adds a function, module, or helper") but the observed failure is capability-shaped: a retry
+loop or parser hand-rolled inline in an existing function adds no helper and never tripped the
+rule. All four prompt sites now trigger on the capability (parsing, retries, formatting,
+validation, config, HTTP, caching, auth checks), helper or inline, and share one search recipe
+— manifest → project by capability synonyms → stdlib — so `builder`, `scout` and `/tidy` look
+in the same places. Orchestrator gains the stance that the capability is assumed to exist and
+writing it needs "none found" evidence first. `scout` gains a reuse-question bullet — it had
+no method for one, so the "reuse scout first wave" had nothing to run. `builder` trusts a
+dispatch that carries `Reuse: <path:line>`, double-checks a "none found" with one Grep, and
+flags a dispatch that carries neither, removing the duplicate search the 2026-09-08 wording
+forced on every dispatch. `deep` deliberately unchanged: it recommends rather than writes, and
+its recommendations route through the orchestrator's rule.
+
+## Changed — em-dash rule split by surface (2026-09-09)
+
+Observed: em-dashes appearing in end-user-facing strings — UI copy, hint text, page meta
+descriptions, emails. The user wants them kept for internal and developer-facing text
+(comments, docs, commit messages, agent reports) and banned from anything an end user could
+see.
+
+Placement: one full bullet under `## Language` in `claude/CLAUDE.md` so the main loop carries
+it, plus a one-line mirror in `builder`, `patch` and `deep` because subagents start blind.
+`scout` skipped: read-only, never writes user-facing text. The Orchestrator style is
+unchanged — the agents hold the rule themselves, so dispatches need not forward it. The
+replacement instruction is deliberately "a grammatically correct replacement", not a fixed
+list of punctuation, on the user's call.
+
 ## Removed — default model pin (2026-07-27)
 
 `settings.json` no longer ships a `model` key. The config is model-agnostic by design: the

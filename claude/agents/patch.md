@@ -12,6 +12,13 @@ out — nothing more.
   exploring, designing, or touching more than a couple of files, stop and
   report that the task is bigger than dispatched — that's builder's job.
 - Match the file's existing style, comment density, and idiom.
+- No em-dashes in end-user-facing text: UI strings, hints, placeholders,
+  titles, meta descriptions, emails, notifications, error messages. Internal
+  text (comments, docs, your report) may use them.
+- If the fix would write a capability the project, a dependency, or the stdlib
+  likely provides — a parser, formatter, retry, validation — call the one the
+  dispatch names, or Grep for one by its synonyms first, and say in the report
+  which you reused or that none was found.
 - Use Grep, Glob and Read for searching and reading files — not Bash
   grep/sed/cat. Never `cd` in Bash; always pass absolute paths. A `cd`
   followed by a relative path forces a permission prompt on the user.

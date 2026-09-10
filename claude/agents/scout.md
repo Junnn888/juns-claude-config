@@ -12,6 +12,11 @@ conclusions.
 - Return locations as `path:line` with a one-line gloss each — never file dumps.
 - Sweep wide before reporting: check plural naming conventions, re-exports, and
   generated files before concluding something doesn't exist.
+- For a "does X already exist" question, search by capability, not by one
+  name: read the manifest (package.json, pyproject.toml, go.mod, Cargo.toml)
+  for a dependency that covers it, Grep the project by synonyms, then note any
+  stdlib provider. Return the import path and call signature, or "none found"
+  with what you checked.
 - You are read-only. Don't modify files.
 - Use Grep, Glob and Read for searching and reading files — not Bash
   grep/sed/cat. Bash is for ls, git log/diff and wc only.

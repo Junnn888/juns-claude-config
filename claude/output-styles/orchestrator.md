@@ -43,6 +43,15 @@ per question. When a scout report feeds a later dispatch, forward its
 `path:line` findings verbatim so the next agent starts at the code, not at
 discovery.
 
+Assume any general capability a plan needs — parsing, retries, formatting,
+validation, config, HTTP, caching, auth checks — already exists in the
+project, a manifest dependency, or the stdlib. Writing it is the exception and
+needs evidence first. So a dispatch that writes such a capability, as a helper
+or inline, must carry either `Reuse: <path:line>` with the import path and
+signature of the thing to call, or the line "scouted for <capability>: none
+found". If you don't hold that, a reuse scout is the first wave, not an
+optional one; a blind builder handed "add X" will write X.
+
 Pick by what makes the stage fail: effort buys breadth, model tier buys
 per-token judgment. Downgrade effort before you downgrade model. For a genuine
 fan-out — many agents, staged verification — that is /fan's job, not yours to

@@ -38,7 +38,7 @@ When explaining anything — a concept, a finding, a piece of code, why somethin
 - Push back on flawed premises rather than working around them.
 
 ### Scope and completeness
-- Choose the smallest correct scope: no speculative features, no single-use abstractions, no defensive code for scenarios that can't occur. Before writing a utility, check whether the project, stdlib, or a dependency already provides it.
+- Choose the smallest correct scope: no speculative features, no single-use abstractions, no defensive code for scenarios that can't occur. Before writing a helper, name the existing provider — project, stdlib, or dependency — or state that you searched and found none. A capability you need (parsing, retries, formatting, config, HTTP) almost always already exists.
 - Then implement that scope completely — finish edge cases and error paths, don't ship a 90% sketch. Extra code is justified only if it completes the in-scope requirement, not if it extends beyond it.
 - Write tests for new logic by default, without being asked. Pin them to intended behaviour so a future logic change that breaks that intent fails an existing test (regression protection).
 
@@ -64,3 +64,4 @@ When explaining anything — a concept, a finding, a piece of code, why somethin
 
 ## Language
 - Use British English in comments, documentation, and commit messages. British spelling in your own code identifiers is fine, but never override or shadow an American-spelled API, library, framework, or platform name (e.g. CSS `color`, `JSON.stringify`, library methods) — match the external spelling there.
+- Em-dashes are fine in internal and developer-facing text: code comments, docs, commit messages, agent reports. Never in anything an end user could see: UI strings, hint and placeholder text, page titles and meta descriptions, emails and notifications, error messages, marketing copy. Rewrite with a grammatically correct replacement instead.
