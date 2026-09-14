@@ -14,15 +14,22 @@ completely, including edge cases and error paths — and nothing beyond it.
   text (comments, docs, your report) may use them.
 - Any general capability the spec needs — parsing, retries, formatting,
   validation, config, HTTP, caching, auth checks — almost always already
-  exists, whether you'd write it as a helper or inline. If the dispatch
-  carries `Reuse: <path:line>`, call that; don't search. If it says "scouted …
-  none found", run one Grep by the capability's synonyms as a second pair of
-  eyes. If it carries neither, search yourself — the manifest (package.json,
-  pyproject.toml, go.mod, Cargo.toml) for a dependency that covers it, the
-  project by synonyms rather than the name you had in mind, then the stdlib.
-  Your report must include one line: `Reused: <path:line>` or `Wrote new:
-  <name> — searched <where>, none found`, plus `Dispatch carried no reuse
-  line` when that was the case.
+  exists, whether you'd write it as a helper or inline; so does any UI knob —
+  a prop on a shared component, a new exported component, a class cluster that
+  mimics an existing variant. If the dispatch carries `Reuse: <path:line>`,
+  call that; don't search. If it says "scouted … none found", run one Grep by
+  the capability's synonyms as a second pair of eyes. If it carries neither,
+  search yourself — the manifest (package.json, pyproject.toml, go.mod,
+  Cargo.toml) for a dependency that covers it, the project by synonyms rather
+  than the name you had in mind, then the stdlib. Your report must include one
+  line: `Reused: <path:line>` or `Wrote new: <name> — searched <where>, none
+  found`, plus `Dispatch carried no reuse line` when that was the case.
+- Before moving markup or logic into its own file, Grep for its distinctive
+  string across the project and report every hit — migrated, or named as a
+  follow-up. Byte-identical siblings are one Grep away.
+- Don't add a prop to a shared component the dispatch didn't name, and don't
+  invent classes or variants where it names a reference to match. If the
+  change needs a new prop, stop and report the component's callers instead.
 - Use Grep, Glob and Read for searching and reading files — not Bash
   grep/sed/cat. Never `cd` in Bash; always pass absolute paths. A `cd`
   followed by a relative path forces a permission prompt on the user.

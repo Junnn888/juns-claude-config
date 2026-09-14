@@ -665,6 +665,24 @@ flags a dispatch that carries neither, removing the duplicate search the 2026-09
 forced on every dispatch. `deep` deliberately unchanged: it recommends rather than writes, and
 its recommendations route through the orchestrator's rule.
 
+Addendum 3 (2026-09-10) — UI knobs and the completion gate. First post-change evidence: a
+findings-only deep review of an uncommitted phone-layout rebuild (bippi, `UI/devices-clean`,
+~12 dispatches) found six misses, four of them a prop, a variant, or a class cluster — surfaces
+the capability list never named — and five of six originating in the orchestrator's dispatch
+prompt, which prescribed exact classes to keep patch prompts self-contained and so overrode
+conventions the code already documented in comments. Changes: the trigger now names UI knobs
+(prop on a shared component, new exported component, class cluster mimicking a variant) in the
+orchestrator, `builder`, `patch` and `/tidy`; dispatches describe the outcome and name the
+reference, prescribing implementation only when no precedent was found; extraction dispatches
+and `builder` carry a sibling Grep for the distinctive string; `patch` and `builder` refuse to
+add unnamed props to shared components and report callers instead; `scout` quotes the comments
+beside a slot, where conventions live; and the orchestrator's Report section gains a completion
+gate — one `deep`, findings-only Reuse-and-abstraction pass over the whole branch diff before
+"done" on work that touched a shared component or ran three or more dispatches. The audit's own
+numbers: one review dispatch versus four fix patches. The Stop hook for new exported props or
+components without a Reuse note stays deferred: this is recurrence one of the three the
+Deferred paragraph requires.
+
 ## Changed — em-dash rule split by surface (2026-09-09)
 
 Observed: em-dashes appearing in end-user-facing strings — UI copy, hint text, page meta
@@ -678,6 +696,30 @@ it, plus a one-line mirror in `builder`, `patch` and `deep` because subagents st
 unchanged — the agents hold the rule themselves, so dispatches need not forward it. The
 replacement instruction is deliberately "a grammatically correct replacement", not a fixed
 list of punctuation, on the user's call.
+
+## Added — flow-altitude rule and `/flow` command (2026-09-10)
+
+Observed: the user reports asking Fable to "dumb it down" on more answers than not. Their need
+is the mechanism — where data comes from, how it is fetched, compared, stored and shown — not
+the code; `/jun-review`, the hooks and the built-in commands already cover the code side.
+
+Diagnosis: the two breakdown-format edits (2026-07-30, 2026-09-03) fixed shape, not altitude —
+the "fact — gloss" chain was still built from files and functions. And orchestrator context is
+full of agent `path:line` findings with nothing keeping them out of answers to the user.
+
+Fix, two parts:
+1. `claude/CLAUDE.md` Breakdown section — a default-altitude bullet: explain at flow level; name
+   a file or function only when asked "where in the code" or when the answer is a code change;
+   agent `path:line` stays in dispatches and verification.
+2. `claude/commands/flow.md` — `/flow [<topic>|<base ref>]`: re-explains the previous answer, a
+   topic, or a branch's changes (before → after) as numbered stages — source, fetch, transform
+   or compare, store, surface — in about 150 words, ASCII diagram when the flow branches,
+   optional "where to look" paths at the end. Passes the Layer 3 workflow bar on the user's
+   reported repetition; nothing deterministic can catch an altitude problem.
+
+Measure as with the breakdown trial: re-count "dumb it down" / "high level" re-asks in
+`history.jsonl` after two weeks. If the rule alone drops them, `/flow` stays as the branch
+explainer; if not, the Breakdown section is the next candidate for compression.
 
 ## Removed — default model pin (2026-07-27)
 

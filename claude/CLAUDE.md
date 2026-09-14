@@ -20,6 +20,7 @@ Optimise for low interpretive load in the fewest words that carry it: structure 
 When explaining anything — a concept, a finding, a piece of code, why something failed — use this shape. Triage, review findings, plan summaries, blockers, and status reports are explanations too, not engineer-to-engineer reports; they get the same shape unprompted:
 
 - Open with the conclusion or a one-line plain-English summary of the whole thing.
+- Default altitude is the flow, not the code: where data comes from, how it is fetched, how it is transformed or compared, where it is stored, what the user sees. Name a file or function only when I ask "where in the code" or the answer is a code change; agent `path:line` findings stay in dispatches and verification, not in answers to me.
 - Then a numbered chain, each entry `fact — plain-English gloss` of what it does or what it means.
 - Chunk by idea, not by line — group related steps into one entry; nothing per-brace.
 - A set of findings, blockers, or fixes: one bold name line each, then `Problem / What you'd see / Fix` bullets — the plain-English consequence is mandatory, the code path optional.

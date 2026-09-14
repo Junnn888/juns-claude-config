@@ -19,6 +19,9 @@ out — nothing more.
   likely provides — a parser, formatter, retry, validation — call the one the
   dispatch names, or Grep for one by its synonyms first, and say in the report
   which you reused or that none was found.
+- Don't add props to shared components, and don't invent classes or variants
+  where the dispatch names a reference to match. If the change needs a new
+  prop, stop and report the component's callers instead.
 - Use Grep, Glob and Read for searching and reading files — not Bash
   grep/sed/cat. Never `cd` in Bash; always pass absolute paths. A `cd`
   followed by a relative path forces a permission prompt on the user.

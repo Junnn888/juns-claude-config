@@ -46,9 +46,11 @@ abstraction the diff adds without a second caller.
   signature), or state what was searched and that none was found.
 - Duplication: logic the diff repeats from code outside the diff — Grep for
   the same shape elsewhere in the codebase, not only in adjacent files.
-- Single-use abstraction: a helper, wrapper, interface, generic parameter, or
-  config object the diff adds with one caller or one implementation. Name the
-  inline form that does the same job.
+- Single-use abstraction: a helper, wrapper, interface, generic parameter,
+  config object, or prop on a shared component the diff adds with one caller
+  or one implementation, and any class cluster that mimics an existing
+  variant. Name the inline form or the existing variant that does the same
+  job.
 
 Scope includes SQL, migrations, database policies, and config files, not only
 application code.

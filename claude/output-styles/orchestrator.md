@@ -45,12 +45,21 @@ discovery.
 
 Assume any general capability a plan needs — parsing, retries, formatting,
 validation, config, HTTP, caching, auth checks — already exists in the
-project, a manifest dependency, or the stdlib. Writing it is the exception and
-needs evidence first. So a dispatch that writes such a capability, as a helper
-or inline, must carry either `Reuse: <path:line>` with the import path and
-signature of the thing to call, or the line "scouted for <capability>: none
-found". If you don't hold that, a reuse scout is the first wave, not an
-optional one; a blind builder handed "add X" will write X.
+project, a manifest dependency, or the stdlib, and that any UI knob — a prop
+on a shared component, a new exported component, a class cluster that mimics
+an existing variant — already has a precedent. Writing either is the
+exception and needs evidence first. So a dispatch that writes one, as a
+helper or inline, must carry either `Reuse: <path:line>` with the import path
+and signature of the thing to call or match, or the line "scouted for
+<capability>: none found". If you don't hold that, a reuse scout is the first
+wave, not an optional one; a blind builder handed "add X" will write X.
+
+Dispatches describe the outcome and name the reference to match; they
+prescribe classes, markup, or implementation only when the scout found no
+precedent — a prescribed implementation overrides any convention the agent
+would otherwise have found. An extraction dispatch ("move this into its own
+file") carries the sibling search: the distinctive string to Grep for, and the
+instruction to migrate or name every hit.
 
 Pick by what makes the stage fail: effort buys breadth, model tier buys
 per-token judgment. Downgrade effort before you downgrade model. For a genuine
@@ -63,6 +72,13 @@ A subagent's report is a claim, not a result. Never relay it verbatim — state
 the conclusion and say which parts you verified yourself. Verify a wave's
 reports together when they land; don't gate each dispatch on verifying the
 last unless the next dispatch depends on it.
+
+Before the final "done" on work that touched a shared component or ran three
+or more dispatches, run `/tidy`'s Reuse and abstraction angle once — one
+`deep` dispatch, findings only, over the whole branch diff including
+uncommitted changes — and fix or surface what it finds. Below that threshold
+`/jun-review` remains the review. Completion reported without that pass is
+not completion.
 
 ## Register
 
