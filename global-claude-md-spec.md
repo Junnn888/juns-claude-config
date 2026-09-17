@@ -721,6 +721,54 @@ Measure as with the breakdown trial: re-count "dumb it down" / "high level" re-a
 `history.jsonl` after two weeks. If the rule alone drops them, `/flow` stays as the branch
 explainer; if not, the Breakdown section is the next candidate for compression.
 
+## Changed — /tidy reviewers read the diff whole; post-fix reuse pass on scout (2026-09-14)
+
+Observed: a cost audit of one 44-minute orchestrated session ($48 API-equivalent) found six
+`deep` dispatches — /tidy's five angle reviewers plus the post-fix reuse pass — at ~$15, the
+largest line after the main loop. Effort was not the driver: output was ~$2 across the six;
+cache writes (~$5) and cache reads (~$8) were. Each reviewer ingested the same 35k-token diff
+in 400–500-line `sed -n` slices plus 20–40 further Bash reads of source, running 18–33 turns at
+130–176k context. The slicing came from the dispatch prompt ("read it in chunks with sed -n")
+and from auto mode's harness text preferring Bash, both overriding deep.md's use-Read rule.
+
+Fix, two parts:
+1. `claude/commands/tidy.md` Phase 1 — reviewers are handed the diff path and told to load it
+   whole with Read (two calls at most), never in slices, explicitly overriding the session's
+   shell preference. Turns roughly halve, and reads scale with turns.
+2. `claude/output-styles/orchestrator.md` completion rule — the post-fix reuse pass runs as one
+   `scout` dispatch instead of `deep`. "Does this capability already exist" is a search
+   question, scout's stated job, at ~$0.30 instead of ~$1.80. The pass stays independent of
+   builder's own Reused/Wrote-new report line, which is why it was not folded into the fix wave.
+
+Deferred: retiering the five angle reviewers off `deep`. The roster has no review-shaped agent
+at high effort — builder's prompt says implement, deep's effort is pinned in frontmatter, and
+the Agent tool has no per-call effort knob — so a ~$1 saving does not pass the governing
+principle for a new agent. Revisit if reviews still dominate after part 1. Rejected: dropping
+deep's effort to `high` globally (touches real debugging to move ~13% of review cost), and
+deleting the sixth pass (loses the independent check).
+
+## Changed — /jun-review fix wave gated by a scope test (2026-09-17)
+
+Observed: `/jun-review`'s Phase 2 said "'outside the diff' is not a reason to skip", written
+in the 2026-09-02 addendum above to protect blast-radius findings, which are outside the diff
+by construction. Unqualified, it licensed every out-of-diff finding — including `/tidy`'s
+reuse angle ("the same pattern exists in N other files"), whose own Phase 2 scope guard
+`/jun-review` bypasses by stopping tidy after Phase 1. A UI-only branch had unrelated files
+edited by the fix wave as a result.
+
+Fix, in `claude/commands/jun-review.md`: a two-rule scope test in Phase 2. The fix wave may
+edit files in the branch diff, and files outside it only where blast-radius returned a
+`Needs update` verdict with its consequence sentence — a consumer that now behaves wrong,
+fixed no further than that. Everything else is reported as an own-branch follow-up. Phase 3
+checks each lane's target files against the test before dispatch and carries the allowlist in
+the dispatch prompt, with the instruction to stop and report rather than edit outside it.
+Phase 4's report splits into in-diff fixes, consumer fixes, and follow-ups.
+
+Rules out: call-site migrations onto a new helper and sibling-pattern fixes as review fixes —
+they are refactors and belong to their own branch. Rejected: a durable follow-ups file. The
+follow-ups are report-only for now; a new component has not earned its place under the
+governing principle until the reporting proves insufficient.
+
 ## Removed — default model pin (2026-07-27)
 
 `settings.json` no longer ships a `model` key. The config is model-agnostic by design: the

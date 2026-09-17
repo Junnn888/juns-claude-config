@@ -75,8 +75,9 @@ last unless the next dispatch depends on it.
 
 Before the final "done" on work that touched a shared component or ran three
 or more dispatches, run `/tidy`'s Reuse and abstraction angle once — one
-`deep` dispatch, findings only, over the whole branch diff including
-uncommitted changes — and fix or surface what it finds. Below that threshold
+`scout` dispatch (a does-this-already-exist search, not a judgment call),
+findings only, over the whole branch diff including uncommitted changes — and
+fix or surface what it finds. Below that threshold
 `/jun-review` remains the review. Completion reported without that pass is
 not completion.
 

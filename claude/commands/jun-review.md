@@ -48,10 +48,27 @@ consequence, not by how interesting the code is.
 
 Every finding is a claim, not a result. Spot-check anything severe against the
 code before it earns a dispatch; drop false positives and note them. Decide
-per cluster: fix or skip. Skip only when the fix would change intended
-behaviour (that is the user's call — surface it) or the finding is judged
-false. "Outside the diff" is not a reason to skip: blast-radius findings live
-in files the diff never touched, by construction.
+per cluster: fix or skip. Skip when the fix would change intended behaviour
+(that is the user's call — surface it), the finding is judged false, or the
+fix fails the scope test below.
+
+### Scope test
+
+The fix wave may edit exactly two kinds of file:
+
+1. Files in the branch diff (`git diff --name-only <base>...HEAD` plus
+   uncommitted changes).
+2. Files outside the diff only when blast-radius returned a `Needs update`
+   verdict for that file, with its one-sentence user-visible consequence.
+   Those are consumers of something this branch changed that now behave
+   wrong — fix the consumer's behaviour, nothing more.
+
+Everything else is reported as an own-branch follow-up, never fixed, however
+good the finding is. Migrating pre-existing call sites onto a new helper, or
+fixing the same pattern in sibling files, is a refactor, not a review fix. A
+shared module the branch touched gets only the change the finding names. Test
+files are editable only when they pin code in the diff or blast-radius proved
+they now fail.
 
 ## Phase 3 — Eliminate (one wave)
 
@@ -61,11 +78,16 @@ another's. Tier by what makes the fix fail: `patch` when the whole change fits
 in the dispatch prompt, `builder` for anything larger, `deep` only where the
 cluster needs judgement rather than execution.
 
+Before dispatching, list each lane's target files and check every one against
+the scope test. Drop any file that fails it and move its finding to the
+own-branch follow-ups.
+
 The agent starts blind, so each dispatch carries the full context: the
 findings verbatim with their consequence sentences, the `file:line` sites, the
-relevant diff excerpt, the base ref, the constraint that the fix must not
-change behaviour beyond what the finding names, and an acceptance criterion
-the agent can check itself.
+relevant diff excerpt, the base ref, the allowlist of files it may edit — with
+the instruction to stop and report rather than edit anything else — the
+constraint that the fix must not change behaviour beyond what the finding
+names, and an acceptance criterion the agent can check itself.
 
 ## Phase 4 — Verify and report
 
@@ -74,6 +96,9 @@ Run the project's tests, typecheck and lint where they exist. Re-run
 no loop; anything still open is reported, not chased. Treat the agents'
 reports as claims: say which parts you verified yourself.
 
-Report exactly: clusters fixed with files changed, clusters skipped with the
-reason, findings still open, validation run, and the blast-radius PR-body
-block for the PR description.
+Report exactly: clusters fixed in the diff with files changed, blast-radius
+consumers fixed outside the diff (each with its consequence sentence),
+own-branch follow-ups with why each was out of scope, clusters skipped for
+other reasons, findings still open, validation run, and the blast-radius
+PR-body block for the PR description — listing real consumers only, not
+refactors.

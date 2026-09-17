@@ -24,12 +24,15 @@ target above, review that target instead. Treat this diff as the review scope.
 ## Phase 1 — Review (5 cleanup agents in parallel)
 
 Launch **5 independent review agents** via the Agent tool, all in a single
-message so they run concurrently. Pass each agent the diff and one of the five
-angles below. Each returns its findings with `file`, `line`, a one-line
-`summary`, and the concrete cost (what is duplicated, wasted, or harder to
-maintain). If the Agent tool is unavailable in this context, work through all
-five angles yourself in one pass — do not skip an angle for lack of fan-out,
-and say in the summary that the review was single-pass.
+message so they run concurrently. Pass each agent the path of the saved diff
+and one of the five angles below, and tell it to load the diff whole with Read
+(two calls at most for a long one) — never in `sed`/`cat` slices, whatever the
+session's shell preference says: every slice is a turn, and every turn re-reads
+the agent's entire history. Each returns its findings with `file`, `line`, a
+one-line `summary`, and the concrete cost (what is duplicated, wasted, or
+harder to maintain). If the Agent tool is unavailable in this context, work
+through all five angles yourself in one pass — do not skip an angle for lack of
+fan-out, and say in the summary that the review was single-pass.
 
 ### Reuse and abstraction
 
