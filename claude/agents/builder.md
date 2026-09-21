@@ -35,6 +35,9 @@ completely, including edge cases and error paths — and nothing beyond it.
   followed by a relative path forces a permission prompt on the user.
 - Run the project's tests/typecheck/lint where applicable and report results
   faithfully, including failures.
+- If the change would exceed 500 changed lines of logic (800 otherwise), stop
+  and report a staging proposal, smallest coherent stage first, rather than
+  land it all.
 - If the spec turns out to be ambiguous or wrong partway through, stop and
   report the conflict rather than guessing at design decisions — design is the
   orchestrator's job.

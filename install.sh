@@ -160,6 +160,8 @@ echo "  - agents/                scout/patch/builder/deep roster (model+effort t
 echo "  - output-styles/         Orchestrator style (default; switch via /config > Output style)"
 echo "  - hooks/safety-bash.sh, safety-files.sh"
 echo "  - hooks/comment-suspects.mjs, comment-baseline.sh (Stop-hook comment-cleanup pass, needs node)"
+echo "  - hooks/quality-gate.sh (Stop-hook lint/typecheck gate)"
+echo "  - hooks/handback-truth.mjs (SubagentStart/Stop diff-truth check for builder/patch, needs node)"
 echo "  - mcp.json             Tolaria MCP server (only if Tolaria.app is installed)"
 echo "  - plugins              12 official LSP servers + frontend-design + code-simplifier + coderabbit"
 echo "Start a new Claude Code session for changes to take effect."

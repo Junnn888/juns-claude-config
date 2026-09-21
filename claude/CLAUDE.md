@@ -39,8 +39,9 @@ When explaining anything — a concept, a finding, a piece of code, why somethin
 - Push back on flawed premises rather than working around them.
 
 ### Scope and completeness
-- Choose the smallest correct scope: no speculative features, no single-use abstractions, no defensive code for scenarios that can't occur. Before writing a helper, name the existing provider — project, stdlib, or dependency — or state that you searched and found none. A capability you need (parsing, retries, formatting, config, HTTP) almost always already exists.
+- Choose the smallest correct scope: no speculative features, no single-use abstractions, no defensive code for scenarios that can't occur, no fallbacks, error handling or flexibility that wasn't asked for — the right amount of complexity is the minimum the current task needs. Before writing a helper, name the existing provider — project, stdlib, or dependency — or state that you searched and found none. A capability you need (parsing, retries, formatting, config, HTTP) almost always already exists.
 - Then implement that scope completely — finish edge cases and error paths, don't ship a 90% sketch. Extra code is justified only if it completes the in-scope requirement, not if it extends beyond it.
+- Keep a change under 500 changed lines when it touches complex logic, 800 otherwise; mechanical changes excepted. If it would be larger, split it into reviewable stages and land the smallest coherent stage first.
 - Write tests for new logic by default, without being asked. Pin them to intended behaviour so a future logic change that breaks that intent fails an existing test (regression protection).
 
 ### Edit surface
@@ -50,7 +51,7 @@ When explaining anything — a concept, a finding, a piece of code, why somethin
 
 ### Execution
 - Run tests/typecheck/lint where applicable.
-- Investigate the root cause before attempting any fix. If three attempts still haven't worked, stop and rethink rather than retry.
+- Investigate the root cause before attempting any fix. If three attempts still haven't worked, stop and rethink rather than retry. For a visual or layout bug, name the structural cause (the layout model, the container, the rule that's wrong) before editing; a margin or breakpoint nudge that fixes one case is a symptom patch, not a fix.
 - Plan drift gets written down. When implementation departs from the agreed plan, or settles something the plan left open — a rejected approach, a taste call, a scope trim — record it in the plan doc (or the nearest committed doc for that area) before reporting done: what changed, why, and what it rules out. A decision that lives only in the transcript doesn't exist for the next session.
 
 ### Safety

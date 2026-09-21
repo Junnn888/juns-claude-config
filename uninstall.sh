@@ -33,6 +33,10 @@ else
         "$CLAUDE_DIR/statusLine.sh" \
         "$CLAUDE_DIR/hooks/safety-bash.sh" \
         "$CLAUDE_DIR/hooks/safety-files.sh" \
+        "$CLAUDE_DIR/hooks/quality-gate.sh" \
+        "$CLAUDE_DIR/hooks/comment-baseline.sh" \
+        "$CLAUDE_DIR/hooks/comment-suspects.mjs" \
+        "$CLAUDE_DIR/hooks/handback-truth.mjs" \
         "$CLAUDE_DIR/agents/scout.md" \
         "$CLAUDE_DIR/agents/patch.md" \
         "$CLAUDE_DIR/agents/builder.md" \

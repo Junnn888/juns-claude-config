@@ -282,6 +282,61 @@ command is the user pricing the task as worth a workflow. Pairs with the user-si
 model won't reliably reach on its own, and a correction the user was already repeating 3+
 times by hand.
 
+## Layer 2 addendum — Stop quality gate and subagent hand-back truth (2026-09-18)
+
+**Need.** Agent-driven work was arriving as thousand-line, over-complicated diffs, and the
+rules meant to hold it back are advisory: CLAUDE.md is injected as user-turn context in a
+"may or may not be relevant" system-reminder, and compliance decays as generation runs on
+— arXiv 2605.10039 measures roughly 5.6% lower odds of instruction compliance per
+additional function generated. Anthropic's own hook documentation draws the line: hooks
+execute deterministically, context files only ask. Two failures were surviving every
+advisory rule. First, a turn could end with lint or typecheck red, because "run
+tests/typecheck/lint where applicable" is a request the model can quietly skip. Second, a
+subagent's report is self-narrated: its file list and its `Reused:` / `Wrote new:` line are
+claims from memory, and the orchestrator could only check them by re-reading the tree.
+
+**Decision.** Two hooks.
+
+`claude/hooks/quality-gate.sh` (Stop) reads the hook payload, and in any git repo whose
+`package.json` declares `scripts.lint` or `scripts.typecheck` runs them through the
+lockfile's package manager, blocking the stop with exit 2 and the last 40 lines of the
+failing output plus an explicit "fix the root cause, do not disable rules or add
+suppressions" instruction. It deliberately does *not* early-exit on `stop_hook_active`:
+the gate must re-check after each fix attempt, and Claude Code's override after 8
+consecutive blocks is the runaway guard. Cost is contained by a per-session tree
+fingerprint — sha1 of `git diff HEAD` plus the untracked file list with sizes and mtimes,
+stored per session and updated only on a pass — so a turn that changed nothing since the
+last green run, or a clean tree, skips the checks entirely.
+
+`claude/hooks/handback-truth.mjs` (SubagentStart + SubagentStop, matcher
+`^(builder|patch)$`) snapshots tracked `--numstat` deltas and untracked line counts when a
+writer agent starts, recomputes them at stop, and blocks once with a facts block listing
+changed files, created files and new exported symbols. A SubagentStop block is delivered to
+the *subagent*, not the parent, so the block cannot inject anything into the orchestrator's
+context directly; instead it instructs the agent to reconcile its own report with the facts
+and append them verbatim, which reaches the orchestrator inside the hand-back it already
+reads. `stop_hook_active` releases the agent on the second stop, and an agent that changed
+nothing never bounces at all.
+
+**Governing-principle justification.** Passes on both counts. Lint or typecheck red at the
+end of a turn is caught by nothing else deterministically — the model's own promise to run
+them is the thing that decays. And a subagent report's file and reuse claims have no other
+mechanical check: no reviewer, hook or style compares what the agent says it did against
+what the tree records.
+
+**Exception to the <200ms target.** The repo's hook budget assumes PreToolUse hooks that
+fire on every tool call. `quality-gate.sh` fires once per turn on Stop, and only pays for
+lint and typecheck when the tree changed since the last pass, so a Q&A turn costs a git
+diff and a hash. Its `timeout` is set to 300s in `claude/settings.json` — well under the
+600s command-hook default, and enough for a cold `tsc` on a large project.
+
+**Rules out.** SubagentStop writing into the parent's context: undocumented, and the
+documented behaviour routes the block to the subagent. PostToolUse on the Agent tool as an
+alternative trigger: it fires at launch for background agents, so it cannot observe the
+finished work. Early-exiting `quality-gate.sh` on `stop_hook_active`: that turns the gate
+into a bounce-once nag, which is the opposite of a gate — one ignored failure and the turn
+ends red.
+
 ## Layer 5 — Orchestrator output style & agent roster (2026-08-03)
 
 **Need.** On expensive main-loop models the user was re-typing the same delegation
@@ -388,6 +443,43 @@ therefore applies only to orchestrated sessions, and plain sessions keep CLAUDE.
 Output rules unchanged. A Stop-hook length bounce was considered and rejected (wrong
 metric, and the official evidence of harm above); a per-turn `UserPromptSubmit` reminder
 is held in reserve if the style alone leaks.
+
+**Revision — one writer per concern, diff budget, narrower review fixes (2026-09-18).**
+The layer's fan-everything default was producing the diffs the Layer 2 addendum above
+gates against, so four text changes land alongside the two hooks.
+
+`claude/output-styles/orchestrator.md` now splits fan-out by kind: reads, searches and
+reviews still go out as a single concurrent wave, but writes are single-threaded per
+concern — one builder owns every edit for a feature or fix and receives the whole plan
+(files, data flow, where state lives, reuse lines, acceptance criteria). Source: Cognition's
+"Don't Build Multi-Agents" and Anthropic's multi-agent research post — parallel writers each
+start blind and make conflicting decisions, and coding has fewer genuinely parallelisable
+subtasks than research does. The Fable cost model is untouched because the fan-out that
+made it work (scouts and reviewers) is exactly the half that stays.
+
+`claude/CLAUDE.md` and `claude/agents/builder.md` gain the diff budget: under 500 changed
+lines when the change touches complex logic, 800 otherwise, mechanical changes excepted,
+else split into reviewable stages and land the smallest coherent one first. Builder's copy
+turns it into a stop-and-report rule rather than a target it can quietly overshoot. Source:
+OpenAI's Codex repo `AGENTS.md`.
+
+`claude/commands/jun-review.md` narrows the fix wave to clusters whose consequence is a
+correctness bug or a gap against what the branch set out to do; style and robustness
+clusters are listed as optional findings instead. Source: Anthropic's Claude Code best
+practices, which names acting on every reviewer finding as a cause of over-engineering.
+
+`claude/CLAUDE.md` also gains two clauses in the existing rules rather than new sections:
+the over-engineering counter-prompt from Anthropic's prompting guide (no fallbacks, error
+handling or flexibility that was not asked for — the right amount of complexity is the
+minimum the task needs), and a root-cause requirement for visual bugs (name the layout
+model, container or rule that is wrong before editing; a margin or breakpoint nudge that
+fixes one case is a symptom patch).
+
+**Rules out.** Spec-driven frameworks (Spec Kit, Kiro) — Thoughtworks' assessment is more
+ceremony for no smaller diffs, and the diff budget plus the quality gate target the outcome
+directly. Moving all writes back into the main session: single-writer is about one writer
+per concern, not about who that writer is; putting edits on the Fable main loop defeats the
+whole cost model Layer 5 exists for.
 
 ## Layer 1 addendum — length licence removed, discuss→approve restored (2026-08-14)
 

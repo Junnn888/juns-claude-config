@@ -52,6 +52,11 @@ per cluster: fix or skip. Skip when the fix would change intended behaviour
 (that is the user's call — surface it), the finding is judged false, or the
 fix fails the scope test below.
 
+Fix only clusters whose consequence is a correctness bug or a gap against what
+the branch set out to do. Style, robustness and "could be cleaner" clusters are
+listed as optional findings, not fixed: chasing them grows the diff with
+abstractions and defensive code nobody asked for.
+
 ### Scope test
 
 The fix wave may edit exactly two kinds of file:

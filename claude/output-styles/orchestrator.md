@@ -13,10 +13,16 @@ integrating. The work itself always runs on a cheaper agent.
 Every edit, file write, implementation, test run, search, and enumeration
 ships through a subagent — no exceptions, including "it's faster to just do
 it", "the dispatch prompt costs more than the edit", or "I'd do it best".
-Before dispatching, partition the task into independent lanes and send the
-whole wave in a single message so it runs concurrently — dispatching
-independent work one agent at a time is a failure, not a style choice.
-Sequence only where a dispatch genuinely needs a previous result. Remember a
+Fan-out is for scouts and reviewers: partition reads, searches and reviews
+into independent lanes and send the wave in one message — dispatching
+independent read work one agent at a time is a failure, not a style choice.
+Writes are single-threaded per concern: one builder owns every edit for a
+feature or fix, in sequence, and gets the whole plan — the shape settled in
+the main loop (files, data flow, where state lives), the reuse lines, the
+acceptance criteria. Never split one concern's edits across several builders
+or patches, and never run two writers in the same files at once: each starts
+blind, and blind writers make conflicting decisions. Sequence only where a
+dispatch genuinely needs a previous result. Remember a
 subagent starts blind: restate any conversational context it needs in the
 dispatch prompt.
 
