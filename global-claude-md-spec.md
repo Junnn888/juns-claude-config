@@ -482,6 +482,14 @@ re-decides, which is exactly the divergence the single-writer rule exists to rem
 orchestrator style now states this as the default, with a new writer reserved for a new
 concern or a writer that no longer exists.
 
+**Addendum (2026-09-21) — docs first.** Sessions were starting from code even in projects
+whose codebase is mapped in the Tolaria vault, because nothing loaded at session start said
+the map existed. Fix in two places: a `## Docs first` section in each mapped project's
+CLAUDE.md naming the index note (Cellular first: `Work/Cellular/ux-flow-index.md`), and one
+orchestrator sentence making scout dispatches carry the relevant note paths. A SessionStart
+hook injecting the index is deferred until the rule is seen to decay, per the governing
+principle.
+
 **Rules out.** Spec-driven frameworks (Spec Kit, Kiro) — Thoughtworks' assessment is more
 ceremony for no smaller diffs, and the diff budget plus the quality gate target the outcome
 directly. Moving all writes back into the main session: single-writer is about one writer
@@ -867,6 +875,52 @@ Rules out: call-site migrations onto a new helper and sibling-pattern fixes as r
 they are refactors and belong to their own branch. Rejected: a durable follow-ups file. The
 follow-ups are report-only for now; a new component has not earned its place under the
 governing principle until the reporting proves insufficient.
+
+## Added — /jun-project-setup (2026-09-21)
+
+**Need.** Per-project guardrails — a docs-first pointer into the vault map, `lint` and
+`typecheck` scripts for the quality-gate hook to have something to run, and size and
+complexity rules baselined to the tree as it stands — were being set up by hand, project by
+project. The first run on Cellular surfaced four gotchas worth freezing: the project
+`CLAUDE.md` may be git-ignored (the pointer then lives on that machine only, which the
+report has to say); baselining is not optional (195 files over 300 lines, 2,993 arbitrary
+bracket values — unbaselined rules turn the whole tree red and get disabled the same day);
+the bracket ban is unusable without an allowlist (`data-[…]`, `aria-[…]`, `group-data-[…]`,
+`env(safe-area-inset…)`, `calc(…)`, `var(--…)`); and dependency adds are blocked by
+`safety-bash.sh`, so any plugin-based check must be report-then-rerun rather than installed
+in-flight.
+
+**Decision.** `claude/commands/jun-project-setup.md` — survey → propose → approve → one
+builder. One read-only `scout` measures scripts, ESLint version and rules, Tailwind
+brackets and inline styles, file sizes, docs size and whether a vault map exists; the main
+loop prints a gap table (Present? / Measured / Action) and the exact content it intends to
+write, then stops for approval; one `builder` applies the approved steps add-if-missing,
+runs `--suppress-all` to write the baseline on ESLint ≥ 9.24 (rules as `warn` below that),
+and verifies lint and typecheck at exit 0. Packages are never installed — the report
+carries the exact commands for the lockfile-detected manager, and the second run, after the
+user installs, is the intended path for the Tailwind, sonarjs, jscpd and knip checks. JS/TS
+only: without `package.json` the command says so and stops.
+
+**Governing-principle justification.** Passes the repetition bar: the same setup runs once
+per project, and the four gotchas above are exactly the kind that get rediscovered by hand
+each time. It adds no new component — no hook, no skill, no plugin — and installs nothing
+the existing hooks do not already need; `quality-gate.sh` is silent in a project with no
+`lint` or `typecheck` script, and this is what gives it something to gate on.
+
+**Rules out.** Auto-installing packages, in-flight or otherwise — the hook block is the
+design, not an obstacle. A one-size config for non-JS stacks; the manual-setup note is the
+answer there until a second stack earns its own path. And the command deciding design
+questions: a top bracket pattern like `text-[10px]` ×1007 is reported as a missing type
+scale for the user to name, never fixed or configured away.
+
+**Addendum (2026-09-21) — install pause.** The first design deferred the plugin-based
+checks (Tailwind bracket ban, sonarjs, jscpd, knip) to a second run after the user installed
+them by hand; the Cellular survey showed all four were genuine gaps, so the second run
+would be the common path. The command now pauses after the proposal with the exact install
+line and a one-line explanation per package, and the user runs it with the `!` prefix
+in-session; the run then continues to write the plugin configs. Rules out: allowlisting
+those packages in the safety hook so the command installs them itself — the
+never-auto-install rule stays intact, and the cost of the pause is one paste.
 
 ## Removed — default model pin (2026-07-27)
 

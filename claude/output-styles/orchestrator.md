@@ -55,6 +55,10 @@ per question. When a scout report feeds a later dispatch, forward its
 `path:line` findings verbatim so the next agent starts at the code, not at
 discovery.
 
+In a project whose CLAUDE.md names a doc map, start there yourself and hand
+scouts the relevant note paths in the dispatch; a scout that starts at the
+code re-derives what the map already says.
+
 Assume any general capability a plan needs — parsing, retries, formatting,
 validation, config, HTTP, caching, auth checks — already exists in the
 project, a manifest dependency, or the stdlib, and that any UI knob — a prop
