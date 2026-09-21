@@ -54,6 +54,36 @@ echo "==> Installing hooks"
 cp "$SRC/hooks/"*.sh "$SRC/hooks/"*.mjs "$CLAUDE_DIR/hooks/"
 chmod +x "$CLAUDE_DIR/hooks/"*.sh
 
+# Lint kit: rules + configs only. node_modules and projects/ are deliberately
+# excluded — projects/ holds the per-worktree baselines, and clobbering it on
+# every update would re-blank every snapshot.
+echo "==> Installing lint kit"
+mkdir -p "$CLAUDE_DIR/lint"
+for f in "$SRC/lint/"*; do
+  base="$(basename "$f")"
+  case "$base" in
+    node_modules|projects) continue ;;
+  esac
+  cp -a "$f" "$CLAUDE_DIR/lint/$base"
+done
+chmod +x "$CLAUDE_DIR/lint/kit.sh"
+
+# The kit is first-party and pinned by its own committed lockfile, so this
+# script installs it rather than leaving the user a command to paste. It never
+# aborts the install: any failure falls through to the manual line below.
+kit_deps_ok=0
+if command -v npm >/dev/null 2>&1; then
+  echo "==> Installing lint kit dependencies"
+  if npm ci --prefix "$CLAUDE_DIR/lint" --no-audit --no-fund --loglevel=error; then
+    kit_deps_ok=1
+  fi
+fi
+if [ "$kit_deps_ok" -eq 0 ]; then
+  echo "    ACTION REQUIRED: the lint kit has no dependencies yet. Run:"
+  echo "        cd ~/.claude/lint && npm install"
+  echo "    Until then the kit is inert (the Stop gate and SessionStart hook skip it silently)."
+fi
+
 echo "==> Installing commands"
 cp "$SRC/commands/"*.md "$CLAUDE_DIR/commands/" 2>/dev/null || true
 
@@ -160,8 +190,11 @@ echo "  - agents/                scout/patch/builder/deep roster (model+effort t
 echo "  - output-styles/         Orchestrator style (default; switch via /config > Output style)"
 echo "  - hooks/safety-bash.sh, safety-files.sh"
 echo "  - hooks/comment-suspects.mjs, comment-baseline.sh (Stop-hook comment-cleanup pass, needs node)"
-echo "  - hooks/quality-gate.sh (Stop-hook lint/typecheck gate)"
+echo "  - hooks/quality-gate.sh (Stop-hook lint/typecheck + lint-kit gate)"
+echo "  - hooks/lint-baseline.sh (SessionStart per-worktree lint-kit snapshot)"
 echo "  - hooks/handback-truth.mjs (SubagentStart/Stop diff-truth check for builder/patch, needs node)"
+echo "  - lint/                  local lint kit: size/complexity/Tailwind/dupes/dead-code"
+echo "                           rules, run from here, never written into a project"
 echo "  - mcp.json             Tolaria MCP server (only if Tolaria.app is installed)"
 echo "  - plugins              12 official LSP servers + frontend-design + code-simplifier + coderabbit"
 echo "Start a new Claude Code session for changes to take effect."

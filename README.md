@@ -19,9 +19,9 @@ Backs up any existing `~/.claude` to `~/.claude.backup.<timestamp>` first.
 ## After install
 
 The install script handled the file copies, hook setup, pre-installed the
-official LSP plugins, and ran the binary doctor (which printed any missing
-language-server binaries with their install commands). You still need to do
-four things:
+official LSP plugins, installed the lint kit's dependencies from its committed
+lockfile, and ran the binary doctor (which printed any missing language-server
+binaries with their install commands). You still need to do four things:
 
 **1. Install `jq` if it warned you it was missing.** Without it the safety
 hooks fail open (warn + allow, not block). On macOS: `brew install jq`.
@@ -132,13 +132,33 @@ config installed.
 | `hooks/safety-bash.sh` | PreToolUse (Bash). Hard-blocks 9 categories of dangerous command (git state, DB/migrations, destructive FS, deploy, secrets, dep-adds, mutating HTTP, system, CI). Agent blocked → you run it yourself. |
 | `hooks/safety-files.sh` | PreToolUse (Read/Write/Edit). Blocks reads and edits of `.env*`, keys, credential files. |
 | `hooks/comment-suspects.mjs` | Stop + SessionStart (needs `node`). Scans lines added this turn for generation-narration comments ("First we loop over…") and bounces the stop once with a delete-or-keep list — the script nominates, the model judges. Allowlists rationale markers (TODO, workaround, because, URLs, lint pragmas); fingerprints suspects per session so nothing is re-nagged; SessionStart pre-seeds leftovers already in the dirty tree. Logs every pass to `hooks/comment-bounce.log`. |
-| `hooks/quality-gate.sh` | Stop. Blocks the turn from ending while `lint` or `typecheck` fails in the project's `package.json` (npm/pnpm/yarn/bun by lockfile). Silent where neither script exists; re-checks after every fix attempt, and skips the run entirely when the tree hasn't changed since the last pass. Logs every pass to `hooks/quality-gate.log`. |
+| `hooks/quality-gate.sh` | Stop. Blocks the turn from ending while `lint` or `typecheck` fails in the project's `package.json` (npm/pnpm/yarn/bun by lockfile), or while the lint kit finds violations above this worktree's snapshot. Silent where neither exists; re-checks after every fix attempt, and skips the run entirely when the tree hasn't changed since the last pass. Logs every pass to `hooks/quality-gate.log`. |
+| `hooks/lint-baseline.sh` | SessionStart. Takes the lint kit's suppressions snapshot for the current worktree the first time a session opens in it, and prints one line saying so. Silent when the kit isn't installed, when the snapshot already exists, or outside a JS/TS git worktree. |
+| `lint/` | The lint kit (see below). |
 | `hooks/handback-truth.mjs` | SubagentStart + SubagentStop (needs `node`), matched to `builder`/`patch`. Snapshots the git tree when a writer agent starts and bounces its stop once with a git-derived facts block (changed files, created files, new exports) for the agent to check its `Reused:` / `Wrote new:` claims against and append to its report. Read-only agents never bounce. Logs every pass to `hooks/handback.log`. |
 | `hooks/comment-baseline.sh` | Measurement utility, not wired as a hook. Runs the same detector over the last N commits of whatever repo it's invoked from and prints suspects per 100 added lines — for baselining a codebase before judging the Stop hook. |
 | `mcp.json` | Tolaria MCP server. Only installed when `/Applications/Tolaria.app` exists, and never overwrites an existing `mcp.json`. |
-| `commands/` | Custom slash commands: `/pr-branch` (PR message + open PR), `/fan` (fan a task out to a multi-agent workflow with adversarial verification), `/tidy` (fork of the built-in `/simplify` with a fifth self-explanatory-code angle), `/blast-radius` (find consumers the diff should have updated and didn't), `/jun-review` (run all three reviewers findings-only, cluster by root cause in the main loop, fix in one targeted wave) and `/jun-project-setup` (survey a JS/TS project's guardrails, propose the gaps, then install docs-first pointer, lint/typecheck scripts and baselined size/complexity rules through one builder — never installs packages, reports the commands instead; idempotent, so re-running after an install writes the plugin-based checks). |
+| `commands/` | Custom slash commands: `/pr-branch` (PR message + open PR), `/fan` (fan a task out to a multi-agent workflow with adversarial verification), `/tidy` (fork of the built-in `/simplify` with a fifth self-explanatory-code angle), `/blast-radius` (find consumers the diff should have updated and didn't), `/jun-review` (run all three reviewers findings-only, cluster by root cause in the main loop, fix in one targeted wave) and `/jun-project-setup` (survey a JS/TS project's guardrails, propose the gaps, then write the per-repo lint-kit settings and a `CLAUDE.local.md` docs-first pointer — nothing else lands in the repo: no rules, no dev-deps, no baseline file, since the kit carries all of those; idempotent). |
 | `agents/` | Orchestrator roster: `scout` (sonnet 1M context, low effort, read-only search), `patch` (sonnet, medium effort, small fully-specified fixes), `builder` (opus, medium effort, well-specified implementation), `deep` (opus, xhigh effort, hard problems). Agent-file frontmatter is the only place ordinary delegation can pin model *and* effort. |
 | `output-styles/` | `Orchestrator` style: main loop is a strict manager — it plans, routes to the roster, and judges results, but never edits or implements itself; scale fan-outs defer to `/fan`. Default output style (`outputStyle` in `settings.json`); switch via `/config` → Output style, takes effect from the next session. |
+
+## Lint kit (`~/.claude/lint/`)
+
+A self-contained ESLint setup that enforces size and complexity limits (`max-lines` 400, `max-lines-per-function` 80, `complexity` 12, `max-params` 4, `max-depth` 4, sonarjs `cognitive-complexity` 15), banned Tailwind arbitrary bracket values where the project has a Tailwind v4 entry file, duplication (jscpd) and dead code (knip).
+
+Nothing is ever written into the repo under review. The rules, the dependencies and the baselines all live under `~/.claude/lint/`, which is what makes the kit usable in repos you don't own. `kit.sh` is the single entry point; ESLint runs with `--no-config-lookup`, so the project's own config is neither read nor needed.
+
+Baselines are per worktree, not per repo. The first time a session opens in a JS/TS worktree, `hooks/lint-baseline.sh` snapshots every existing violation as an ESLint suppression under `~/.claude/lint/projects/`; from then on the Stop gate lints only the files you changed and blocks only on violations above that snapshot. A snapshot taken on one branch never makes another branch look broken.
+
+Nothing to run by hand: `install.sh` installs the kit's dependencies with `npm ci` from its committed lockfile. The kit is first-party and lives under `~/.claude`, so it is the one exception to this config's never-auto-install rule, which still holds absolutely for anything added to a project and for third-party binaries.
+
+If `npm` is missing, or `npm ci` fails, the install says so and carries on. The fallback is one line:
+
+```bash
+cd ~/.claude/lint && npm install
+```
+
+Until the dependencies are there, the kit is inert and both hooks skip it silently.
 
 ## LSP layer
 

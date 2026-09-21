@@ -1,0 +1,21 @@
+{
+  "minTokens": 50,
+  "minLines": 5,
+  "maxLines": 1000,
+  "threshold": 100,
+  "format": ["typescript", "tsx", "javascript", "jsx"],
+  "reporters": ["console"],
+  "ignore": [
+    "**/node_modules/**",
+    "**/.next/**",
+    "**/dist/**",
+    "**/build/**",
+    "**/out/**",
+    "**/coverage/**",
+    "**/.turbo/**",
+    "**/*.d.ts",
+    "**/*.min.js"
+  ],
+  "gitignore": true,
+  "absolute": false
+}

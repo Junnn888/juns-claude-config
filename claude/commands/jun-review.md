@@ -96,10 +96,14 @@ names, and an acceptance criterion the agent can check itself.
 
 ## Phase 4 — Verify and report
 
-Run the project's tests, typecheck and lint where they exist. Re-run
-`coderabbit review --agent --base <base>` once to confirm the fixes landed —
-no loop; anything still open is reported, not chased. Treat the agents'
-reports as claims: say which parts you verified yourself.
+Run the project's tests, typecheck and lint where they exist, then the lint
+kit's `~/.claude/lint/kit.sh check`, `dupes` and `dead` when the kit is
+installed, then every `lint:<name>` script `package.json` defines; all must exit
+0, and one that does not is reported as a failure with its last 15 lines, not
+chased into another fix wave. Re-run `coderabbit review --agent --base <base>`
+once to confirm the fixes landed — no loop; anything still open is reported, not
+chased. Treat the agents' reports as claims: say which parts you verified
+yourself.
 
 Report exactly: clusters fixed in the diff with files changed, blast-radius
 consumers fixed outside the diff (each with its consequence sentence),

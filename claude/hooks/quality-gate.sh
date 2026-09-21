@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 # Stop hook. Blocks the turn from ending while the project's lint or typecheck
-# fails. Silent in projects without those scripts.
+# fails, or while the local lint kit finds violations above this worktree's
+# snapshot. Silent in projects with neither.
+# The kit (~/.claude/lint) carries its own rules and dependencies, so projects
+# that own no lint scripts — and projects the user does not own — still get
+# size, complexity and duplication enforcement without a single file written
+# into the repo.
 # Mechanic: exit 2 = block + stderr fed back to Claude. exit 0 = allow.
 # Claude Code overrides after 8 consecutive blocks, which is the runaway guard —
 # so this hook deliberately does NOT early-exit on stop_hook_active: the gate
@@ -48,10 +53,16 @@ has_script() {
   jq -e --arg s "$1" '.scripts[$s] // empty' "$cwd/package.json" >/dev/null 2>&1
 }
 
+KIT="$HOME/.claude/lint/kit.sh"
+kit_available=0
+if [ -x "$KIT" ] && "$KIT" --cwd "$cwd" installed >/dev/null 2>&1; then
+  kit_available=1
+fi
+
 scripts=()
 has_script lint && scripts+=("lint")
 has_script typecheck && scripts+=("typecheck")
-if [ ${#scripts[@]} -eq 0 ]; then
+if [ ${#scripts[@]} -eq 0 ] && [ "$kit_available" -eq 0 ]; then
   log "skip-no-checks" ""
   exit 0
 fi
@@ -97,13 +108,24 @@ fi
 
 failed=0
 ran=""
-for script in "${scripts[@]}"; do
-  ran="${ran:+$ran,}$script"
-  out="$( (cd "$cwd" && $manager run ${silent:+$silent} "$script") 2>&1 )" && continue
-  failed=1
-  echo "Quality gate: $manager run $script failed. Fix the root cause; do not disable rules, add suppressions, or delete tests to pass." >&2
-  printf '%s\n' "$out" | tail -n 40 >&2
-done
+if [ ${#scripts[@]} -gt 0 ]; then
+  for script in "${scripts[@]}"; do
+    ran="${ran:+$ran,}$script"
+    out="$( (cd "$cwd" && $manager run ${silent:+$silent} "$script") 2>&1 )" && continue
+    failed=1
+    echo "Quality gate: $manager run $script failed. Fix the root cause; do not disable rules, add suppressions, or delete tests to pass." >&2
+    printf '%s\n' "$out" | tail -n 40 >&2
+  done
+fi
+
+if [ "$kit_available" -eq 1 ]; then
+  ran="${ran:+$ran,}kit"
+  if ! out="$("$KIT" --cwd "$cwd" check 2>&1)"; then
+    failed=1
+    echo "Quality gate: lint kit found violations above this worktree's snapshot. Fix the code; do not add disables or suppressions." >&2
+    printf '%s\n' "$out" | tail -n 40 >&2
+  fi
+fi
 
 if [ "$failed" -eq 1 ]; then
   log "fail" "$ran"

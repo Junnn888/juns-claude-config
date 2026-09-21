@@ -47,8 +47,13 @@ abstraction the diff adds without a second caller.
   the capability's synonyms rather than the diff's chosen name, then consider
   the stdlib. Name the exact thing to call instead (import path and
   signature), or state what was searched and that none was found.
-- Duplication: logic the diff repeats from code outside the diff — Grep for
-  the same shape elsewhere in the codebase, not only in adjacent files.
+- Duplication: logic the diff repeats from code outside the diff. Run
+  `~/.claude/lint/kit.sh dupes` first when the kit is installed (else the
+  project's own `lint:dupes` script if `package.json` defines one) and treat
+  each new clone it reports as a Duplication finding to confirm against the
+  code and name the shared form of. Then Grep for the same shape elsewhere in
+  the codebase — not only in adjacent files — to catch what the detector's
+  token threshold misses.
 - Single-use abstraction: a helper, wrapper, interface, generic parameter,
   config object, or prop on a shared component the diff adds with one caller
   or one implementation, and any class cluster that mimics an existing

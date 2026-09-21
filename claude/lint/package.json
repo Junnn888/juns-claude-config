@@ -1,0 +1,16 @@
+{
+  "name": "jun-lint-kit",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Local lint kit for juns-claude-config. Rules and baselines live here, never in the project under review.",
+  "type": "module",
+  "devDependencies": {
+    "eslint": "^10.0.0",
+    "eslint-plugin-better-tailwindcss": "^4.7.0",
+    "eslint-plugin-sonarjs": "^4.2.1",
+    "jscpd": "^5.3.0",
+    "knip": "^6.37.0",
+    "typescript": "^5.9.0",
+    "typescript-eslint": "^8.70.0"
+  }
+}

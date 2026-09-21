@@ -922,6 +922,104 @@ in-session; the run then continues to write the plugin configs. Rules out: allow
 those packages in the safety hook so the command installs them itself — the
 never-auto-install rule stays intact, and the cost of the pause is one paste.
 
+## Changed — guardrails moved out of the repo into a local lint kit (2026-09-21)
+
+**Need.** The user commonly works in repos they do not own. The 2026-09-21
+`/jun-project-setup` design wrote eight files into the project — ESLint rules, plugin
+dev-deps, a committed suppressions baseline, jscpd and knip configs, `lint:*` scripts —
+and relied on CI to run two of them. That is a team decision made unilaterally, and it was
+reverted from Cellular's `development` the same day. The committed baseline also failed
+on its own terms: generated from one tree, it made every branch that diverged earlier
+look entirely new — 364 "new" errors in the trips worktree, nine Stop-gate bounces at
+~30 s each, then the runaway override. The checks are for the user's agent sessions, not
+for the repo.
+
+**Decision.** A lint kit under `claude/lint/`, installed to `~/.claude/lint/`.
+
+- *Kit.* Its own `package.json` (eslint, typescript-eslint parser, eslint-plugin-sonarjs,
+  eslint-plugin-better-tailwindcss, jscpd, knip) and one flat config carrying the size,
+  complexity, depth, params, cognitive-complexity and bracket-ban rules with the existing
+  allowlist. Run with `--config <kit> --no-config-lookup`, so the project's own ESLint
+  config is neither read nor edited. `install.sh` copies the kit and prints the dependency
+  install line; it never runs it. `kit.sh` is the single entry point (`paths`,
+  `installed`, `baseline`, `check`, `dupes`, `dead`) that hooks and commands call.
+- *State, two keys.* Settings (Tailwind theme path) are keyed per repo — sha1 of the
+  resolved `git rev-parse --git-common-dir` — so every worktree of a repo shares them. The
+  suppressions snapshot is keyed per worktree — sha1 of `git rev-parse --show-toplevel` —
+  so a branch only competes against itself. Both live under `~/.claude/lint/projects/`.
+- *Snapshot at SessionStart.* `claude/hooks/lint-baseline.sh` (SessionStart) takes the
+  worktree's snapshot when none exists. Session start is before any agent edit, so the
+  snapshot is the user's code by construction. Zero tokens, no command to run per
+  worktree.
+- *Gate.* `quality-gate.sh` keeps running the project's own `lint` and `typecheck`
+  unchanged — the team's rules — and adds `kit.sh check` over files changed since HEAD
+  plus untracked, against the worktree snapshot. A violation above the snapshot blocks
+  with exit 2 as today. jscpd and knip stay out of Stop: whole-project checks belong to
+  review.
+- *Review.* `/tidy`'s Duplication bullet and `/jun-review` Phase 4 run the kit's `dupes`
+  and `dead`, falling back to a project's own `lint:*` scripts where the repo defines
+  them (the earlier 2026-09-21 `lint:*` rule stays as that fallback).
+- *Setup.* `/jun-project-setup` keeps its survey and gap table. Apply writes only the
+  per-repo settings file and the docs-first pointer into `CLAUDE.local.md`, added to
+  `.git/info/exclude`. Removed: the install pause, package and config edits, the
+  committed baseline, and the `lint:*` scripts. Runs once per repo. Report states that no
+  repo file changed.
+
+**Governing-principle justification.** No new enforcement surface — the same Stop gate,
+the same rules — relocated so it can exist at all in a repo the user cannot change. The
+per-worktree snapshot catches a failure the committed baseline caused rather than caught:
+pre-existing code on a diverged branch being reported as new. The SessionStart snapshot is
+a hook because a stale or missing baseline is a deterministic condition; asking the model
+to remember to take one is the advisory pattern the Layer 2 addendum exists to replace.
+
+**Rules out.** Copying a snapshot between worktrees (the exact mismatch that failed
+today). An "own project" mode that writes into the repo — a team gate is a hand-made PR.
+Editor integration: the rules show in the editor only when the repo carries them, and
+that cost is accepted. A bounce cap in the gate: with attributable failures the loop
+converges in one round; the eight-block override stays the backstop, and the bounce log
+is the evidence for revisiting.
+
+**Resolved in the build (2026-09-21).** All three plugins run clean from the kit against a
+foreign project: better-tailwindcss resolves the project's own `tailwindcss` from cwd, so
+the kit carries none; jscpd 5.x has a native baseline (`--baseline`, `--update-baseline`,
+`--fail-on-new-clones`), so `dupes` uses it rather than a hand-rolled diff; knip reports
+from an external config. Four decisions the build settled:
+
+- *Inline disables are ignored.* The kit config sets `noInlineConfig`. The project's own
+  `eslint-disable` comments name plugins the kit does not load, and ESLint reports each
+  as an error attributed to the missing rule — 177 phantom entries in the first snapshot,
+  and a guaranteed unfixable block the next time a changed file gained one. The side
+  effect is the rule the gate message already states: an inline disable cannot silence a
+  kit rule. `--quiet` drops the resulting per-directive warnings; lossless because every
+  kit rule is `error`.
+- *`check` passes `--pass-on-unpruned-suppressions`.* ESLint otherwise exits 2 whenever
+  the snapshot holds entries the run did not see — every run over a handful of changed
+  files, and every time a suppressed violation is genuinely fixed. The snapshot is
+  rewritten only by `baseline`; `--prune-suppressions` is never passed.
+- *`dupes` reports a count, not locations.* jscpd's new-clone check is count-only and its
+  console reporter ignores the baseline, so the compare runs silent and prints the
+  command to see the clones when it fails. Rules out parsing the full clone report to
+  diff it by hand until the count-only answer proves insufficient in use.
+- *Settings are created on first use.* `baseline` writes the per-repo settings file when
+  absent, auto-detecting `tailwindEntry` from the common `globals.css` locations, so a
+  worktree the setup command never ran in still gets the bracket rule. `/jun-project-setup`
+  remains the place to correct the path.
+
+Measured on the trips worktree: snapshot 8.6 s (4502 suppressed, 587 files); `check` on
+three changed files ~1 s; SessionStart hook 134 ms when the snapshot exists. The gate's
+jscpd json reporter was removed after it wrote a report file into the project — the one
+invariant the design exists to protect, caught in the first test run.
+
+**Scope of never-auto-install (2026-09-21).** The rule stays absolute where it was written
+to bite: dependencies added to a project the user may not own, and third-party binaries
+fetched on their behalf — the language servers stay check-and-report for exactly that
+reason. The kit is neither. It is first-party, it lives under `~/.claude`, and it installs
+from its own committed lockfile with `npm ci`, inside a script that already overwrites the
+user's `settings.json`, hooks and CLAUDE.md. Leaving one paste-this line as the price of a
+fresh machine bought no supply-chain safety it did not already have. So `install.sh` runs
+it, and prints the manual line only as the fallback when `npm` is missing or `npm ci`
+fails; the install never aborts over the kit.
+
 ## Removed — default model pin (2026-07-27)
 
 `settings.json` no longer ships a `model` key. The config is model-agnostic by design: the

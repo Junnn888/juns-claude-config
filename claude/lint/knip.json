@@ -1,0 +1,12 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "ignore": [
+    "**/*.d.ts",
+    ".next/**",
+    "dist/**",
+    "build/**",
+    "out/**",
+    "coverage/**",
+    ".turbo/**"
+  ]
+}

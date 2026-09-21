@@ -1,0 +1,4 @@
+# Lint kit: dependencies and derived per-worktree baselines. package-lock.json
+# stays committed so every machine installs the same kit.
+claude/lint/node_modules/
+claude/lint/projects/

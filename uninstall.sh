@@ -34,6 +34,7 @@ else
         "$CLAUDE_DIR/hooks/safety-bash.sh" \
         "$CLAUDE_DIR/hooks/safety-files.sh" \
         "$CLAUDE_DIR/hooks/quality-gate.sh" \
+        "$CLAUDE_DIR/hooks/lint-baseline.sh" \
         "$CLAUDE_DIR/hooks/comment-baseline.sh" \
         "$CLAUDE_DIR/hooks/comment-suspects.mjs" \
         "$CLAUDE_DIR/hooks/handback-truth.mjs" \
@@ -43,6 +44,9 @@ else
         "$CLAUDE_DIR/agents/deep.md" \
         "$CLAUDE_DIR/output-styles/orchestrator.md"
   rm -rf "$CLAUDE_DIR/skills/notes-routing"
+  # Whole directory, baselines included — they are derived data, regenerated on
+  # the next session start in each worktree.
+  rm -rf "$CLAUDE_DIR/lint"
   echo "==> Removed. mcp.json (if present) was left in place on purpose —"
   echo "    it may hold your own extra MCP servers."
   echo "    Note: a fresh ~/.claude/settings.json was NOT recreated — Claude"
