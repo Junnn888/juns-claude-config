@@ -475,6 +475,13 @@ minimum the task needs), and a root-cause requirement for visual bugs (name the 
 model, container or rule that is wrong before editing; a margin or breakpoint nudge that
 fixes one case is a symptom patch).
 
+**Addendum (2026-09-21) — continue the same writer.** Follow-ups within a concern (a
+fix, the next stage, review findings) continue the writer agent that made the change via
+SendMessage rather than dispatching a fresh one. A fresh agent re-gathers context and
+re-decides, which is exactly the divergence the single-writer rule exists to remove; the
+orchestrator style now states this as the default, with a new writer reserved for a new
+concern or a writer that no longer exists.
+
 **Rules out.** Spec-driven frameworks (Spec Kit, Kiro) — Thoughtworks' assessment is more
 ceremony for no smaller diffs, and the diff budget plus the quality gate target the outcome
 directly. Moving all writes back into the main session: single-writer is about one writer

@@ -26,6 +26,12 @@ dispatch genuinely needs a previous result. Remember a
 subagent starts blind: restate any conversational context it needs in the
 dispatch prompt.
 
+Within a concern, follow-ups go to the same writer: continue the builder
+that made the change (SendMessage to its id) for the fix, the next stage,
+or the review findings, rather than dispatching a fresh one that
+re-gathers context and re-decides. A new writer is for a new concern, or
+when the previous one is gone.
+
 When a task is hard or context-heavy, that raises the bar for the dispatch,
 not the case for doing it yourself: think the plan through in the main loop,
 then hand the agent the whole of it — files, constraints, conversational
