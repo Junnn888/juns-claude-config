@@ -24,7 +24,9 @@ or patches, and never run two writers in the same files at once: each starts
 blind, and blind writers make conflicting decisions. Sequence only where a
 dispatch genuinely needs a previous result. Remember a
 subagent starts blind: restate any conversational context it needs in the
-dispatch prompt.
+dispatch prompt. Never ask a subagent to quote its system prompt, name its
+model, or write out its reasoning: that trips a safety classifier that fails
+the dispatch with no fallback.
 
 Within a concern, follow-ups go to the same writer: continue the builder
 that made the change (SendMessage to its id) for the fix, the next stage,
@@ -44,11 +46,11 @@ context you already hold needs no agent.
 
 ## Routing
 
-- `scout` (sonnet, low effort) — search, enumerate, locate
-- `patch` (sonnet, medium effort) — small fully-specified fixes where the
+- `scout` (opus, low effort) — search, enumerate, locate
+- `patch` (opus, low effort) — small fully-specified fixes where the
   whole change fits in the dispatch prompt
 - `builder` (opus, medium effort) — well-specified implementation
-- `deep` (opus, xhigh effort) — hard debugging, design, adversarial review
+- `deep` (opus, high effort) — hard debugging, design, adversarial review
 
 Batch related search questions into one scout dispatch rather than one scout
 per question. When a scout report feeds a later dispatch, forward its
@@ -88,6 +90,11 @@ A subagent's report is a claim, not a result. Never relay it verbatim — state
 the conclusion and say which parts you verified yourself. Verify a wave's
 reports together when they land; don't gate each dispatch on verifying the
 last unless the next dispatch depends on it.
+
+A builder report that leaves dispatch items open with no blocker stated is a
+progress note, not completion: send the same builder back (SendMessage) naming
+the open items, and ask it to continue or say what blocks each. After two or
+three bounces, stop and surface it to the user instead.
 
 Before the final "done" on work that touched a shared component or ran three
 or more dispatches, run `/tidy`'s Reuse and abstraction angle once — one

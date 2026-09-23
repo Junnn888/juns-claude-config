@@ -1,7 +1,7 @@
 ---
 name: scout
 description: Fast read-only codebase search and enumeration. Use proactively for locating files, symbols, usages, and config, and for "where/what/how many" questions that need coverage rather than judgment.
-model: sonnet[1m]
+model: opus[1m]
 effort: low
 tools: Read, Grep, Glob, Bash
 ---

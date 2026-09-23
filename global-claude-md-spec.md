@@ -496,6 +496,64 @@ directly. Moving all writes back into the main session: single-writer is about o
 per concern, not about who that writer is; putting edits on the Fable main loop defeats the
 whole cost model Layer 5 exists for.
 
+**Revision — Opus 5.5 retune (2026-09-23).** Claude Opus 5.5 launched 2026-09-22 in Claude
+Code 2.1.280, and the `opus` alias in agent frontmatter now resolves to it, so `builder` and
+`deep` moved to 5.5 silently. Six changes follow: four here, the patch and scout tiers
+below. `deep` effort xhigh→high (this
+supersedes the 2026-09-14 rejection of dropping deep to `high`, which was made on Opus 5).
+`claude/agents/builder.md` gains a finish-before-reporting line: a message with no tool call
+ends the turn and hands the task back, so status notes ride along with the next tool call.
+`claude/output-styles/orchestrator.md` gains a dispatch rule: never ask a subagent to quote
+its system prompt, name its model, or write out its reasoning. Its `## Report` section also
+gains a bounce rule: a builder report that leaves dispatch items open with no blocker stated
+is a progress note, so the same builder is sent back (SendMessage) with the open items, and
+the orchestrator surfaces it to the user after two or three bounces. Source: the "Prompting
+Claude Opus 5.5" guide's Unattended agentic runs section — 5.5 sometimes ends a turn with a
+text update and no tool call, which in Claude Code is a subagent hand-back. The model stays the `opus`
+alias; pinning `claude-opus-5-5` was rejected because a pinned name silently degrades after
+the next release, and the alias is what delivered this upgrade for free.
+
+`patch` moves sonnet/medium→opus/low as a trial. Its failure mode is mis-applying an edit
+the orchestrator already designed — instruction-following, where the Opus line is stronger —
+and Opus 5.5 at `low` is documented as making fewer, terser tool calls and going straight to
+action. Patch tasks are tiny, so the 2x per-token price is negligible; the 2026-08-13
+measurement already showed patch as a small share of agent seconds. This supersedes the
+2026-08-04 plain-sonnet call on the model axis only: the window argument ("a fix that can't
+fit a 200k window isn't a patch") still stands, so patch is not given `[1m]`. Speed:
+Artificial Analysis measures Opus 5.5 at ~77–90 tok/s across efforts vs Sonnet 5 at ~65–82,
+so it is not slower per token; first-token latency is the one axis Sonnet wins (~2s vs ~9s
+at `low`). The revert is one frontmatter line if patch drags.
+
+Evidence, from Anthropic's "Prompting Claude Opus 5.5" guide and the Opus 5.5 system card:
+`medium` on 5.5 matches or beats Opus 5 at `high`, so the 2026-08-13 builder trim now costs
+nothing; `high` equals `xhigh` on CursorBench (56.0 both) and `xhigh` beats `max` on
+Terminal-Bench (66.4 vs 64.8); at `xhigh`/`max` 5.5 thinks more per turn than Opus 5, `max`
+can exhaust the 128K output budget, and the docs say to reserve both for measured gains. Two
+new failure modes drive the text changes: a request to quote the system prompt, name the
+model, or write out reasoning can be declined by the new `reasoning_extraction` safety
+classifier, which is not retried on a fallback (a public Claude Code issue shows an
+orchestrator's whole subagent wave failing this way); and on long tasks 5.5 sometimes ends a
+turn with a status report and no tool call, which in Claude Code is a subagent hand-back, so
+a builder could return half-done.
+
+**Rules out / deferred.** Builder to `low` — Opus 5 lost ~8 SWE-bench Pro points at `low` vs
+~2 at `medium`, and no 5.5 curve is published. Moving the main loop off Fable — trial only,
+via `/model opus` on review sessions, no config change. Retuning `/fan` tiering and the
+two trial tiers — waits for Sonnet 5.5 / Haiku 5.5 ("coming weeks" per Anthropic). Deep's
+effort is revisited with transcript evidence, the way the 2026-08-13 trim was made. Both
+trials (scout and patch) are re-examined once when Sonnet 5.5 ships.
+
+`scout` also moves, sonnet[1m]/low→opus[1m]/low, reversing a same-day "scout stays on
+sonnet" call made before the independent data was read. Evidence: Artificial Analysis runs
+of the Claude effort variants, read 2026-09-23 — Terminal-Bench 4.0 Opus 5.5 `low` 31% vs
+Sonnet 5 `low` 3%, `medium` 2%, `max` 14%; Intelligence Index 42 vs Sonnet 5 `low` 24 and
+Sonnet 5 `max` 38; cost per index task $0.55 vs $0.51 (Opus finishes in ~10k output tokens
+vs ~15k); time per task 1.3 min vs 2.5 min; long-context reasoning (AA-LCR) 81 vs 67;
+knowledge-reliability index 39 vs −8. Time to first token (9.3s vs 1.8s) is Sonnet's only
+win, and Anthropic's own effort docs place Sonnet 5 `low` at "chat and non-coding use
+cases". Caveat: the index task mix is output-heavy, while scout sweeps are input-heavy and
+input is 2x on Opus, so expect roughly double usage on repo-wide sweeps.
+
 ## Layer 1 addendum — length licence removed, discuss→approve restored (2026-08-14)
 
 Companion to the terse-register revision above, same session. Three changes to
@@ -1072,4 +1130,5 @@ it directs which checks to run rather than adding a verification pass on top.
 **Open, not closed.** The six-axis plan gate carries the same category of instruction and was
 validated on Opus 4.8 in the July benchmark, before this behaviour changed. It is deliberately
 left in place pending a re-run on Opus 5. Do not treat the CLAUDE.md deletion as settling the
-hook.
+hook. As of 2026-09-23 the re-baseline target is Opus 5.5, since the `opus` alias moved on
+Claude Code 2.1.280.

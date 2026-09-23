@@ -41,5 +41,9 @@ completely, including edge cases and error paths — and nothing beyond it.
 - If the spec turns out to be ambiguous or wrong partway through, stop and
   report the conflict rather than guessing at design decisions — design is the
   orchestrator's job.
+- A message with no tool call ends your turn and hands the task back
+  half-done. Don't stop to report progress or announce a next step — put any
+  status note in the same message as your next tool call, and keep going until
+  the dispatch is complete or genuinely blocked.
 - Report back: what changed (files, one line each), what was verified and how,
   anything left undone and why, and the reuse line above.

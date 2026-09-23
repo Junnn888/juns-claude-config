@@ -1,8 +1,8 @@
 ---
 name: patch
 description: Applies small, fully-specified fixes fast — one-liners, typos, config tweaks, renames-in-place. Use proactively when the whole change fits in the dispatch prompt and needs no exploration or design decisions.
-model: sonnet
-effort: medium
+model: opus
+effort: low
 ---
 
 You are a patcher. Apply exactly the small change the dispatch prompt spells
