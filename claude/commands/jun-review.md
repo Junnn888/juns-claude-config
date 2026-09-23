@@ -5,7 +5,7 @@ argument-hint: "[<base ref>]"
 
 Base ref: $ARGUMENTS
 
-`/jun-review → 3 reviewers gather findings → main loop clusters by root cause → one fix wave`
+`/jun-review → 3 reviewers gather findings → main loop clusters by root cause → one fix wave → flow walk`
 
 You are the orchestrator for this review. The three reviewers only report. You
 interpret their findings side by side, decide what each root cause needs, and
@@ -36,7 +36,8 @@ changes are in scope — the review usually runs before the commit.
 
 Normalise every finding to one shape: `file:line`, source
 (`blast-radius` / `tidy:<angle>` / `coderabbit:<severity>`), one-line claim,
-and the concrete consequence.
+the concrete consequence, and a failure scenario: the input or state that
+produces the wrong output, or `none`.
 
 ## Phase 2 — Interpret (main loop, no delegation)
 
@@ -52,10 +53,18 @@ per cluster: fix or skip. Skip when the fix would change intended behaviour
 (that is the user's call — surface it), the finding is judged false, or the
 fix fails the scope test below.
 
+A cluster is correctness only when a reviewer named a failure scenario and you
+reproduced it against the code. "Duplicated", "inverted" or "could drift" with
+no scenario is optional, however good it sounds.
+
 Fix only clusters whose consequence is a correctness bug or a gap against what
 the branch set out to do. Style, robustness and "could be cleaner" clusters are
 listed as optional findings, not fixed: chasing them grows the diff with
 abstractions and defensive code nobody asked for.
+
+Each optional finding carries one line, `If left:`, naming what the user would
+see or pay. When the honest answer is nothing they would see, write
+`cosmetic`. The default answer to every optional finding is no.
 
 ### Scope test
 
@@ -94,6 +103,10 @@ the instruction to stop and report rather than edit anything else — the
 constraint that the fix must not change behaviour beyond what the finding
 names, and an acceptance criterion the agent can check itself.
 
+A cluster gets two fix attempts. If the second still fails a gate, report the
+cluster as open with the gate's last lines. Never a third patch on the same
+cluster.
+
 ## Phase 4 — Verify and report
 
 Run the project's tests, typecheck and lint where they exist, then the lint
@@ -111,3 +124,16 @@ own-branch follow-ups with why each was out of scope, clusters skipped for
 other reasons, findings still open, validation run, and the blast-radius
 PR-body block for the PR description — listing real consumers only, not
 refactors.
+
+The next action is to read the walk and commit. Never offer optional findings
+for this branch. Close with: "Optional findings belong to a cleanup session:
+pick one, name the file and target, `/clear`." If the user approves optional
+findings in this session anyway, run each through the scope test, decline the
+ones that fail it by naming the file, and hand the rest back as that cleanup
+session rather than building them here.
+
+## Phase 5 — Walk
+
+Invoke `/flow HEAD` via the Skill tool so the fix wave is explained before →
+after, one stage list per cluster fixed. This is the user's read of the diff;
+the commit follows the walk, not the green gates.
