@@ -113,18 +113,6 @@ show the sweep was exhaustive, not to be read line by line.
 
 Do not apply fixes. Report only; the user decides what to act on and what to defer.
 
-Close with a paste-ready block for the PR body:
-
-```
-## Blast radius
-Base: <ref> · Consumers swept: <n> · Updated: <n> · Deliberately unaffected: <n>
-
-Surfaces changed:
-- <file> — <what a user sees differently>
-
-Surfaces deliberately left alone:
-- <file> — <why it is immune>
-```
-
-The second list is the load-bearing one. It converts an invisible omission into a recorded
-decision, which is the only thing that makes the next reviewer able to challenge it.
+The `Deliberately unaffected` list is the load-bearing one. It converts an invisible
+omission into a recorded decision, which is the only thing that makes the next reviewer
+able to challenge it.

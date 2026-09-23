@@ -28,7 +28,7 @@ changes are in scope — the review usually runs before the commit.
    works while the other reviewers run. The CLI sends the diff to CodeRabbit's
    API: stop and say so if the diff contains secrets.
 2. **`/blast-radius <base>`** via the Skill tool. It is already report-only.
-   Keep its verdict table and its paste-ready PR-body block for the final report.
+   Keep its verdict table for the final report.
 3. **`/tidy`** via the Skill tool, with the same base as its target — but stop
    after its Phase 1. Collect the five angles' findings and do not enter its
    Phase 2; the apply step belongs to this command, not to `/tidy`.
@@ -118,19 +118,48 @@ once to confirm the fixes landed — no loop; anything still open is reported, n
 chased. Treat the agents' reports as claims: say which parts you verified
 yourself.
 
-Report exactly: clusters fixed in the diff with files changed, blast-radius
-consumers fixed outside the diff (each with its consequence sentence),
-own-branch follow-ups with why each was out of scope, clusters skipped for
-other reasons, findings still open, validation run, and the blast-radius
-PR-body block for the PR description — listing real consumers only, not
-refactors.
+### Report shape
 
-The next action is to read the walk and commit. Never offer optional findings
-for this branch. Close with: "Optional findings belong to a cleanup session:
-pick one, name the file and target, `/clear`." If the user approves optional
-findings in this session anyway, run each through the scope test, decline the
-ones that fail it by naming the file, and hand the rest back as that cleanup
-session rather than building them here.
+Open with one line: `Fixed <n> · To decide <n> · Later <n>`.
+
+Then three sections in this order, named exactly. Sort by what the reader
+does next, never by which reviewer found it or whether the file was in the
+diff.
+
+**1. Done — read, then commit.** One line per fix: what changed and the
+files. Blast-radius consumers fixed outside the diff go here too, with their
+consequence sentence. The walk (Phase 5) follows this section.
+
+**2. Yours to decide before commit.** Only things that block or need a call:
+a failing gate, a behaviour choice the review would not make, a consumer
+outside the diff that was not fixed. Each entry is labelled lines, one fact
+per line, no paragraphs:
+
+```
+**<name>**
+Problem: <cause, one sentence>
+What you'd see: <user-visible or workflow consequence>
+Option 1: <the recommended one>
+Option 2: <…>
+Recommend: <option number> — <one-line why>
+```
+
+**3. Later — read once.** Two lists. "Has a consequence": one line each,
+`<finding> — If left: <consequence>`. "Cosmetic": one line each, no If left.
+Own-branch follow-ups, open reviewer findings, skipped clusters and optional
+findings all land in one of these two lists by consequence, with the reason
+they are not fixed now inside the line. Nothing in this section is a to-do.
+
+Then a validation table, one row per gate: name, pass or fail. A failing gate
+also appears as an entry in section 2 with its cause in plain English and the
+fix options; never only as a table row.
+
+Close with: "Read 1, then 2, then stop. Section 3 is a list, not a to-do.
+Optional items belong to a cleanup session: pick one, name the file and
+target, `/clear`." If the user approves optional findings in this session
+anyway, run each through the scope test, decline the ones that fail it by
+naming the file, and hand the rest back as that cleanup session rather than
+building them here.
 
 ## Phase 5 — Walk
 

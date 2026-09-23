@@ -980,6 +980,51 @@ in-session; the run then continues to write the plugin configs. Rules out: allow
 those packages in the safety hook so the command installs them itself — the
 never-auto-install rule stays intact, and the cost of the pause is one paste.
 
+**`/jun-walkthrough` (2026-09-23).** Passes the repetition bar: the same walk prompt was
+pasted by hand for the third time, and an audit of the first two found five gotchas worth
+freezing — the walk became a fix loop (five code changes landed mid-walk, so the diff read
+was not the diff committed), tests and a hand-written email template were skipped along
+with a generated gallery, seven walk questions were never answered or written down, the
+proposed commit split was ignored, and the Orchestrator style would delegate each page to a
+scout and relay it, paying twice. Design: `claude/commands/jun-walkthrough.md` runs in the
+main loop and is read-only; only generated files are skipped, and a "skip" is recorded as
+unread; it closes with three blocks — a paste-ready fix prompt for the build session, the
+next concern's shape, and a cleanup list for the plan's follow-ups — so every walk question
+lands somewhere, then a commit split and a `git stash create` snapshot hash that a
+`--delta <hash>` re-run diffs against once the fix lands. It is meant for a fresh Opus
+session, which keeps the context small and the builder out of reach. Rules out: running the
+walk inside the build session; delegating pages to a scout; any edit during the walk.
+
+**Addendum, same day.** The user will not type a plan path, and commits to naming each plan
+after the worktree (`proposal-analysis-v2` → `plan-proposal-analysis-v2.md`), so with no
+argument the walk takes the slug from the worktree folder and the branch's last segment,
+finds the project's plan folder as notes-routing describes, and picks the plan whose
+filename or H1 contains it — zero matches walk unanchored, several are listed for the user
+to choose. A path argument stays as the override. The Orchestrator's hand-back for a plan
+stage now ends with the `/jun-walkthrough` line to paste into the walk session.
+
+**`/jun-review` revisions (2026-09-21 and 2026-09-23).** A 2026-09-21 audit of a run on
+trips-overhaul found the mechanical phases sound and the judgement phases not: two runs on
+the same diff classed the same finding as correctness then optional, a stashed fix wave lost
+one real bug, and the report offered optional findings as a menu the user then approved six
+of seven from. Four edits followed: every normalised finding carries a failure scenario
+(input or state → wrong output) and only a reproduced scenario earns a correctness fix;
+every optional finding carries an `If left:` line with the default answer no, and the report
+never offers them for this branch; a cluster gets two fix attempts then is reported open; a
+closing Phase 5 invokes `/flow HEAD` so the fix wave is explained before the commit. On
+2026-09-23 the first checkpoint run under the new rules showed the report itself was the
+remaining problem — ten headings across three taxonomies (source, scope, status) with no
+action order, and a failing lint-kit duplicate gate reduced to one cryptic line. The report
+is now sorted by what the reader does: a one-line count, then 1 Done (read, commit), 2 Yours
+to decide before commit (labelled lines — Problem / What you'd see / Option n / Recommend),
+3 Later (has a consequence with `If left:`, then cosmetic), a pass/fail gate table with any
+failing gate also written up in section 2, and the reading rule "1, then 2, then stop".
+Rules out: presenting optional findings as choices for the current branch; reporting a
+failing gate only as a table row; a third patch on a cluster.
+`/blast-radius` loses its paste-ready PR-body block: it restated the report above it, cost
+tokens every run, and `/pr-branch` never consumed it; the `Deliberately unaffected` list in
+the report still carries the recorded-decision value. `/jun-review` no longer asks for it.
+
 ## Changed — guardrails moved out of the repo into a local lint kit (2026-09-21)
 
 **Need.** The user commonly works in repos they do not own. The 2026-09-21
