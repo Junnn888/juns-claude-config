@@ -326,8 +326,8 @@ what the tree records.
 
 **Exception to the <200ms target.** The repo's hook budget assumes PreToolUse hooks that
 fire on every tool call. `quality-gate.sh` fires once per turn on Stop, and only pays for
-lint and typecheck when the tree changed since the last pass, so a Q&A turn costs a git
-diff and a hash. Its `timeout` is set to 300s in `claude/settings.json` — well under the
+lint and typecheck when the tree changed since the last pass and during the turn, so a Q&A
+turn costs a git diff and a hash at each end (see the 2026-09-24 turn-start entry). Its `timeout` is set to 300s in `claude/settings.json` — well under the
 600s command-hook default, and enough for a cold `tsc` on a large project.
 
 **Rules out.** SubagentStop writing into the parent's context: undocumented, and the
@@ -1001,7 +1001,36 @@ argument the walk takes the slug from the worktree folder and the branch's last 
 finds the project's plan folder as notes-routing describes, and picks the plan whose
 filename or H1 contains it — zero matches walk unanchored, several are listed for the user
 to choose. A path argument stays as the override. The Orchestrator's hand-back for a plan
-stage now ends with the `/jun-walkthrough` line to paste into the walk session.
+stage now ends with the `/jun-walkthrough` line to paste into the walk session — reverted
+the same day, see below.
+
+**Second addendum, 2026-09-23, after the first Part 3 walk.** The walk ran in a fresh Opus
+low session as intended, but four faults showed. Every page was code-free: the command never
+said to print hunks, and the global flow-altitude default filled the gap — zero fenced blocks
+in 15 pages, and the user closed by asking "what was the actual insertion". Tests were
+skipped wholesale and the user could not tell what remained. The Block A/B/C labels said what
+each held but not what the user does with it, which produced "is B and C optional?" and Block
+B pasted to the build session as fixes. And the delta re-run needed the 40-character hash
+copied by hand, though it was printed in the same conversation. Six changes followed. A rule
+that the code is the page: every hunk is printed verbatim in a fenced `diff` block, and the
+flow-altitude default is named as not applying. A mechanical shape page before page one —
+per file, lines added and removed, new or existing, exports added, callers per new export,
+plus new dependencies — which also sets the "Page n of N" count. Tests are one page of test
+names with added and removed marked, flagging deleted tests, test files with no source
+counterpart and source files with no test change. `delta` with no hash reuses the last
+`Snapshot:` line in the conversation, asks if there is none, and still takes `delta <hash>`
+or `--delta` for a new session. The close sections are renamed Fix now, Decide before next
+part and Later, each saying where it goes. And one paste-ready prompt carries all three to
+the build session — the fixes, then the instruction to record the decisions in the plan's
+next part and append the Later items to its follow-ups. A parallel dispatch changed the
+Orchestrator and builder: the hand-back's `/jun-walkthrough` line was removed, since the user
+knows when to walk and it re-fired on every agent wake-up; the builder returns its report
+once rather than also messaging it, after three duplicate hand-backs in one day; and a
+production concern now gets an estimate — files, lines, new deps — with shape options ranked
+smallest first before the builder dispatch, the builder reporting actuals. Rules out: a
+"mark the important hunks" instruction, since judgment-based flagging drifts between runs as
+the `/jun-review` audit showed; storing the snapshot hash in a ref or file, since the walk
+stays write-free beyond `git stash create`.
 
 **`/jun-review` revisions (2026-09-21 and 2026-09-23).** A 2026-09-21 audit of a run on
 trips-overhaul found the mechanical phases sound and the judgement phases not: two runs on
@@ -1122,6 +1151,130 @@ user's `settings.json`, hooks and CLAUDE.md. Leaving one paste-this line as the 
 fresh machine bought no supply-chain safety it did not already have. So `install.sh` runs
 it, and prints the manual line only as the fallback when `npm` is missing or `npm ci`
 fails; the install never aborts over the kit.
+
+## Changed — `max-lines` dropped from the lint kit (2026-09-24)
+
+**Provenance.** The 400-line file ceiling first appeared in 0ee5e23 (`/jun-project-setup`)
+with no source — its only justification was "The thresholds are starting points, safe to
+set because the baseline follows." The nearest research citations in this repo, the
+Cisco/SmartBear 200–400 LOC figures, measure how much of a review diff gets read, not how
+long a file should be; they never supported a file-length threshold.
+
+**Why it goes.**
+
+- *Length is a proxy.* File length stands in for cohesion without measuring it: a long
+  file can hold one well-bounded concern, and a short one can mix three.
+- *The number is unsourced.* Nothing ties 400 to a design outcome, so the gate enforced a
+  guess at full strength.
+- *The cheapest escape is worse design.* The agent is the one hitting the gate, and the
+  cheapest way past it is to cut a cohesive file into two arbitrary halves — a worse
+  outcome than the long file the rule was meant to prevent.
+
+**Decision.** `max-lines` is removed from `claude/lint/eslint.config.mjs`, the README rule
+list and `/jun-project-setup`; its baselined entries are pruned from the local
+suppressions snapshots. The per-function rules stay — `max-lines-per-function` 80,
+`complexity` 12, `max-params` 4, `max-depth` 4, sonarjs `cognitive-complexity` 15 —
+because they measure function shape, which is closer to what the gate is for.
+
+The remaining five thresholds are unsourced conventional starting points, not researched
+figures. They are safe to hold only because the per-worktree snapshot absorbs whatever the
+tree already contains.
+
+**Rules out.** Reintroducing a file-length gate without evidence that ties a threshold to
+a design outcome. Rejected: a `warn`-level pathological ceiling around 1,000 lines — the
+agent ignores warnings, so it would add noise without changing behaviour.
+
+## Changed — Stop hooks skip turns that changed nothing (2026-09-24)
+
+**Problem.** Both Stop hooks decided whether to work by looking at the tree, not at
+whether *this turn* changed it.
+
+- *The gate re-ran for other sessions' edits.* `quality-gate.sh` skipped only when the
+  tree matched this session's last *pass*. A read-only session — `/jun-walkthrough` stops
+  after every file — sharing a worktree with a session that is editing re-ran lint,
+  typecheck and the kit (~30s) whenever the other session had moved the tree, and if that
+  tree was red it blocked with exit 2 a session that had changed nothing.
+- *The comment hook scanned every Bash turn.* `comment-suspects.mjs` counts Bash as
+  mutating, so a turn that only ran `git diff` paid for the full diff-and-classify scan.
+
+**Decision.** Snapshot the tree at turn start and let both Stop hooks skip a turn that
+left it unchanged.
+
+- `claude/hooks/tree-fingerprint.sh` holds the fingerprint (sha1 of `git diff HEAD` plus
+  path, size and mtime per untracked file) and is the single owner of the
+  session-to-state-file rule (state dir, id sanitiser, `.turn-start` suffix) and of the
+  turn-start comparison. Sourced by the shell hooks; executed with a directory it prints
+  the hash (nothing outside a git work tree); executed as `turn-unchanged <dir> <session>`
+  it exits 0 only when the snapshot exists and matches the current tree.
+- `claude/hooks/turn-start.sh` (UserPromptSubmit) writes the fingerprint to
+  `quality-gate-state/<session>.turn-start`. Silent, always exits 0.
+- `quality-gate.sh`, after its existing skips: if turn-start equals the current fingerprint,
+  it logs `skip-unchanged-turn` and exits 0 — unless `<session>.last-fail` records a
+  failure on this exact tree, in which case it replays the cached message and exits 2
+  (`reblock-unchanged`). A real run writes `.last-fail` (fingerprint, then the message) on
+  fail and deletes it on pass. A missing turn-start falls through to the old behaviour.
+- `comment-suspects.mjs` runs `tree-fingerprint.sh turn-unchanged` and, on exit 0, logs
+  `no-tree-change` and returns before its mutation check; any other exit or error fails
+  open to the existing checks. Node knows nothing of the gate's state layout. `MUTATING_TOOLS` is
+  unchanged.
+
+The cached re-block keeps the gate's rule that it re-checks after each fix attempt: a
+turn that fixed nothing stays blocked, without 30s of checks to learn so.
+
+State files older than 7 days (`GATE_STATE_MAX_AGE_MIN`, mirroring the comment hook's
+`STATE_MAX_AGE_MS`) are pruned at the start of each Stop run, so a session that outlives
+that pays one extra full gate run.
+
+**Deviation — unmatched hook.** The project CLAUDE.md says hooks are always
+matcher-scoped. `UserPromptSubmit` has no matcher, so `turn-start.sh` fires on every
+prompt. Accepted because it is a sub-second git diff and hash that exits 0
+unconditionally: it can slow a prompt by milliseconds but never block one.
+
+**Rules out.**
+
+- *Early-exiting the gate on `stop_hook_active`* — still ruled out, for the reason in the
+  2026-09-18 entry.
+- *Keying gate state by worktree instead of session* — rejected: a shared pass record
+  would still let another session's red tree block a read-only session.
+- *Dropping Bash from the comment hook's mutating set* — rejected: loses detection of
+  comments written through heredocs and `sed`.
+
+## Changed — /jun-walkthrough raises no judgment flags (2026-09-24)
+
+**Problem.** The walk runs in a separate low-effort session by design: its job is paging —
+printing the diff in chunks so the user can read it — not reviewing. But each source page
+still carried four judgment flags (missed reuse, refactor mixed with a behaviour change,
+hardcoded value or bracket class, unrecorded plan deviation), and Phase 1 asked for
+unrecorded deviations too. That put review judgment on the cheapest tier with no
+verification, and the closing paste delivered it to the build session as if the user had
+decided it.
+
+**Decision.**
+
+- The four per-file judgment flags and the Phase 1 deviation note are removed. A source
+  page now carries at most one mechanical line, "file skipped by the user (unread)".
+  Deviations are the user's to raise while paging.
+- The tests page keeps its three notes — a deleted test, a test file with no source
+  counterpart in the diff, a source file with no test change — because they are true by
+  construction from the diff.
+- Phase 3 carries only the user's questions and requests plus those tests-page notes.
+- The closing paste opens with a verify-first preamble, in our own wording: neither the
+  installed CodeRabbit plugin (1.1.1) nor docs.coderabbit.ai (autofix, agent handoff)
+  publishes a verbatim preamble — the plugin only tells its own agent to "Independently
+  determine whether the issue is valid from local code and repository context". The
+  preamble:
+
+  > Before implementing anything, verify that each item below is a real issue. Treat
+  > every item as a claim, not a confirmed defect: read the code it names, confirm the
+  > problem holds, and skip any that do not, saying which and why. Only then apply the
+  > fix.
+
+**Rules out.**
+
+- *Reintroducing reuse, refactor or deviation flags in the walk* — those judgments belong
+  to `/jun-review`, which runs reviewers at the right tier.
+- *Keeping the flags but marking them "unconfirmed"* — rejected: it keeps low-effort
+  opinions in the loop and spends the build session's effort verifying them.
 
 ## Removed — default model pin (2026-07-27)
 

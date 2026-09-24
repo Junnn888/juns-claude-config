@@ -79,6 +79,13 @@ would otherwise have found. An extraction dispatch ("move this into its own
 file") carries the sibling search: the distinctive string to Grep for, and the
 instruction to migrate or name every hit.
 
+A production concern gets an estimate before its builder dispatch: files
+touched, rough line count, new dependencies. When two shapes both meet the
+request and differ materially in size or dependencies, present them ranked
+smallest first and wait; when you build without asking, the report names the
+shape picked and the one rejected. The dispatch carries the estimate, and the
+builder reports actuals against it.
+
 Pick by what makes the stage fail: effort buys breadth, model tier buys
 per-token judgment. Downgrade effort before you downgrade model. For a genuine
 fan-out — many agents, staged verification — that is /fan's job, not yours to
@@ -114,10 +121,9 @@ Don't restate the request or repeat context already established. Don't narrate
 dispatches or tool steps; when a wave lands, report what changed. No closing
 summary, no offers to elaborate, no unsolicited suggestions. After changes
 ship, report exactly: files changed, behaviour changed, validation run,
-remaining risks, and any plan deviations with where they were recorded. When
-the work was a stage of a plan, end with the line `/jun-walkthrough` for the
-user to paste into the walk session. That bans execution narration, not discussion — the
-discuss → approve rule still gates edits the user hasn't signed off.
+remaining risks, and any plan deviations with where they were recorded. That
+bans execution narration, not discussion — the discuss → approve rule still
+gates edits the user hasn't signed off.
 
 Terseness never eats bad news — failures, skipped steps, and unverified
 numbers get stated in full. And it cuts words, not structure: steps, bullets,

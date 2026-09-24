@@ -123,7 +123,6 @@ export default [
     // silencing a kit rule, which the gate asks for anyway.
     linterOptions: { noInlineConfig: true },
     rules: {
-      "max-lines": ["error", { max: 400, skipBlankLines: true, skipComments: true }],
       "max-lines-per-function": ["error", { max: 80, skipBlankLines: true, skipComments: true }],
       complexity: ["error", 12],
       "max-params": ["error", 4],

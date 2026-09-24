@@ -34,6 +34,8 @@ else
         "$CLAUDE_DIR/hooks/safety-bash.sh" \
         "$CLAUDE_DIR/hooks/safety-files.sh" \
         "$CLAUDE_DIR/hooks/quality-gate.sh" \
+        "$CLAUDE_DIR/hooks/tree-fingerprint.sh" \
+        "$CLAUDE_DIR/hooks/turn-start.sh" \
         "$CLAUDE_DIR/hooks/lint-baseline.sh" \
         "$CLAUDE_DIR/hooks/comment-baseline.sh" \
         "$CLAUDE_DIR/hooks/comment-suspects.mjs" \

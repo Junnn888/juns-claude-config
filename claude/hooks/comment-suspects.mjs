@@ -20,9 +20,11 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const STATE_DIR = path.join(os.homedir(), '.claude', 'hooks', 'comment-bounce-state');
 const LOG_FILE = path.join(os.homedir(), '.claude', 'hooks', 'comment-bounce.log');
+const FINGERPRINT_SCRIPT = path.join(path.dirname(fileURLToPath(import.meta.url)), 'tree-fingerprint.sh');
 const MAX_ADDED_LINES = 2000;
 const STATE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 const MUTATING_TOOLS = new Set(['Edit', 'Write', 'MultiEdit', 'NotebookEdit', 'Bash']);
@@ -303,8 +305,8 @@ const normalise = (s) => s.toLowerCase().replace(/\s+/g, ' ').trim();
 const fingerprint = (s) =>
   crypto.createHash('sha1').update(`${s.file}\0${normalise(s.stripped || s.text)}`).digest('hex');
 
-const stateFile = (sessionId) =>
-  path.join(STATE_DIR, `${String(sessionId).replace(/[^\w-]/g, '_')}.json`);
+const sessionKey = (sessionId) => String(sessionId).replace(/[^\w-]/g, '_');
+const stateFile = (sessionId) => path.join(STATE_DIR, `${sessionKey(sessionId)}.json`);
 
 function loadState(sessionId) {
   try { return new Set(JSON.parse(fs.readFileSync(stateFile(sessionId), 'utf8'))); }
@@ -390,6 +392,15 @@ function turnHasMutation(transcriptPath) {
   } catch { return true; }
 }
 
+// True only when turn-start.sh recorded a fingerprint for this session and the
+// tree still matches it. Fails open (false) on any error, including exit 1.
+function treeUnchangedThisTurn(cwd, sessionId) {
+  try {
+    execFileSync('bash', [FINGERPRINT_SCRIPT, 'turn-unchanged', cwd, String(sessionId)], { stdio: 'ignore' });
+    return true;
+  } catch { return false; }
+}
+
 // ---------------------------------------------------------------- modes
 
 function runStop(input) {
@@ -412,6 +423,10 @@ function runStop(input) {
     return;
   }
 
+  if (treeUnchangedThisTurn(cwd, sessionId)) {
+    log({ cwd, mode: 'no-tree-change', flagged: 0 });
+    return;
+  }
   if (!turnHasMutation(input.transcript_path)) {
     log({ cwd, mode: 'no-mutation', flagged: 0 });
     return;

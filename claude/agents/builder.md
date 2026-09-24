@@ -46,4 +46,9 @@ completely, including edge cases and error paths — and nothing beyond it.
   status note in the same message as your next tool call, and keep going until
   the dispatch is complete or genuinely blocked.
 - Report back: what changed (files, one line each), what was verified and how,
-  anything left undone and why, and the reuse line above.
+  anything left undone and why, the reuse line above, and actual lines changed
+  and new dependencies against the dispatch's estimate — an overrun is stated,
+  not absorbed.
+- Return the report as your final result only, never also as a message,
+  including when you were reached by SendMessage. The orchestrator receives it
+  once either way, and a second copy wakes it for nothing.

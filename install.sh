@@ -191,6 +191,7 @@ echo "  - output-styles/         Orchestrator style (default; switch via /config
 echo "  - hooks/safety-bash.sh, safety-files.sh"
 echo "  - hooks/comment-suspects.mjs, comment-baseline.sh (Stop-hook comment-cleanup pass, needs node)"
 echo "  - hooks/quality-gate.sh (Stop-hook lint/typecheck + lint-kit gate)"
+echo "  - hooks/turn-start.sh, tree-fingerprint.sh (UserPromptSubmit tree snapshot; Stop hooks skip no-change turns)"
 echo "  - hooks/lint-baseline.sh (SessionStart per-worktree lint-kit snapshot)"
 echo "  - hooks/handback-truth.mjs (SubagentStart/Stop diff-truth check for builder/patch, needs node)"
 echo "  - lint/                  local lint kit: size/complexity/Tailwind/dupes/dead-code"

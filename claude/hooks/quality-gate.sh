@@ -12,11 +12,13 @@
 # must re-check after every fix attempt.
 # Design: documented exception to the repo's <200ms hook target. Stop fires once
 # per turn, and the checks only run when the tree changed since the last pass
-# (per-session tree fingerprint), so pure Q&A turns never pay for tsc.
+# (per-session tree fingerprint), so pure Q&A turns never pay for tsc. A turn
+# that changed nothing since its UserPromptSubmit snapshot (turn-start.sh) is
+# skipped too, or re-blocked from the cached failure if that tree last failed.
 
 set -euo pipefail
 
-STATE_DIR="$HOME/.claude/hooks/quality-gate-state"
+source "$(dirname "${BASH_SOURCE[0]}")/tree-fingerprint.sh"
 LOG_FILE="$HOME/.claude/hooks/quality-gate.log"
 
 input="$(cat)"
@@ -31,6 +33,8 @@ else
   echo "quality-gate: jq not found — lint/typecheck not run. Install jq to enable enforcement." >&2
   exit 0
 fi
+
+find "$GATE_STATE_DIR" -type f -mmin +"$GATE_STATE_MAX_AGE_MIN" -delete 2>/dev/null || true
 
 [ -z "$cwd" ] && cwd="$PWD"
 [ -d "$cwd" ] || exit 0
@@ -74,25 +78,22 @@ if [ -z "$(git -C "$cwd" status --porcelain 2>/dev/null)" ]; then
   exit 0
 fi
 
-file_stamp() {
-  stat -f '%z %m' "$1" 2>/dev/null || stat -c '%s %Y' "$1" 2>/dev/null || echo "? ?"
-}
-
-tree_fingerprint() {
-  {
-    git -C "$cwd" diff HEAD 2>/dev/null || git -C "$cwd" diff 2>/dev/null || true
-    while IFS= read -r f; do
-      [ -n "$f" ] || continue
-      printf '%s %s\n' "$f" "$(file_stamp "$cwd/$f")"
-    done < <(git -C "$cwd" ls-files --others --exclude-standard 2>/dev/null || true)
-  } | shasum -a 1 2>/dev/null | awk '{print $1}'
-}
-
-state_file="$STATE_DIR/$(printf '%s' "$session_id" | tr -c '[:alnum:]_-' '_')"
-fingerprint="$(tree_fingerprint)"
+state_file="$(session_state_file "$session_id")"
+fail_file="$state_file.last-fail"
+fingerprint="$(tree_fingerprint "$cwd")"
 
 if [ -f "$state_file" ] && [ "$(cat "$state_file")" = "$fingerprint" ]; then
   log "skip-unchanged" ""
+  exit 0
+fi
+
+if turn_unchanged "$cwd" "$session_id" "$fingerprint"; then
+  if [ -f "$fail_file" ] && [ "$(head -n 1 "$fail_file")" = "$fingerprint" ]; then
+    tail -n +2 "$fail_file" >&2
+    log "reblock-unchanged" ""
+    exit 2
+  fi
+  log "skip-unchanged-turn" ""
   exit 0
 fi
 
@@ -108,30 +109,38 @@ fi
 
 failed=0
 ran=""
+report=""
+
+record_failure() {
+  # $1 = headline, $2 = command output (last 40 lines kept)
+  failed=1
+  report+="$1"$'\n'"$(printf '%s\n' "$2" | tail -n 40)"$'\n'
+}
+
 if [ ${#scripts[@]} -gt 0 ]; then
   for script in "${scripts[@]}"; do
     ran="${ran:+$ran,}$script"
     out="$( (cd "$cwd" && $manager run ${silent:+$silent} "$script") 2>&1 )" && continue
-    failed=1
-    echo "Quality gate: $manager run $script failed. Fix the root cause; do not disable rules, add suppressions, or delete tests to pass." >&2
-    printf '%s\n' "$out" | tail -n 40 >&2
+    record_failure "Quality gate: $manager run $script failed. Fix the root cause; do not disable rules, add suppressions, or delete tests to pass." "$out"
   done
 fi
 
 if [ "$kit_available" -eq 1 ]; then
   ran="${ran:+$ran,}kit"
   if ! out="$("$KIT" --cwd "$cwd" check 2>&1)"; then
-    failed=1
-    echo "Quality gate: lint kit found violations above this worktree's snapshot. Fix the code; do not add disables or suppressions." >&2
-    printf '%s\n' "$out" | tail -n 40 >&2
+    record_failure "Quality gate: lint kit found violations above this worktree's snapshot. Fix the code; do not add disables or suppressions." "$out"
   fi
 fi
 
 if [ "$failed" -eq 1 ]; then
+  printf '%s' "$report" >&2
+  mkdir -p "$GATE_STATE_DIR" 2>/dev/null \
+    && { printf '%s\n' "$fingerprint"; printf '%s' "$report"; } > "$fail_file" 2>/dev/null || true
   log "fail" "$ran"
   exit 2
 fi
 
-mkdir -p "$STATE_DIR" 2>/dev/null && printf '%s' "$fingerprint" > "$state_file" 2>/dev/null || true
+mkdir -p "$GATE_STATE_DIR" 2>/dev/null && printf '%s' "$fingerprint" > "$state_file" 2>/dev/null || true
+rm -f "$fail_file"
 log "pass" "$ran"
 exit 0

@@ -15,11 +15,12 @@ Everything it writes lives in `~/.claude/lint/` or in a git-excluded
 `CLAUDE.local.md`, so it is safe in a repo you do not own. You never run a git
 command, and you never install a dependency.
 
-The rules themselves live in the local lint kit at `~/.claude/lint/`: max-lines
-400, max-lines-per-function 80, complexity 12, max-params 4, max-depth 4,
-sonarjs cognitive-complexity 15, and the Tailwind bracket ban. The kit reads
-them from its own config, against this project's files, with no project config
-involved.
+The rules themselves live in the local lint kit at `~/.claude/lint/`:
+max-lines-per-function 80, complexity 12, max-params 4, max-depth 4, sonarjs
+cognitive-complexity 15, and the Tailwind bracket ban. The thresholds are
+unsourced starting points chosen by convention, safe to set because the baseline
+follows. The kit reads them from its own config, against this project's files,
+with no project config involved.
 
 ## Phase 0 — Target
 
@@ -47,11 +48,10 @@ One dispatch, nothing written. Ask for every answer with `path:line`:
    `~/.claude/lint/kit.sh paths` — the `settings=` and `snapshot=` paths for
    this work tree, and whether either file already exists.
 3. **Rules the project already enforces itself.** Informational only, not gaps:
-   which of `max-lines`, `max-lines-per-function`, `complexity`, `max-params`,
-   `max-depth`, sonarjs cognitive-complexity and a Tailwind bracket restriction
-   the project's own ESLint config sets, and TypeScript `strict`. Both the
-   project's lint and the kit will run; overlap is duplicate reporting, not a
-   conflict.
+   which of `max-lines-per-function`, `complexity`, `max-params`, `max-depth`,
+   sonarjs cognitive-complexity and a Tailwind bracket restriction the
+   project's own ESLint config sets, and TypeScript `strict`. Both the project's
+   lint and the kit will run; overlap is duplicate reporting, not a conflict.
 4. **Tailwind and styling.** Version, the CSS file carrying `@theme` (or the
    Tailwind config, whichever the project uses), the count of arbitrary bracket
    classes in source (`grep -rEo '\b[a-z-]+-\[[^]]+\]'` over the source dirs)
