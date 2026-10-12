@@ -20,6 +20,7 @@ with gotchas worth freezing. No speculative features; nothing added "while we're
 | 3 — Skills | Built | 1 skill (`notes-routing`). Two qualifying triggers: a workflow repeated 3+ times with gotchas / checkpoints / isolation, **or** situational reference material that would otherwise sit always-on in CLAUDE.md (added 2026-07-27, below). |
 | 4 — LSP | Built | Official first-party LSP plugins (`claude-plugins-official`), 12 languages. Installing one auto-enables Claude Code's built-in LSP tool. Binaries are check-and-report only (never auto-installed — irreducible supply-chain surface). |
 | 5 — Orchestration | Built | `Orchestrator` output style (default via `outputStyle`; switch with `/config`) + agent roster (`scout`/`patch`/`builder`/`deep`) pinning model+effort tiers for delegation. Steady-state delegation only; scale fan-outs stay behind `/fan`. |
+| 6 — Mods | Built | Hooks-module plugins in `claude/mods/`, loaded via `env.CLAUDE_CODE_PLUGIN_DIRS`. Three kept, three on trial (2026-10-07, below). |
 
 ### Layer 1 — CLAUDE.md
 Behaviour rules only; kept short so it loads cheaply every session. Each rule must change
@@ -1239,6 +1240,17 @@ unconditionally: it can slow a prompt by milliseconds but never block one.
 - *Dropping Bash from the comment hook's mutating set* — rejected: loses detection of
   comments written through heredocs and `sed`.
 
+**Addendum (2026-10-09) — hand-back prompts are not turn boundaries.** A background
+subagent's edits land after the main loop's turn has ended, and its hand-back arrives as a
+synthesised user prompt (`Another Claude session sent a message:` or `<task-notification>`).
+That prompt fired `turn-start.sh`, which re-snapshotted the tree *after* the edits, so the
+next Stop saw an unchanged turn and skipped the gate: in one session 27 of 27 Stops logged
+`skip-unchanged-turn` while builders edited 17 files. `turn-start.sh` now exits without
+writing when the prompt starts with either prefix, so the last real-prompt snapshot stays
+and the next Stop compares against the tree from before the agent's edits. Rules out
+running the gate in `SubagentStop` instead: it cannot block the main loop's turn, and the
+gate must fire where the model receives the exit-2 feedback.
+
 ## Changed — /jun-walkthrough raises no judgment flags (2026-09-24)
 
 **Problem.** The walk runs in a separate low-effort session by design: its job is paging —
@@ -1275,6 +1287,136 @@ decided it.
   to `/jun-review`, which runs reviewers at the right tier.
 - *Keeping the flags but marking them "unconfirmed"* — rejected: it keeps low-effort
   opinions in the loop and spends the build session's effort verifying them.
+
+## Changed — /jun-walkthrough pages by line range; the pane carries the code (2026-10-07)
+
+**Problem.** With `walk-pane` the diff is readable for free in a pane, so the walk printing
+every hunk verbatim paid output tokens for code the user already had on screen. The spec had
+also not said how the pane and the command combine — only that the pane "replaces the paging
+phase".
+
+**Decision.**
+
+- The pane opens automatically when `/jun-walkthrough` is typed: `walk-pane` hooks the
+  command's prompt expansion. `/walk` is kept so the pane can be reopened if it is closed
+  mid-walk.
+- The walk prints no fenced code. Each file's page opens with `Page n of N: <path>`, then
+  one sentence before → after, then one `L<start>–<end>: <gloss>` line per hunk.
+- Shape page, tests page, close, paste prompt, commit split, snapshot and delta mode are
+  unchanged.
+- The walk session tier moves from Opus 5.5 low to Opus 5.5 medium: the gloss is now the
+  whole read, not a hint beside the code, and the output saving from dropping the blocks
+  covers the effort bump. The saving is output-side only; the walk still reads the full
+  diff as input.
+- The pane's diff view scrolls its own rows under a fixed header and button row: the mod
+  answers `ui.scroll` itself in that view, and the list view keeps engine scrolling. Chosen
+  over hotkeys on Next/Prev because the user wanted the buttons visible rather than a key to
+  remember. Two settled trade-offs: `Code` draws a diff only as whole hunks, so a window
+  opened mid-hunk gets a synthetic `@@` header (one row reserved for it) and every header in
+  the window is recounted to the lines shown; and the diff and header lines are drawn
+  `truncate-end`, so long lines are cut with an ellipsis rather than wrapped, which keeps one
+  row per line and the row arithmetic exact.
+
+**Rules out.**
+
+- *Removing `/walk`* — there would be no way to reopen the pane mid-walk.
+- *The walk delegating pages to a scout* — unchanged rule.
+- *The pane auto-following the walk's current page* — speculative; the user presses the
+  file named in the `Page n of N` line.
+
+## Layer 6 — Mods (2026-10-07)
+
+**Need.** Six hooks-module plugins were built in one session under the per-session
+`~/.claude/dev-mods/<session>/` folder, which loads them for that session only. Making them
+permanent needs a source of truth in the repo and a loader that every session reads.
+
+**Decision.** Source lives in `claude/mods/<name>/`; `install.sh` replaces `~/.claude/mods/`
+with it and `uninstall.sh` removes it. `settings.json` sets `env.CLAUDE_CODE_PLUGIN_DIRS` to the
+six folders (colon-separated, `~` allowed), so each session loads them and an edit hot-reloads.
+`.claude-plugin/types/` (engine-generated type dumps) is gitignored.
+
+**Governing-principle calls, per mod.**
+
+- `snips` — keep. New capability: copy a code block from an answer to the clipboard untouched.
+- `walk-pane` — kept 2026-10-07; retired 2026-10-12 (see below).
+- `lint-status` — keep. Replaces reading the quality gate's output to learn the lint delta.
+- `comment-band` — TRIAL. Duplicates `comment-suspects.mjs`; decision pending on which to retire.
+  Removed 2026-10-08 (see below).
+- `git-guard` — TRIAL. Duplicates the version-control category of `safety-bash.sh`; decision
+  pending on which to retire.
+- `prompt-tweaks` — TRIAL, likely drop.
+
+**Settled along the way.**
+
+- *Panes follow the theme.* A hard-coded body paint (`#1e1e1e` wrapper Box) was tried in
+  `snips` and `walk-pane` and removed: the Pane fills its body itself and tracks the theme.
+- *The pane frame colour is an undocumented theme colour*, so it is not set by the mods.
+- *`/copy` collides with the built-in command*, so `snips`' copy path is the pane's Copy
+  button rather than its `/copy n` command.
+- *Env-var install, not dev-mods.* Dev-mods are per-session, so the permanent install is the
+  env var pointing at `~/.claude/mods/`; the session dev-mods folder is deleted after install
+  so the same plugin names do not load twice.
+
+**Rules out.** Leaving the mods under dev-mods (lost with the session); per-mod theme
+overrides for pane bodies.
+
+## Added — `/rebaseline`; `baseline` always refreshes jscpd and knip (2026-10-07)
+
+**Need.** The user re-takes a worktree's lint-kit baselines often, and each time pasted
+`~/.claude/lint/kit.sh baseline` by hand. Separately, `kit.sh baseline` returned early
+when ESLint wrote no snapshot ("nothing to suppress or eslint failed") — before storing
+the jscpd and knip baselines — so on a clean tree those two silently kept their old
+values.
+
+**Decision.**
+
+- `claude/commands/rebaseline.md` — `/rebaseline [dupes]` runs
+  `` !`~/.claude/lint/kit.sh baseline $ARGUMENTS` `` as a pre-executed command, with
+  `allowed-tools` scoped to the kit, and the model only relays the output in a line or
+  two. No argument re-takes the ESLint snapshot plus the jscpd and knip baselines; `dupes`
+  resets only the jscpd baseline.
+- `kit.sh baseline` stores the jscpd and knip baselines before the no-snapshot early
+  return, and deletes the jscpd baseline first so a failed jscpd run cannot leave a stale
+  one in place. The "no snapshot written" message is unchanged.
+- The dupes-only reset is an argument to `baseline` (`kit.sh baseline dupes`: delete the
+  jscpd baseline, then run `dupes`, which re-stores it) rather than a new subcommand, so
+  the command body is one kit call with `$ARGUMENTS` appended and needs no shell
+  branching for its permission rule to match. Any other argument exits 64.
+
+**Rules out.** A knip-only reset — not asked for; `/rebaseline` covers it. Shell logic in
+the command body to map arguments to subcommands.
+
+## Removed — `comment-band` mod (2026-10-08)
+
+The `comment-band` trial (Layer 6, 2026-10-07) ended and the mod was deleted from
+`claude/mods/`, from the installed `~/.claude/mods/`, and from `CLAUDE_CODE_PLUGIN_DIRS` in
+both `settings.json` files. The user's verdict: too much clutter. The band listed a row per
+added comment above the prompt, and it flagged SQL `-- ====` divider lines as narration, so
+the rows were often false hits. This settles the trial's open question in favour of the
+Layer 2 Stop/SessionStart hook `comment-suspects.mjs`, which remains the comment-cleanup
+mechanism. `install.sh`, the README and `CLAUDE.md` were updated to five mods.
+
+**Rules out.** A per-comment band above the prompt as the comment-cleanup surface.
+
+## Retired — walk-pane; /jun-walkthrough reads in the built-in /diff (2026-10-12)
+
+**Problem.** The `walk-pane` diff view cut every file at 150 lines or 10,000 characters and
+ended with a "… N more lines" row the user could not scroll past. In a real walk two files
+ran to 267 and 294 diff lines, so half of each page's code was unreachable.
+
+**Decision.** Claude Code 2.1.287+ ships `/diff`: a first-party panel of uncommitted
+changes against HEAD (a side panel in the fullscreen renderer, a dialog above the prompt in
+classic), with per-turn tabs plus `Current` for everything on disk, and `Ctrl+X B` cycling
+the base between this session, uncommitted and branch. That covers the read, so by the
+governing principle the mod no longer earns its place. The mod, `/walk` and the "pane is
+the page" wiring go: `claude/mods/walk-pane/`, the installed copy, its
+`CLAUDE_CODE_PLUGIN_DIRS` entry in both `settings.json` files, and the README, `CLAUDE.md`
+and `install.sh` mentions (now four mods). `/jun-walkthrough` now says the user reads the
+code in the `/diff` panel, and the walk's first line tells the user to open `/diff`, since a
+command cannot open it for them.
+
+**Rules out.** Fixing the cap by windowing the full diff in the pane — rejected once a
+first-party panel existed. Keeping `/walk` as a lighter view — same reason.
 
 ## Removed — default model pin (2026-07-27)
 

@@ -10,7 +10,7 @@
 # fixes. Repo-level settings are shared (<repo_key>/settings.json); the
 # suppressions, jscpd and knip baselines are keyed by worktree too.
 #
-# Usage: kit.sh [--cwd <dir>] <paths|installed|baseline|check|dupes|dead> [files...]
+# Usage: kit.sh [--cwd <dir>] <paths|installed|baseline [dupes]|check|dupes|dead> [files...]
 
 set -euo pipefail
 
@@ -142,6 +142,18 @@ cmd_paths() {
 }
 
 cmd_baseline() {
+  case "${1:-}" in
+    "") ;;
+    dupes)
+      rm -f "$jscpd_baseline"
+      cmd_dupes
+      return
+      ;;
+    *)
+      echo "lint kit: baseline takes no argument or 'dupes', got '$1'" >&2
+      exit 64
+      ;;
+  esac
   require_installed
   ensure_settings
   mkdir -p "$repo_dir"
@@ -153,13 +165,14 @@ cmd_baseline() {
     --suppress-all --suppressions-location "$snapshot_file" \
     >/dev/null 2>&1 || true
 
+  rm -f "$jscpd_baseline"
+  store_jscpd_baseline >/dev/null 2>&1 || true
+  store_knip_baseline >/dev/null 2>&1 || true
+
   if [ ! -f "$snapshot_file" ]; then
     echo "lint kit: no snapshot written for $project_name (nothing to suppress or eslint failed)"
     return 0
   fi
-
-  store_jscpd_baseline >/dev/null 2>&1 || true
-  store_knip_baseline >/dev/null 2>&1 || true
 
   echo "lint kit: snapshot taken for $project_name@$(branch_name) ($(suppressed_count) suppressed)"
 }
@@ -304,12 +317,12 @@ cmd_dead() {
 case "$cmd" in
   paths)     cmd_paths ;;
   installed) require_installed ;;
-  baseline)  cmd_baseline ;;
+  baseline)  cmd_baseline "$@" ;;
   check)     cmd_check "$@" ;;
   dupes)     cmd_dupes ;;
   dead)      cmd_dead ;;
   *)
-    echo "usage: kit.sh [--cwd <dir>] <paths|installed|baseline|check|dupes|dead> [files...]" >&2
+    echo "usage: kit.sh [--cwd <dir>] <paths|installed|baseline [dupes]|check|dupes|dead> [files...]" >&2
     exit 64
     ;;
 esac

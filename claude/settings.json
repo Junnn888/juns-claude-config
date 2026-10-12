@@ -145,6 +145,9 @@
       }
     ]
   },
+  "env": {
+    "CLAUDE_CODE_PLUGIN_DIRS": "~/.claude/mods/snips:~/.claude/mods/lint-status:~/.claude/mods/git-guard:~/.claude/mods/prompt-tweaks"
+  },
   "statusLine": {
     "type": "command",
     "command": "~/.claude/statusLine.sh",

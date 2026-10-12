@@ -1,5 +1,5 @@
 ---
-description: "Page through the uncommitted diff one file at a time as the user's own read, before anything is committed — read-only, main loop, ends with a paste-ready fix prompt, a commit split and a snapshot hash for the delta pass"
+description: "Page through the uncommitted diff one file at a time as the user's own read, before anything is committed — line ranges and glosses per file, the code read in the built-in /diff panel, read-only, main loop, ends with a paste-ready fix prompt, a commit split and a snapshot hash for the delta pass"
 argument-hint: "[delta [<hash>] | <plan path>]"
 ---
 
@@ -19,14 +19,19 @@ decide. The diff they read must be the diff they commit.
   `git stash create` in Phase 3 is the one exception: it writes an object and
   touches nothing else — not the working tree, not the index, not the stash
   list.
-- The code is the page. Every hunk is printed verbatim; a description of a
-  hunk is not a page.
+- The panel is the page. The walk never prints a hunk or a fenced code block;
+  it prints line ranges and glosses, and the user reads the code in Claude
+  Code's built-in `/diff` panel (the `Current` tab is the uncommitted tree;
+  `Ctrl+X B` cycles the base).
 - Stop after every file and wait for "next".
 - The walk raises no opinions on the code. Phase 3 carries only the user's
   questions and requests plus the mechanical tests-page notes, each under Fix
   now, Decide before next part or Later. None may be dropped.
 
 ## Phase 1 — Orient
+
+The walk's first line tells the user to open `/diff` if it is not already
+open; a command cannot open it for them.
 
 Find the plan yourself; the user does not type a path. Plans are named after
 the worktree, so the slug is `basename $(git rev-parse --show-toplevel)` and
@@ -61,12 +66,13 @@ dependencies from any manifest diff (`package.json`, `pyproject.toml`,
 "important" marker. Count the pages from this table and head each one
 "Page n of N". Then stop and wait for "next" before page one.
 
-Per source, template or migration file:
+Per source, template or migration file, a page that opens with the line
+`Page n of N: <path>`, so the user can find that file in the `/diff` panel:
 
 1. One sentence in plain English: what changed and why, before → after.
-2. Each hunk verbatim in a fenced `diff` block, at most 150 lines per block,
-   with a one-line gloss above it. The user reads the code; the breakdown
-   format's flow-altitude default does not apply here.
+2. One line per hunk, in file order: `L<start>–<end>: <gloss>`, using the
+   new-file line numbers from the hunk header. The gloss says what the hunk
+   does and, when it is not obvious, why — one sentence, two at most.
 3. If the user skipped the file, one line: "file skipped by the user
    (unread)".
 

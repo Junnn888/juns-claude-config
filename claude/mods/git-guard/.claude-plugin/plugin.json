@@ -1,0 +1,1 @@
+{ "name": "git-guard", "version": "0.1.0", "description": "Refuses Bash commands that change git state, force-push or discard working-tree changes." }

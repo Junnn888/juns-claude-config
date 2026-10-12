@@ -17,6 +17,7 @@ The config is built in layers, each with a governing principle: a component earn
 | 3 — Skills | Built | 1 skill (`notes-routing`). Principle widened 2026-07-27 to admit situational reference material that would otherwise sit always-on in CLAUDE.md. Workflow skills still need the 3+ repetition bar. |
 | 4 — LSP | Built | Official LSP plugins (`claude-plugins-official`), 12 languages. Auto-enables Claude Code's built-in LSP tool. |
 | 5 — Orchestration | Built | `Orchestrator` output style (default via `outputStyle`) + `scout`/`patch`/`builder`/`deep` agent roster pinning model+effort tiers. Scale fan-outs stay behind `/fan`. |
+| 6 — Mods | Built | 4 hooks-module plugins in `claude/mods/`, loaded every session via `CLAUDE_CODE_PLUGIN_DIRS`: `snips` (code blocks from answers in a pane with Copy), `lint-status` (lint-kit delta in the status line), `git-guard` (typed deny of git state changes; trial), `prompt-tweaks` (`:short`/`:why`/`:opts` shorthand + session note; trial). |
 
 Full design decisions and rationale live in `global-claude-md-spec.md`.
 

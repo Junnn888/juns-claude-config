@@ -1,0 +1,1 @@
+{ "name": "lint-status", "version": "0.1.0", "description": "Shows the lint kit's delta against this worktree's snapshot in the status line after each turn." }

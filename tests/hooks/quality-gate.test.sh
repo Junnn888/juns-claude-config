@@ -83,8 +83,10 @@ check "clean tree skips the failing script" "$([ $rc -eq 0 ] && echo 0 || echo 1
 
 # ---- turn-start snapshot cases
 run_turn_start() {
-  # $1 = cwd, $2 = session id
-  printf '{"cwd":"%s","session_id":"%s"}' "$1" "$2" | HOME="$HOME_DIR" bash "$HOOKS_DIR/turn-start.sh"
+  # $1 = cwd, $2 = session id, $3 = prompt (optional)
+  jq -nc --arg cwd "$1" --arg sid "$2" --arg prompt "${3:-}" \
+    '{cwd: $cwd, session_id: $sid, prompt: $prompt}' \
+    | HOME="$HOME_DIR" bash "$HOOKS_DIR/turn-start.sh"
 }
 
 last_mode() {
@@ -190,6 +192,21 @@ run_hook "$repo" t13 >/dev/null
 check "stop run prunes an old state file" "$([ ! -f "$(gate_state_file old-session)" ] && echo 0 || echo 1)"
 check "stop run keeps a fresh state file" "$([ -f "$(gate_state_file fresh-session)" ] && echo 0 || echo 1)"
 check "stop run keeps the current turn-start" "$([ -f "$(gate_state_file t13.turn-start)" ] && echo 0 || echo 1)"
+
+# ---- case 14: subagent hand-back prompts keep the last real snapshot
+repo="$(lint_repo "exit 0")"
+run_turn_start "$repo" t14 "fix the bug"
+snapshot="$(cat "$(gate_state_file t14.turn-start)")"
+echo "agent edit" >> "$repo/seed.txt"
+run_turn_start "$repo" t14 $'Another Claude session sent a message:\n<agent-message from="builder">done</agent-message>'
+check "agent-message hand-back keeps the snapshot" \
+  "$([ "$(cat "$(gate_state_file t14.turn-start)")" = "$snapshot" ] && echo 0 || echo 1)"
+run_turn_start "$repo" t14 '<task-notification><status>completed</status></task-notification>'
+check "task-notification hand-back keeps the snapshot" \
+  "$([ "$(cat "$(gate_state_file t14.turn-start)")" = "$snapshot" ] && echo 0 || echo 1)"
+run_turn_start "$repo" t14 "next request"
+check "real prompt rewrites the snapshot" \
+  "$([ "$(cat "$(gate_state_file t14.turn-start)")" != "$snapshot" ] && echo 0 || echo 1)"
 
 echo "quality-gate: $pass passed, $fail failed"
 [ "$fail" -eq 0 ]

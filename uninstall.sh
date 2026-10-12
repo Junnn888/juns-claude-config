@@ -49,6 +49,7 @@ else
   # Whole directory, baselines included — they are derived data, regenerated on
   # the next session start in each worktree.
   rm -rf "$CLAUDE_DIR/lint"
+  rm -rf "$CLAUDE_DIR/mods"
   echo "==> Removed. mcp.json (if present) was left in place on purpose —"
   echo "    it may hold your own extra MCP servers."
   echo "    Note: a fresh ~/.claude/settings.json was NOT recreated — Claude"

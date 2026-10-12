@@ -11,6 +11,13 @@ cwd="$(printf '%s' "$input" | jq -r '.cwd // empty' 2>/dev/null)" || exit 0
 session_id="$(printf '%s' "$input" | jq -r '.session_id // "unknown"' 2>/dev/null)" || exit 0
 [ -z "$cwd" ] && cwd="$PWD"
 
+# A subagent hand-back arrives as a synthesised prompt after the agent's edits;
+# it is not a turn boundary for the tree, so keep the last real snapshot.
+prompt="$(printf '%s' "$input" | jq -r '.prompt // empty' 2>/dev/null)" || exit 0
+case "$prompt" in
+  "Another Claude session sent a message:"* | "<task-notification>"*) exit 0 ;;
+esac
+
 git -C "$cwd" rev-parse --is-inside-work-tree >/dev/null 2>&1 || exit 0
 fingerprint="$(tree_fingerprint "$cwd")" || exit 0
 [ -n "$fingerprint" ] || exit 0

@@ -136,10 +136,11 @@ config installed.
 | `hooks/turn-start.sh` | UserPromptSubmit. Records the tree fingerprint (from `hooks/tree-fingerprint.sh`, shared with the gate) at the start of each turn, so both Stop hooks skip a turn that changed nothing; the gate replays its cached failure instead if that exact tree last failed. Silent, always exits 0. |
 | `hooks/lint-baseline.sh` | SessionStart. Takes the lint kit's suppressions snapshot for the current worktree the first time a session opens in it, and prints one line saying so. Silent when the kit isn't installed, when the snapshot already exists, or outside a JS/TS git worktree. |
 | `lint/` | The lint kit (see below). |
+| `mods/` | Five hooks-module plugins, loaded every session through `env.CLAUDE_CODE_PLUGIN_DIRS` in `settings.json` (see Mods below). |
 | `hooks/handback-truth.mjs` | SubagentStart + SubagentStop (needs `node`), matched to `builder`/`patch`. Snapshots the git tree when a writer agent starts and bounces its stop once with a git-derived facts block (changed files, created files, new exports) for the agent to check its `Reused:` / `Wrote new:` claims against and append to its report. Read-only agents never bounce. Logs every pass to `hooks/handback.log`. |
 | `hooks/comment-baseline.sh` | Measurement utility, not wired as a hook. Runs the same detector over the last N commits of whatever repo it's invoked from and prints suspects per 100 added lines — for baselining a codebase before judging the Stop hook. |
 | `mcp.json` | Tolaria MCP server. Only installed when `/Applications/Tolaria.app` exists, and never overwrites an existing `mcp.json`. |
-| `commands/` | Custom slash commands: `/pr-branch` (PR message + open PR), `/fan` (fan a task out to a multi-agent workflow with adversarial verification), `/tidy` (fork of the built-in `/simplify` with a fifth self-explanatory-code angle), `/blast-radius` (find consumers the diff should have updated and didn't), `/jun-review` (run all three reviewers findings-only, cluster by root cause in the main loop, fix in one targeted wave, then report as done / yours to decide / later and close with a flow walk of the fix), `/jun-walkthrough` (page the uncommitted diff one file at a time as the user's own read — read-only, main loop, ends with a paste-ready fix prompt, a commit split and a snapshot hash for a delta pass) and `/jun-project-setup` (survey a JS/TS project's guardrails, propose the gaps, then write the per-repo lint-kit settings and a `CLAUDE.local.md` docs-first pointer — nothing else lands in the repo: no rules, no dev-deps, no baseline file, since the kit carries all of those; idempotent). |
+| `commands/` | Custom slash commands: `/pr-branch` (PR message + open PR), `/fan` (fan a task out to a multi-agent workflow with adversarial verification), `/tidy` (fork of the built-in `/simplify` with a fifth self-explanatory-code angle), `/blast-radius` (find consumers the diff should have updated and didn't), `/jun-review` (run all three reviewers findings-only, cluster by root cause in the main loop, fix in one targeted wave, then report as done / yours to decide / later and close with a flow walk of the fix), `/jun-walkthrough` (page the uncommitted diff one file at a time, printing line ranges and glosses per file while the code is read in the built-in `/diff` panel — read-only, main loop, ends with a paste-ready fix prompt, a commit split and a snapshot hash for a delta pass) and `/jun-project-setup` (survey a JS/TS project's guardrails, propose the gaps, then write the per-repo lint-kit settings and a `CLAUDE.local.md` docs-first pointer — nothing else lands in the repo: no rules, no dev-deps, no baseline file, since the kit carries all of those; idempotent) and `/rebaseline` (re-take this worktree's lint-kit baselines — ESLint snapshot, jscpd and knip — or only jscpd with `/rebaseline dupes`). |
 | `agents/` | Orchestrator roster: `scout` (opus 1M context, low effort, read-only search), `patch` (opus, low effort, small fully-specified fixes), `builder` (opus, medium effort, well-specified implementation), `deep` (opus, high effort, hard problems). Agent-file frontmatter is the only place ordinary delegation can pin model *and* effort. |
 | `output-styles/` | `Orchestrator` style: main loop is a strict manager — it plans, routes to the roster, and judges results, but never edits or implements itself; scale fan-outs defer to `/fan`. Default output style (`outputStyle` in `settings.json`); switch via `/config` → Output style, takes effect from the next session. |
 
@@ -160,6 +161,23 @@ cd ~/.claude/lint && npm install
 ```
 
 Until the dependencies are there, the kit is inert and both hooks skip it silently.
+
+## Mods (`~/.claude/mods/`)
+
+Layer 6: Claude Code hooks-module plugins, one folder each under `claude/mods/`.
+
+| Mod | What it does |
+|---|---|
+| `snips` | Keeps the code blocks from recent answers in a pane with a Copy-to-clipboard button each. `/snips` opens the pane; copy with the row's button. The mod also registers `/copy n`, but Claude Code's built-in `/copy` takes precedence over it. |
+| `lint-status` | Shows the lint kit's delta against this worktree's snapshot in the status line. |
+| `git-guard` | Denies, as a typed tool-call refusal, Bash commands that change git state, force-push or discard changes. |
+| `prompt-tweaks` | Expands a trailing `:short`, `:why` or `:opts` in a typed prompt, and appends a session note to the system prompt. |
+
+**Loading.** `settings.json` sets `env.CLAUDE_CODE_PLUGIN_DIRS` to the four folders, colon-separated, so every session loads them. Editing a mod's source hot-reloads it in running sessions.
+
+**Testing.** `claude plugin validate claude/mods/<name>` checks the manifest and hooks; `claude plugin test claude/mods/<name>` runs its tests. Each mod's `.claude-plugin/types/` is engine-generated and gitignored.
+
+**Dropping one.** Delete its folder and remove its path from `CLAUDE_CODE_PLUGIN_DIRS`.
 
 ## LSP layer
 

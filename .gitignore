@@ -2,3 +2,11 @@
 # stays committed so every machine installs the same kit.
 claude/lint/node_modules/
 claude/lint/projects/
+
+PLAN.md
+REBUILD.md
+WORKFLOW.md
+workflow_real_test.md
+
+# Mods: engine-generated type dumps.
+claude/mods/*/.claude-plugin/types/

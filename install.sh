@@ -50,6 +50,10 @@ echo "==> Installing status line"
 cp "$SRC/statusLine.sh" "$CLAUDE_DIR/statusLine.sh"
 chmod +x "$CLAUDE_DIR/statusLine.sh"
 
+echo "==> Installing mods"
+rm -rf "$CLAUDE_DIR/mods"
+cp -a "$SRC/mods" "$CLAUDE_DIR/mods"
+
 echo "==> Installing hooks"
 cp "$SRC/hooks/"*.sh "$SRC/hooks/"*.mjs "$CLAUDE_DIR/hooks/"
 chmod +x "$CLAUDE_DIR/hooks/"*.sh
@@ -196,6 +200,7 @@ echo "  - hooks/lint-baseline.sh (SessionStart per-worktree lint-kit snapshot)"
 echo "  - hooks/handback-truth.mjs (SubagentStart/Stop diff-truth check for builder/patch, needs node)"
 echo "  - lint/                  local lint kit: size/complexity/Tailwind/dupes/dead-code"
 echo "                           rules, run from here, never written into a project"
+echo "  - mods/                  4 hooks-module plugins (snips, lint-status, git-guard, prompt-tweaks)"
 echo "  - mcp.json             Tolaria MCP server (only if Tolaria.app is installed)"
 echo "  - plugins              12 official LSP servers + frontend-design + code-simplifier + coderabbit"
 echo "Start a new Claude Code session for changes to take effect."

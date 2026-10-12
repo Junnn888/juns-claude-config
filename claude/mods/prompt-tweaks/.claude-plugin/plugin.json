@@ -1,0 +1,13 @@
+{
+  "name": "prompt-tweaks",
+  "version": "0.1.0",
+  "description": "Adds a session note to the system prompt and expands trailing :short, :why and :opts shorthands in typed prompts.",
+  "userConfig": {
+    "note": {
+      "type": "string",
+      "title": "System prompt note",
+      "description": "Text appended to the system prompt as a session section. Leave empty to append nothing.",
+      "default": "The prompt-tweaks mod is active in this session. If the user asks which mods are active, say that prompt-tweaks is."
+    }
+  }
+}
