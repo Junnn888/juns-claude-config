@@ -45,7 +45,7 @@ abstraction the diff adds without a second caller.
   flagging: read the manifest (package.json, pyproject.toml, go.mod,
   Cargo.toml) for a dependency that already covers it, Grep the project by
   the capability's synonyms rather than the diff's chosen name, then consider
-  the stdlib. Name the exact thing to call instead (import path and
+  the stdlib or a platform feature. Name the exact thing to call instead (import path and
   signature), or state what was searched and that none was found.
 - Duplication: logic the diff repeats from code outside the diff. Run
   `~/.claude/lint/kit.sh dupes` first when the kit is installed (else the
@@ -107,7 +107,8 @@ and idiom, and leave comments the diff didn't touch alone.
 
 Wait for all five agents to complete, dedup findings that point at the same
 line or mechanism, and fix each remaining one directly. Skip any finding whose
-fix would change intended behavior, require changes well outside the reviewed
-diff, or that you judge to be a false positive — note the skip rather than
-arguing with it. Finish with a brief summary of what was fixed and what was
+fix would change intended behavior, remove validation at a trust boundary or
+error handling that prevents data loss, require changes well outside the
+reviewed diff, or that you judge to be a false positive — note the skip rather
+than arguing with it. Finish with a brief summary of what was fixed and what was
 skipped (or confirm the code was already clean).

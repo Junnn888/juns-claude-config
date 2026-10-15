@@ -1,6 +1,7 @@
 ---
 allowed-tools: Bash(~/.claude/lint/kit.sh:*)
 description: "Re-take this worktree's lint-kit baselines: the ESLint snapshot, jscpd and knip, or only jscpd with `dupes`"
+disable-model-invocation: true
 argument-hint: "[dupes]"
 ---
 

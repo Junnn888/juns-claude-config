@@ -1418,6 +1418,84 @@ command cannot open it for them.
 **Rules out.** Fixing the cap by windowing the full diff in the pane — rejected once a
 first-party panel existed. Keeping `/walk` as a lighter view — same reason.
 
+## Layer 1 + 5 — never-cut floor, test trigger, platform rung (2026-10-12)
+
+Source: DietrichGebert/ponytail (MIT, commit 9b58c1f), a 52-line "lazy senior dev" ruleset whose
+Claude Code benchmark (Opus 5.5, 39 tasks × 5 runs × 3 arms, headless `claude -p`) reports -53%
+lines, -26% cost, hidden correctness checks 97% vs 96% for no skill, and a test present where
+the logic needs one 98% vs 68%. Three of its rules were adopted as text; its delivery plumbing was
+not.
+
+**Adopted.** (1) A never-cut floor under the smallest-scope rule: "validation at trust boundaries,
+error handling that prevents data loss, security, accessibility, anything the user asked for",
+plus "code you move or merge keeps its error handling and validation". Before this, CLAUDE.md
+banned "error handling … that wasn't asked for" with nothing beneath it, and /jun-review:62 leaned
+the same way, so a builder dropping a trust-boundary check was obeying the rules — an internal
+contradiction, not a missing feature. First mirrored into `builder` and `patch`; the mirrors
+were removed the same day — subagents receive CLAUDE.md, so they were duplicates on a false
+premise (the same premise as the older em-dash mirror, left in place). (2) The test rule's
+trigger, "new logic", became "new non-trivial logic — a branch, a loop, a parser, money or
+security — leaves one small test that fails when it breaks; trivial changes need none".
+Ponytail's 98%-vs-68% figure is on this wording; "one small test" bounds the Opus 5
+over-verification risk recorded under "verification rules removed". (3) Two reuse rungs the
+roster never named: a platform feature after the stdlib (the date-picker case: 335 hand-built
+lines vs a 10-line `<input type=date>`), and "one line a reader gets at a glance". Added to
+`builder`'s search order; `patch` gained the bug-fix caller rule ("grep every caller … fix once
+in the shared code") in its stop-and-report idiom. Reduced the same day to the stop condition
+only; the caller check moved to the Orchestrator's dispatch, since grepping callers is
+exploration patch is told to bounce.
+
+**Not adopted.** SessionStart/UserPromptSubmit ruleset injection with an on/off flag file and a
+`[PONYTAIL]` statusline: the same public-plugin optionality rejected for `i-have-adhd` above;
+CLAUDE.md is always-on here. SubagentStart injection: subagents already receive CLAUDE.md.
+`lite/full/ultra` levels: "ultra" is the existing push-back and simpler-approach rules. The
+every-reply "skipped / not checked / risk" footer: collides with "otherwise just stop" and with
+the over-verification finding; the Orchestrator's after-ship report already carries "remaining
+risks". `shortcut: <limit>, <when to upgrade>` comments and the `/ponytail-debt` ledger: a second
+home for deferred decisions beside the plan-drift rule; revisit only if that rule decays. The
+SessionStart codebase map (2000 chars of exported names per directory): same deferral as the
+doc-index injection above — the reuse-scout wave does this job; a `session.start` mod is the
+shape if the rule ever decays. `/ponytail-review`: covered by /jun-review's three reviewers and
+the rejected fourth reviewer.
+
+**Queued.** `/ponytail-audit` as a vendored findings-only skill (map entry points and expected
+load first, six categories, max 20 findings, `Not checked:` line) — juncc has no whole-repo pass;
+it meets the widened Layer 3 bar as situational reference. Not landed with this entry.
+
+## Audit — rule conflicts after the ponytail edits (2026-10-12)
+
+Two adversarial passes over every rule carrier found 41 conflicts; seven were created or
+worsened by the morning's edits and were closed the same day: /jun-review now treats never-cut
+items as correctness clusters whatever the scenario and allows the co-located test file as a
+third editable kind; /tidy's Phase 2 skips fixes that remove trust-boundary validation or
+data-loss handling; the platform-feature rung sits in the lines that actually run (scout's
+recipe, /tidy's recipe, the Orchestrator's "already exists" list, CLAUDE.md:42) rather than only
+builder's no-reuse-line branch; builder and patch state that the owed test is in scope despite
+"nothing beyond the dispatch"; CLAUDE.md's floor reads "never cut or omit" so new code is
+covered; the never-cut mirrors were deleted. Also closed: the four agent files no longer forbid
+Bash grep — this harness build exposes no Grep/Glob tool under auto mode, so the ban was
+unfollowable; /blast-radius diffs the working tree against base (it compared base to HEAD and
+never saw uncommitted work that /jun-review promised all reviewers see) and names /tidy, not
+/simplify; /rebaseline and /pr-branch carry `disable-model-invocation`, closing the model's
+route to absorbing its own lint violations or opening a PR untyped.
+
+**Recorded, not fixed (hook pile, see REBUILD.md):** handback-truth's bounce lands after the
+SubagentHandback call, so its "Ground truth (git)" lines never reach the main loop (log: 61
+bounces, 17 releases); `settings.json` still ships `"model": "fable[1m]"` despite the entry
+above saying it was removed, so a reinstall resets `/model`; quality-gate runs the project's own
+lint and typecheck with no baseline and blocks on pre-existing red.
+
+**Open drift, deferred:** always-delegate vs /tidy's main-loop edits and /jun-review's fresh
+concurrent writers; main-loop-only rules (discuss→approve, "say so first") reaching subagents;
+the Orchestrator's five-field ship report vs CLAUDE.md's close shape; the git rule's "all git
+operations" vs the hooks' six verbs; builder's 500/800 cap missing the mechanical exception;
+three attempt limits; finding formats and the meaning of "Later" across /jun-review and
+/jun-walkthrough; base-ref rules in three commands; Explore and unnamed agents outside the
+roster; /jun-project-setup in linked worktrees; `/flow HEAD` inside /jun-review yielding an empty
+diff; comment-suspects' compress bounce vs the density rule. Install hygiene pending: stale
+installed /jun-walkthrough, stray `~/.claude/skills/SKILL.md`, dead `agents/.model-defaults.json`,
+and `install.sh:96`'s trailing-slash `cp -a` that flattens skills on BSD cp.
+
 ## Removed — default model pin (2026-07-27)
 
 `settings.json` no longer ships a `model` key. The config is model-agnostic by design: the

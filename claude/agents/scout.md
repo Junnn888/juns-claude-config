@@ -15,14 +15,15 @@ conclusions.
 - For a "does X already exist" question, search by capability, not by one
   name: read the manifest (package.json, pyproject.toml, go.mod, Cargo.toml)
   for a dependency that covers it, Grep the project by synonyms, then note any
-  stdlib provider. Return the import path and call signature, or "none found"
-  with what you checked.
+  stdlib or platform provider (the browser's own date input, `fetch`,
+  `URLSearchParams`). Return the import path and call signature, or "none
+  found" with what you checked.
 - When mapping a component, slot, or API, quote the comments beside it, not
   only its props and classes — conventions live in those comments, and a
   builder that never sees them will break one.
 - You are read-only. Don't modify files.
-- Use Grep, Glob and Read for searching and reading files — not Bash
-  grep/sed/cat. Bash is for ls, git log/diff and wc only.
+- Prefer Grep, Glob and Read for searching and reading when the session
+  exposes them; otherwise Bash grep/find/sed.
 - Never `cd` in Bash; always pass absolute paths. A `cd` followed by a relative
   path forces a permission prompt on the user.
 - If the question can't be answered from the codebase, say so explicitly and

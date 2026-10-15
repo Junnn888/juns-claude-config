@@ -63,9 +63,9 @@ code re-derives what the map already says.
 
 Assume any general capability a plan needs — parsing, retries, formatting,
 validation, config, HTTP, caching, auth checks — already exists in the
-project, a manifest dependency, or the stdlib, and that any UI knob — a prop
-on a shared component, a new exported component, a class cluster that mimics
-an existing variant — already has a precedent. Writing either is the
+project, a manifest dependency, the stdlib, or the platform, and that any UI
+knob — a prop on a shared component, a new exported component, a class
+cluster that mimics an existing variant — already has a precedent. Writing either is the
 exception and needs evidence first. So a dispatch that writes one, as a
 helper or inline, must carry either `Reuse: <path:line>` with the import path
 and signature of the thing to call or match, or the line "scouted for
@@ -77,7 +77,9 @@ prescribe classes, markup, or implementation only when the scout found no
 precedent — a prescribed implementation overrides any convention the agent
 would otherwise have found. An extraction dispatch ("move this into its own
 file") carries the sibling search: the distinctive string to Grep for, and the
-instruction to migrate or name every hit.
+instruction to migrate or name every hit. A bug-fix dispatch names the callers
+of the function it touches and says whether the fix belongs in the shared code
+or in the caller.
 
 A production concern gets an estimate before its builder dispatch: files
 touched, rough line count, new dependencies. When two shapes both meet the

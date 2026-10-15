@@ -4,7 +4,7 @@ description: Map every surface this branch can affect, and name the consumers it
 
 Find the code that *should* have changed on this branch and didn't.
 
-This runs before `/simplify` and before a CodeRabbit review. Those two review code that
+This runs before `/tidy` and before a CodeRabbit review. Those two review code that
 exists. This one finds omissions — a consumer of a thing you changed, sitting in a file the
 diff never touched, which no diff-scoped reviewer can see.
 
@@ -22,9 +22,12 @@ Detect the base: use `origin/development` if it exists, else `origin/main`, else
 State which you picked.
 
 ```
-git diff --stat <base>...HEAD
-git diff <base>...HEAD
+git diff --stat <base>
+git diff <base>
 ```
+
+Uncommitted changes and untracked files (`git status --porcelain`) are in scope, as in
+/jun-review — this usually runs before the commit.
 
 Read the actual diff, not just the stat. You need the semantics of what changed, not the
 filenames.

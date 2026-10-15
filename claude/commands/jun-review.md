@@ -62,13 +62,18 @@ the branch set out to do. Style, robustness and "could be cleaner" clusters are
 listed as optional findings, not fixed: chasing them grows the diff with
 abstractions and defensive code nobody asked for.
 
+A never-cut item — validation at a trust boundary, error handling that
+prevents data loss, security, accessibility — is a correctness cluster
+whether or not a scenario was reproduced. "Robustness" above means anything
+outside that list.
+
 Each optional finding carries one line, `If left:`, naming what the user would
 see or pay. When the honest answer is nothing they would see, write
 `cosmetic`. The default answer to every optional finding is no.
 
 ### Scope test
 
-The fix wave may edit exactly two kinds of file:
+The fix wave may edit exactly three kinds of file:
 
 1. Files in the branch diff (`git diff --name-only <base>...HEAD` plus
    uncommitted changes).
@@ -76,13 +81,13 @@ The fix wave may edit exactly two kinds of file:
    verdict for that file, with its one-sentence user-visible consequence.
    Those are consumers of something this branch changed that now behave
    wrong — fix the consumer's behaviour, nothing more.
+3. The test file co-located with a file from 1 or 2, for the one test a fix
+   owes new non-trivial logic or to re-pin code the fix changed.
 
 Everything else is reported as an own-branch follow-up, never fixed, however
 good the finding is. Migrating pre-existing call sites onto a new helper, or
 fixing the same pattern in sibling files, is a refactor, not a review fix. A
-shared module the branch touched gets only the change the finding names. Test
-files are editable only when they pin code in the diff or blast-radius proved
-they now fail.
+shared module the branch touched gets only the change the finding names.
 
 ## Phase 3 — Eliminate (one wave)
 
@@ -94,7 +99,8 @@ cluster needs judgement rather than execution.
 
 Before dispatching, list each lane's target files and check every one against
 the scope test. Drop any file that fails it and move its finding to the
-own-branch follow-ups.
+own-branch follow-ups. A bug whose root cause is a shared function outside the
+allowlist goes to the follow-ups whole, not as a caller-side guard.
 
 The agent starts blind, so each dispatch carries the full context: the
 findings verbatim with their consequence sentences, the `file:line` sites, the

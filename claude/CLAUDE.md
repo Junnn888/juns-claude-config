@@ -39,10 +39,11 @@ When explaining anything — a concept, a finding, a piece of code, why somethin
 - Push back on flawed premises rather than working around them.
 
 ### Scope and completeness
-- Choose the smallest correct scope: no speculative features, no single-use abstractions, no defensive code for scenarios that can't occur, no fallbacks, error handling or flexibility that wasn't asked for — the right amount of complexity is the minimum the current task needs. Before writing a helper, name the existing provider — project, stdlib, or dependency — or state that you searched and found none. A capability you need (parsing, retries, formatting, config, HTTP) almost always already exists.
+- Choose the smallest correct scope: no speculative features, no single-use abstractions, no defensive code for scenarios that can't occur, no fallbacks, error handling or flexibility that wasn't asked for — the right amount of complexity is the minimum the current task needs. Before writing a helper, name the existing provider — project, stdlib, dependency, or platform feature — or state that you searched and found none. A capability you need (parsing, retries, formatting, config, HTTP) almost always already exists.
 - Then implement that scope completely — finish edge cases and error paths, don't ship a 90% sketch. Extra code is justified only if it completes the in-scope requirement, not if it extends beyond it.
+- Never cut or omit: validation at trust boundaries, error handling that prevents data loss, security, accessibility, anything the user asked for. Code you move or merge keeps its error handling and validation.
 - Keep a change under 500 changed lines when it touches complex logic, 800 otherwise; mechanical changes excepted. If it would be larger, split it into reviewable stages and land the smallest coherent stage first.
-- Write tests for new logic by default, without being asked. Pin them to intended behaviour so a future logic change that breaks that intent fails an existing test (regression protection).
+- New non-trivial logic — a branch, a loop, a parser, money or security — leaves one small test that fails when it breaks, without being asked; trivial changes need none. Pin tests to intended behaviour so a future logic change that breaks that intent fails an existing test (regression protection).
 
 ### Edit surface
 - Edit only what the request requires. Don't refactor adjacent code, "improve" formatting, or rewrite comments you didn't touch.

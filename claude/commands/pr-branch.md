@@ -1,6 +1,7 @@
 ---
 allowed-tools: Bash(git log:*), Bash(git diff:*), Bash(git branch:*), Bash(git merge-base:*), Bash(git rev-parse:*), Bash(gh pr create:*), Bash(gh pr view:*)
 description: Generate a PR message and open a PR to the given base branch
+disable-model-invocation: true
 argument-hint: "[base-branch]"
 ---
 
@@ -51,7 +52,7 @@ Using the changes you gathered, fill in this template:
 
 - [ ] Tested locally with `bun dev`
 - [ ] Tests pass (`bun run test`)
-- [ ] Tests added/updated for new business logic
+- [ ] Tests added/updated for new non-trivial logic (a branch, a loop, a parser, money or security)
 - [ ] Build passes (`bun run build`)
 - [ ] Lint passes (`bun run lint`)
 - [ ] Verified on mobile viewport

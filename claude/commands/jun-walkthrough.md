@@ -81,7 +81,8 @@ page, one page lists every changed test file with its test names (from
 `it(`, `test(`, `describe(` or the language's equivalent), added names and
 removed names marked. Notes on that page, only if true: a deleted test; a
 test file with no source counterpart in the diff; a source file in the diff
-with no test change.
+with non-trivial logic (a branch, a loop, a parser, money or security) and no
+test change.
 
 Then stop. If the user asks for a change mid-walk, write it down for Fix now
 and page on; the fix happens in the build session after the last page.
