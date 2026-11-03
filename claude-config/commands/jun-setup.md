@@ -1,5 +1,5 @@
 ---
-description: "Set up a repo for interactive sessions: survey its instruction files, ask Tolaria or not, write a git-excluded CLAUDE.local.md at the root (copied from the main checkout inside a worktree), optionally register the project in the vault. Nothing tracked is touched."
+description: "Set up a repo for interactive sessions: survey its instruction files, ask Tolaria or not, write a git-excluded CLAUDE.local.md at the root (copied from the main checkout inside a worktree), point auto memory at the repo's one memory directory, optionally register the project in the vault. Nothing tracked is touched."
 argument-hint: "[<repo path>]"
 disable-model-invocation: true
 ---
@@ -9,13 +9,15 @@ Top level: !`git rev-parse --show-toplevel 2>/dev/null || echo NONE`
 Common git dir: !`git rev-parse --path-format=absolute --git-common-dir 2>/dev/null || echo NONE`
 Exclude file: !`git rev-parse --path-format=absolute --git-path info/exclude 2>/dev/null || echo NONE`
 
-`/jun-setup → detect → scan repo instructions → worktree copy, or first-run questions → announce and wait → one patch writes CLAUDE.local.md → report`
+`/jun-setup → detect → scan repo instructions → worktree copy, or first-run questions → announce and wait → two patches write CLAUDE.local.md and the memory setting → report`
 
-You orchestrate. The command installs nothing into the repository: the only file it writes inside the work tree is `CLAUDE.local.md`, listed in the git exclude file so it is never tracked. Every write inside the work tree goes through one `patch` dispatch; vault files are the main loop's own. You never run a git command that changes state, never install a dependency, never edit a tracked file.
+You orchestrate. The command installs nothing into the repository: the only files it writes inside the work tree are `CLAUDE.local.md` and `.claude/settings.local.json`, both git-excluded so they are never tracked. Every write inside the work tree goes through a `patch` dispatch; vault files are the main loop's own. You never run a git command that changes state, never install a dependency, never edit a tracked file.
 
 ## 0. Target
 
 The repo is the argument above if given, else the top level shown. If it is `NONE`, stop: not a git work tree. The **main checkout** is the parent directory of the common git dir. This session is in a worktree when the top level differs from the main checkout.
+
+The **memory target** is `~/.claude/projects/<slug>/memory`, where `<slug>` is the main checkout's absolute path with every character outside `A-Za-z0-9` replaced by `-`: `python3 -c 'import re,sys;print(re.sub(r"[^A-Za-z0-9]","-",sys.argv[1]))' "<main checkout>"`. Every checkout of the repo, main and worktrees alike, points `autoMemoryDirectory` at this one directory so preferences and conventions saved in one directory load in all of them. The value is written with a literal `~`, never expanded.
 
 ## 1. Detect
 
@@ -24,6 +26,8 @@ Read, do not write:
 - Root instruction files: `CLAUDE.md`, `AGENTS.md`, `CLAUDE.local.md` at the top level; whether `CLAUDE.md` is only an `@AGENTS.md` import.
 - The main checkout's `CLAUDE.local.md`, if any, and its hash; the hash of the local one, if any.
 - Whether the exclude file already lists `CLAUDE.local.md`.
+- `autoMemoryDirectory` in `<top level>/.claude/settings.local.json`: absent, equal to the memory target, or differs (compare with `~` expanded); and every other key the file holds, which the write must keep.
+- Whether `git -C <top level> check-ignore -q .claude/settings.local.json` passes (exit 0: already ignored, no exclude line needed).
 - Whether the tolaria MCP is connected (`list_vaults` answers).
 
 ## 2. Scan the repo's instructions (report only)
@@ -32,11 +36,11 @@ Grep `CLAUDE.md` and `AGENTS.md` for instructions written for automation: `branc
 
 ## 3. Branch on state
 
-**Worktree, main checkout has `CLAUDE.local.md`:** copy mode. Skip the questions. The content to write is the main checkout's file, byte for byte. If a local file already exists with the same hash, report "in sync" and stop. If the hashes differ, show a `diff` and offer to replace the local file with the main checkout's; on yes continue to step 5 with the main checkout's content.
+**Worktree, main checkout has `CLAUDE.local.md`:** copy mode. Skip the questions. The content to write is the main checkout's file, byte for byte. If a local file already exists with the same hash **and** the memory setting equals the target, report "in sync" and stop. A matching hash with the setting absent or differing continues to step 5 for the setting only. If the hashes differ, show a `diff` and offer to replace the local file with the main checkout's; on yes continue to step 5 with the main checkout's content.
 
-**Main checkout, `CLAUDE.local.md` exists:** report it, run the drift check across every worktree in `git worktree list` (present and hash equal, present and differs, missing), and stop. The user runs the command inside any worktree that is missing or differs.
+**Main checkout, `CLAUDE.local.md` exists:** report it, run the drift check across every worktree in `git worktree list` with two columns per worktree: `CLAUDE.local.md` (present and hash equal, present and differs, missing) and memory setting (equal, differs, missing). If the main checkout's own setting is absent or differs, continue to step 5 for that setting; otherwise stop. The user runs the command inside any worktree that is missing or differs in either column. A worktree `git worktree list` marks prunable is reported as such; repairing is the user's call, not the command's.
 
-**No `CLAUDE.local.md` anywhere:** first run. Continue to step 4.
+**No `CLAUDE.local.md` anywhere:** first run. Continue to step 4; the memory setting is written alongside.
 
 ## 4. First-run questions (AskUserQuestion, one at a time)
 
@@ -47,11 +51,15 @@ Then look for a docs index in the notes folder: a file named `*index*.md`. Recor
 
 ## 5. Announce, then wait
 
-Print every path the run will create or modify, each with one line of purpose, grouped: work tree (`CLAUDE.local.md`, the exclude file), vault (folder, hub note, views, only when Tolaria and only those missing). Wait for the user's yes. Never create silently.
+Print every path the run will create or modify, each with one line of purpose, grouped: work tree (`CLAUDE.local.md`, `.claude/settings.local.json`, the exclude file), vault (folder, hub note, views, only when Tolaria and only those missing). Then one line: `Memory: <memory target>`. Wait for the user's yes. Never create silently.
 
 ## 6. Apply
 
-**One `patch` dispatch** with `Files: <top level>/CLAUDE.local.md, <exclude file>`, `Change:` the exact content below and "append the line `CLAUDE.local.md` to the exclude file if absent", `Check: git -C <top level> status --short --ignored CLAUDE.local.md` (expect `!! CLAUDE.local.md`). In copy mode the content is the main checkout's file.
+Two `patch` dispatches, the second skipped when the memory setting already equals the target, the first skipped when the setting is the only thing to write.
+
+**Patch 1** with `Files: <top level>/CLAUDE.local.md, <exclude file>`, `Change:` the exact content below and "append the line `CLAUDE.local.md` to the exclude file if absent; also append `.claude/settings.local.json` if absent" (the second line only when the check-ignore test in step 1 failed), `Check: git -C <top level> status --short --ignored CLAUDE.local.md` (expect `!! CLAUDE.local.md`). In copy mode the content is the main checkout's file.
+
+**Patch 2** with `Files: <top level>/.claude/settings.local.json`. `Change:` if the file exists, set the key `autoMemoryDirectory` to `<memory target>` and keep every other key and value byte for byte; otherwise create the file with `{"autoMemoryDirectory": "<memory target>"}`. `Check: python3 -c 'import json;d=json.load(open("<top level>/.claude/settings.local.json"));print(d["autoMemoryDirectory"], sorted(d))'`, expecting the target and every key found in step 1 still listed. If the write is refused, print the exact JSON and the path for the user to paste, and report the step as "left to the user".
 
 Content for a first run, sections in this order, nothing else:
 
@@ -88,10 +96,11 @@ Rules for filling it: the `@AGENTS.md` line only when `AGENTS.md` exists at the 
 ## 7. Report
 
 - Each path: created, replaced, skipped (already present), with the drift table for worktrees when one was run.
+- The memory line: `Memory: <memory target>` followed by created, replaced, in sync, or left to the user; then: "Run `/memory` in this checkout; the path shown must be <memory target>."
 - The line: **No tracked file was changed.**
 - The step-2 scan heading and its one sentence, repeated.
 - Next: the worktrees still to run the command in, or "none".
 
 ## Re-running
 
-Safe at any time. The main checkout run becomes the drift check; a worktree run becomes the copy. The main checkout's `CLAUDE.local.md` is the single source: edit it there, then run the command in each worktree.
+Safe at any time. The main checkout run becomes the drift check; a worktree run becomes the copy. The main checkout's `CLAUDE.local.md` is the single source: edit it there, then run the command in each worktree. The memory setting is derived, never copied: every run recomputes the target from the main checkout's path and writes it only where it is absent or differs.
