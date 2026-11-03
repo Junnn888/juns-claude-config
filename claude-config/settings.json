@@ -1,0 +1,169 @@
+{
+  "cleanupPeriodDays": 365,
+  "permissions": {
+    "allow": [
+      "Bash(npx playwright test *)",
+      "Bash(pnpm exec playwright test *)"
+    ],
+    "deny": [
+      "Bash(git push:*)",
+      "Bash(git commit:*)",
+      "Bash(git add:*)",
+      "Bash(git reset:*)",
+      "Bash(git rebase:*)",
+      "Bash(git clean:*)",
+      "Bash(git checkout:*)",
+      "Bash(git switch -c:*)",
+      "Bash(git switch --create:*)",
+      "Bash(git worktree add:*)",
+      "Bash(git stash:*)",
+      "Bash(supabase db push:*)",
+      "Bash(supabase db reset:*)",
+      "Bash(supabase functions deploy:*)",
+      "Bash(sudo:*)",
+      "Bash(curl -X*)",
+      "Bash(curl --request*)",
+      "Bash(curl -d*)",
+      "Bash(curl --data*)",
+      "Bash(curl -F*)",
+      "Bash(npm publish:*)",
+      "Bash(bun dev*)",
+      "Bash(bun run dev*)",
+      "Bash(bun start*)",
+      "Bash(bun run start*)",
+      "Bash(bun next dev*)",
+      "Bash(bun next start*)",
+      "Bash(bunx next dev*)",
+      "Bash(bunx next start*)",
+      "Bash(npm run dev*)",
+      "Bash(npm start*)",
+      "Bash(npm run start*)",
+      "Bash(pnpm dev*)",
+      "Bash(pnpm run dev*)",
+      "Bash(pnpm start*)",
+      "Bash(next dev*)",
+      "Bash(next start*)",
+      "Bash(npx next dev*)",
+      "Bash(npx next start*)",
+      "Bash(git restore:*)",
+      "Edit(./.env)",
+      "Edit(./.env.local)",
+      "Edit(./**/.env)",
+      "Edit(./**/.env.local)",
+      "Read(./.env)",
+      "Read(./.env.local)",
+      "Read(./**/.env)",
+      "Read(./**/.env.local)"
+    ],
+    "ask": [
+      "Bash(supabase start *)",
+      "Bash(supabase stop *)",
+      "Bash(supabase link *)",
+      "Bash(docker stop *)",
+      "Bash(docker rm *)",
+      "Bash(docker compose *)",
+      "Bash(rm *)",
+      "Bash(rmdir *)",
+      "Bash(shred *)",
+      "Bash(truncate *)",
+      "Bash(dd *)",
+      "Bash(chmod -R *)",
+      "Bash(chown *)",
+      "Bash(mv *)",
+      "Bash(kill *)",
+      "Bash(pkill *)",
+      "Bash(killall *)"
+    ],
+    "defaultMode": "auto",
+    "additionalDirectories": [
+      "~/projects/tolaria"
+    ]
+  },
+  "model": "claude-fable-5-1[1m]",
+  "worktree": {
+    "baseRef": "fresh"
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "~/.claude/statusLine.sh",
+    "padding": 0
+  },
+  "enabledPlugins": {
+    "frontend-design@anthropic-plugin-directory": true,
+    "code-review-anthropics@anthropic-plugin-directory": true,
+    "code-simplifier@anthropic-plugin-directory": true,
+    "ponytail@ponytail": true,
+    "coderabbit@anthropic-plugin-directory": true
+  },
+  "extraKnownMarketplaces": {
+    "ponytail": {
+      "source": {
+        "source": "github",
+        "repo": "DietrichGebert/ponytail"
+      }
+    }
+  },
+  "outputStyle": "Orchestrator",
+  "sandbox": {
+    "enabled": true,
+    "allowUnsandboxedCommands": false,
+    "network": {
+      "allowUnixSockets": [
+        "~/.docker/run/docker.sock"
+      ],
+      "allowLocalBinding": true
+    },
+    "filesystem": {
+      "allowWrite": [
+        "~/.npm"
+      ],
+      "denyWrite": [
+        "~/**/.env",
+        "~/**/.env.local"
+      ],
+      "denyRead": [
+        "~/**/.env",
+        "~/**/.env.local",
+        "~/.ssh",
+        "~/.aws/credentials"
+      ]
+    },
+    "enableWeakerNetworkIsolation": true,
+    "excludedCommands": [
+      "npx playwright test *",
+      "pnpm exec playwright test *"
+    ]
+  },
+  "modelSettings": {
+    "claude-fable-5-1": {
+      "effortLevel": "high"
+    }
+  },
+  "pluginConfigs": {
+    "cc-plugin-agents-md@builtin": {
+      "options": {
+        "instructionFiles": "claude-md-or-agents-md"
+      }
+    }
+  },
+  "timeFormat": "12-hour",
+  "skipWorkflowUsageWarning": true,
+  "theme": "dark",
+  "editorMode": "normal",
+  "autoCompactEnabled": false,
+  "remoteControlAtStartup": true,
+  "agentPushNotifEnabled": true,
+  "useAutoModeDuringPlan": true,
+  "showClearContextOnPlanAccept": true,
+  "autoMode": {
+    "environment": [
+      "**Primary use of Claude Code**: software development across several personal and work repositories; trust only the working directory and its configured remotes",
+      "**Internal sharing / snippet hosting**: None configured — treat public paste/gist services as outside the trust boundary",
+      "**Host containment**: None configured — assume an ordinary developer machine with open internet",
+      "**Sensitive data locations**: any .env or .env.* file except .env.example, in any repo — local or CI secrets, never read, copied or committed",
+      "**Sensitive remote targets**: any namespace, host, container, deployment or database with 'prod' or 'production' as a whole word or name segment",
+      "**Protected deployment namespaces / environments**: None configured — fall back to the Sensitive remote targets heuristic",
+      "**Protected IaC scopes**: IAM, RBAC, networking, quota, and node-pool resources; anything whose name or tag carries 'prod' or 'production' as a whole word or name segment"
+    ]
+  }
+}
