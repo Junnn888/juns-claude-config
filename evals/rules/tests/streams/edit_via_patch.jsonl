@@ -1,0 +1,7 @@
+{"type": "system", "subtype": "init", "model": "claude-main", "permissionMode": "auto", "output_style": "Orchestrator", "agents": ["patch", "Explore"], "session_id": "session-a"}
+{"type": "assistant", "parent_tool_use_id": null, "message": {"model": "claude-main", "content": [{"type": "tool_use", "id": "toolu_x", "name": "Agent", "input": {"description": "Change greeting", "subagent_type": "patch", "prompt": "Change hi to hello in /work/project/hello.py"}}]}}
+{"type": "assistant", "parent_tool_use_id": "toolu_agent_1", "message": {"model": "claude-main", "content": [{"type": "tool_use", "id": "toolu_x", "name": "Read", "input": {"file_path": "/work/project/hello.py"}}]}}
+{"type": "assistant", "parent_tool_use_id": "toolu_agent_1", "message": {"model": "claude-main", "content": [{"type": "tool_use", "id": "toolu_x", "name": "Edit", "input": {"file_path": "/work/project/hello.py", "old_string": "\"hi\"", "new_string": "\"hello\""}}]}}
+{"type": "assistant", "parent_tool_use_id": "toolu_agent_1", "message": {"model": "claude-main", "content": [{"type": "tool_use", "id": "toolu_x", "name": "Bash", "input": {"command": "python3 -m pytest -q"}}]}}
+{"type": "assistant", "parent_tool_use_id": null, "message": {"model": "claude-main", "content": [{"type": "text", "text": "greet now says hello."}]}}
+{"type": "result", "num_turns": 3, "total_cost_usd": 0.5, "duration_ms": 20000, "modelUsage": {"claude-main": {}, "claude-sonnet": {}}, "result": "greet now says hello."}

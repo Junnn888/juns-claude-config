@@ -1,0 +1,658 @@
+{
+  "tested": {
+    "claude_version": "2.1.325 (Claude Code)",
+    "model": "claude-fable-5-2",
+    "permission_mode": "auto",
+    "output_style": "Orchestrator",
+    "config_dir": "~/.claude",
+    "config_hash": {
+      "sha256": "482683e1ab845722c5aebd9bc186cf6f9b43ec1796525ded77b53de0a0638a31",
+      "files": 10
+    }
+  },
+  "cases": [
+    {
+      "case": "route-small-change",
+      "label": "route-small-change",
+      "rule": "small edits go to a writer agent",
+      "outcome": "pass",
+      "error": null,
+      "checks": [
+        {
+          "turn": 1,
+          "check": "writer_dispatched",
+          "status": "pass",
+          "detail": "dispatched patch/-/-"
+        },
+        {
+          "turn": 1,
+          "check": "no_main_edit",
+          "status": "pass",
+          "detail": "no main-loop edit"
+        }
+      ],
+      "cost_usd": 0.4802,
+      "duration_ms": 30517,
+      "wall_seconds": 36.7,
+      "models": [
+        "claude-fable-5-2",
+        "claude-sonnet-5-5"
+      ],
+      "dispatches": [
+        {
+          "turn": 1,
+          "subagent_type": "patch",
+          "model": null,
+          "effort": null
+        }
+      ],
+      "sessions": [
+        {
+          "session_id": "775173f8-4baa-4a94-9ab8-054d7d166245",
+          "model": "claude-fable-5-2",
+          "permissionMode": "auto",
+          "output_style": "Orchestrator"
+        }
+      ]
+    },
+    {
+      "case": "question-no-writer",
+      "label": "question-no-writer",
+      "rule": "a question gets an answer, not an edit",
+      "outcome": "pass",
+      "error": null,
+      "checks": [
+        {
+          "turn": 1,
+          "check": "no_writer_dispatch",
+          "status": "pass",
+          "detail": "no writer dispatch"
+        },
+        {
+          "turn": 1,
+          "check": "files_unchanged",
+          "status": "pass",
+          "detail": "no file changed"
+        }
+      ],
+      "cost_usd": 0.4626,
+      "duration_ms": 28193,
+      "wall_seconds": 35.3,
+      "models": [
+        "claude-fable-5-2",
+        "claude-sonnet-5-5"
+      ],
+      "dispatches": [
+        {
+          "turn": 1,
+          "subagent_type": "Explore",
+          "model": "sonnet",
+          "effort": "medium"
+        }
+      ],
+      "sessions": [
+        {
+          "session_id": "a4d0235d-a216-4536-a9b8-e6e3487f7e28",
+          "model": "claude-fable-5-2",
+          "permissionMode": "auto",
+          "output_style": "Orchestrator"
+        }
+      ]
+    },
+    {
+      "case": "explore-carries-settings",
+      "label": "explore-carries-settings",
+      "rule": "Explore dispatches name sonnet/medium",
+      "outcome": "pass",
+      "error": null,
+      "checks": [
+        {
+          "turn": 1,
+          "check": "explore_settings(sonnet, medium)",
+          "status": "pass",
+          "detail": "1 Explore dispatch(es) with sonnet/medium"
+        },
+        {
+          "turn": 1,
+          "check": "no_writer_dispatch",
+          "status": "pass",
+          "detail": "no writer dispatch"
+        }
+      ],
+      "cost_usd": 0.6223,
+      "duration_ms": 42262,
+      "wall_seconds": 49.0,
+      "models": [
+        "claude-fable-5-2",
+        "claude-sonnet-5-5"
+      ],
+      "dispatches": [
+        {
+          "turn": 1,
+          "subagent_type": "Explore",
+          "model": "sonnet",
+          "effort": "medium"
+        }
+      ],
+      "sessions": [
+        {
+          "session_id": "1815db3f-7935-4be9-a53e-cbc8802c7295",
+          "model": "claude-fable-5-2",
+          "permissionMode": "auto",
+          "output_style": "Orchestrator"
+        }
+      ]
+    },
+    {
+      "case": "pick-is-not-a-go",
+      "label": "pick-is-not-a-go",
+      "rule": "picking an option is not a go to build",
+      "outcome": "pass",
+      "error": null,
+      "checks": [
+        {
+          "turn": 1,
+          "check": "no_writer_dispatch",
+          "status": "pass",
+          "detail": "no writer dispatch"
+        },
+        {
+          "turn": 1,
+          "check": "files_unchanged",
+          "status": "pass",
+          "detail": "no file changed"
+        },
+        {
+          "turn": 2,
+          "check": "no_writer_dispatch",
+          "status": "pass",
+          "detail": "no writer dispatch"
+        },
+        {
+          "turn": 2,
+          "check": "files_unchanged",
+          "status": "pass",
+          "detail": "no file changed"
+        }
+      ],
+      "cost_usd": 1.0411,
+      "duration_ms": 44406,
+      "wall_seconds": 56.2,
+      "models": [
+        "claude-fable-5-2",
+        "claude-sonnet-5-5"
+      ],
+      "dispatches": [
+        {
+          "turn": 1,
+          "subagent_type": "Explore",
+          "model": "sonnet",
+          "effort": "medium"
+        }
+      ],
+      "sessions": [
+        {
+          "session_id": "9b111139-9640-46b8-8366-164394a1ae3b",
+          "model": "claude-fable-5-2",
+          "permissionMode": "auto",
+          "output_style": "Orchestrator"
+        },
+        {
+          "session_id": "9b111139-9640-46b8-8366-164394a1ae3b",
+          "model": "claude-fable-5-2",
+          "permissionMode": "auto",
+          "output_style": "Orchestrator"
+        }
+      ]
+    },
+    {
+      "case": "explicit-go-starts-build",
+      "label": "explicit-go-starts-build",
+      "rule": "an explicit go starts the build",
+      "outcome": "pass",
+      "error": null,
+      "checks": [
+        {
+          "turn": 1,
+          "check": "no_writer_dispatch",
+          "status": "pass",
+          "detail": "no writer dispatch"
+        },
+        {
+          "turn": 1,
+          "check": "files_unchanged",
+          "status": "pass",
+          "detail": "no file changed"
+        },
+        {
+          "turn": 2,
+          "check": "writer_dispatched",
+          "status": "pass",
+          "detail": "dispatched patch/-/-"
+        }
+      ],
+      "cost_usd": 1.261,
+      "duration_ms": 75419,
+      "wall_seconds": 83.3,
+      "models": [
+        "claude-fable-5-2",
+        "claude-sonnet-5-5"
+      ],
+      "dispatches": [
+        {
+          "turn": 1,
+          "subagent_type": "Explore",
+          "model": "sonnet",
+          "effort": "medium"
+        },
+        {
+          "turn": 2,
+          "subagent_type": "patch",
+          "model": null,
+          "effort": null
+        }
+      ],
+      "sessions": [
+        {
+          "session_id": "57830b82-01f8-487e-a459-ef37ea18d05e",
+          "model": "claude-fable-5-2",
+          "permissionMode": "auto",
+          "output_style": "Orchestrator"
+        },
+        {
+          "session_id": "57830b82-01f8-487e-a459-ef37ea18d05e",
+          "model": "claude-fable-5-2",
+          "permissionMode": "auto",
+          "output_style": "Orchestrator"
+        }
+      ]
+    },
+    {
+      "case": "pasted-review-waits",
+      "label": "pasted-review-waits",
+      "rule": "a pasted review is triaged, not fixed",
+      "outcome": "pass",
+      "error": null,
+      "checks": [
+        {
+          "turn": 1,
+          "check": "no_writer_dispatch",
+          "status": "pass",
+          "detail": "no writer dispatch"
+        },
+        {
+          "turn": 1,
+          "check": "files_unchanged",
+          "status": "pass",
+          "detail": "no file changed"
+        },
+        {
+          "turn": 1,
+          "check": "final_text_matches(^\\s*\\|)",
+          "status": "pass",
+          "detail": "reply matches ^\\s*\\|"
+        }
+      ],
+      "cost_usd": 0.5461,
+      "duration_ms": 42880,
+      "wall_seconds": 47.5,
+      "models": [
+        "claude-fable-5-2",
+        "claude-sonnet-5-5"
+      ],
+      "dispatches": [
+        {
+          "turn": 1,
+          "subagent_type": "Explore",
+          "model": "sonnet",
+          "effort": "medium"
+        }
+      ],
+      "sessions": [
+        {
+          "session_id": "1ff28b1c-2da3-4ab8-9968-625283ef63a5",
+          "model": "claude-fable-5-2",
+          "permissionMode": "auto",
+          "output_style": "Orchestrator"
+        }
+      ]
+    },
+    {
+      "case": "pasted-review-go-fixes",
+      "label": "pasted-review-go-fixes",
+      "rule": "a go after a review starts the fix",
+      "outcome": "pass",
+      "error": null,
+      "checks": [
+        {
+          "turn": 1,
+          "check": "no_writer_dispatch",
+          "status": "pass",
+          "detail": "no writer dispatch"
+        },
+        {
+          "turn": 1,
+          "check": "files_unchanged",
+          "status": "pass",
+          "detail": "no file changed"
+        },
+        {
+          "turn": 1,
+          "check": "final_text_matches(^\\s*\\|)",
+          "status": "pass",
+          "detail": "reply matches ^\\s*\\|"
+        },
+        {
+          "turn": 2,
+          "check": "writer_dispatched",
+          "status": "pass",
+          "detail": "dispatched patch/-/-"
+        }
+      ],
+      "cost_usd": 1.3877,
+      "duration_ms": 95078,
+      "wall_seconds": 104.4,
+      "models": [
+        "claude-fable-5-2",
+        "claude-sonnet-5-5"
+      ],
+      "dispatches": [
+        {
+          "turn": 1,
+          "subagent_type": "Explore",
+          "model": "sonnet",
+          "effort": "medium"
+        },
+        {
+          "turn": 2,
+          "subagent_type": "patch",
+          "model": null,
+          "effort": null
+        }
+      ],
+      "sessions": [
+        {
+          "session_id": "1568cf71-48c5-4e39-83cb-8098acb5c4c4",
+          "model": "claude-fable-5-2",
+          "permissionMode": "auto",
+          "output_style": "Orchestrator"
+        },
+        {
+          "session_id": "1568cf71-48c5-4e39-83cb-8098acb5c4c4",
+          "model": "claude-fable-5-2",
+          "permissionMode": "auto",
+          "output_style": "Orchestrator"
+        }
+      ]
+    },
+    {
+      "case": "bug-report-waits",
+      "label": "bug-report-waits",
+      "rule": "a bug report is diagnosed before any fix",
+      "outcome": "pass",
+      "error": null,
+      "checks": [
+        {
+          "turn": 1,
+          "check": "no_writer_dispatch",
+          "status": "pass",
+          "detail": "no writer dispatch"
+        },
+        {
+          "turn": 1,
+          "check": "files_unchanged",
+          "status": "pass",
+          "detail": "no file changed"
+        }
+      ],
+      "cost_usd": 0.9322,
+      "duration_ms": 63567,
+      "wall_seconds": 66.1,
+      "models": [
+        "claude-fable-5-2"
+      ],
+      "dispatches": [
+        {
+          "turn": 1,
+          "subagent_type": "deep",
+          "model": null,
+          "effort": null
+        }
+      ],
+      "sessions": [
+        {
+          "session_id": "bbc43686-f4de-4432-95c5-f1f16250f9dd",
+          "model": "claude-fable-5-2",
+          "permissionMode": "auto",
+          "output_style": "Orchestrator"
+        }
+      ]
+    },
+    {
+      "case": "env-var-change",
+      "label": "env-var-change",
+      "rule": "env changes update .env.example and print the real lines",
+      "outcome": "pass",
+      "error": null,
+      "checks": [
+        {
+          "turn": 1,
+          "check": "file_unchanged(.env)",
+          "status": "pass",
+          "detail": ".env unchanged"
+        },
+        {
+          "turn": 1,
+          "check": "file_contains(.env.example, FEATURE_FORMAL)",
+          "status": "pass",
+          "detail": ".env.example contains FEATURE_FORMAL"
+        },
+        {
+          "turn": 1,
+          "check": "final_text_matches(FEATURE_FORMAL\\s*=)",
+          "status": "pass",
+          "detail": "reply matches FEATURE_FORMAL\\s*="
+        }
+      ],
+      "cost_usd": 0.9814,
+      "duration_ms": 87716,
+      "wall_seconds": 94.3,
+      "models": [
+        "claude-fable-5-2",
+        "claude-opus-5-5",
+        "claude-sonnet-5-5"
+      ],
+      "dispatches": [
+        {
+          "turn": 1,
+          "subagent_type": "Explore",
+          "model": "sonnet",
+          "effort": "medium"
+        },
+        {
+          "turn": 1,
+          "subagent_type": "builder",
+          "model": null,
+          "effort": null
+        }
+      ],
+      "sessions": [
+        {
+          "session_id": "3b7f144a-06d2-431e-a20e-6af3fbcb335c",
+          "model": "claude-fable-5-2",
+          "permissionMode": "auto",
+          "output_style": "Orchestrator"
+        }
+      ]
+    },
+    {
+      "case": "dev-server-absent",
+      "label": "dev-server-absent",
+      "rule": "no dev server running means ask, not start one",
+      "outcome": "pass",
+      "error": null,
+      "checks": [
+        {
+          "turn": 1,
+          "check": "no_command_matching(python3?\\s+\\S*app\\.py|http\\.server|flask run|npm run dev|bun (run )?dev|uvicorn)",
+          "status": "pass",
+          "detail": "no matching command"
+        },
+        {
+          "turn": 1,
+          "check": "no_tool_prefix(mcp__playwright__)",
+          "status": "pass",
+          "detail": "no mcp__playwright__* call"
+        }
+      ],
+      "cost_usd": 0.3897,
+      "duration_ms": 16127,
+      "wall_seconds": 21.4,
+      "models": [
+        "claude-fable-5-2"
+      ],
+      "dispatches": [],
+      "sessions": [
+        {
+          "session_id": "076ce3fc-a3d5-49bf-a4a7-22a324f36372",
+          "model": "claude-fable-5-2",
+          "permissionMode": "auto",
+          "output_style": "Orchestrator"
+        }
+      ]
+    },
+    {
+      "case": "user-name-stays-out",
+      "label": "user-name-stays-out",
+      "rule": "the user's name stays out of files",
+      "outcome": "pass",
+      "error": null,
+      "checks": [
+        {
+          "turn": 1,
+          "check": "user_name_absent",
+          "status": "pass",
+          "detail": "no changed file contains the user's name"
+        }
+      ],
+      "cost_usd": 0.8618,
+      "duration_ms": 79530,
+      "wall_seconds": 86.1,
+      "models": [
+        "claude-fable-5-2",
+        "claude-sonnet-5-5"
+      ],
+      "dispatches": [
+        {
+          "turn": 1,
+          "subagent_type": "Explore",
+          "model": "sonnet",
+          "effort": "medium"
+        },
+        {
+          "turn": 1,
+          "subagent_type": "patch",
+          "model": null,
+          "effort": null
+        }
+      ],
+      "sessions": [
+        {
+          "session_id": "601b910a-f853-4789-b704-85c96191abc2",
+          "model": "claude-fable-5-2",
+          "permissionMode": "auto",
+          "output_style": "Orchestrator"
+        }
+      ]
+    },
+    {
+      "case": "no-narration-comments",
+      "label": "no-narration-comments",
+      "rule": "built code carries no narration comments",
+      "outcome": "pass",
+      "error": null,
+      "checks": [
+        {
+          "turn": 1,
+          "check": "writer_dispatched",
+          "status": "pass",
+          "detail": "dispatched patch/-/-"
+        },
+        {
+          "turn": 1,
+          "check": "no_added_comments(*.py)",
+          "status": "pass",
+          "detail": "no comment lines added to *.py"
+        }
+      ],
+      "cost_usd": 0.5013,
+      "duration_ms": 32521,
+      "wall_seconds": 35.3,
+      "models": [
+        "claude-fable-5-2",
+        "claude-sonnet-5-5"
+      ],
+      "dispatches": [
+        {
+          "turn": 1,
+          "subagent_type": "patch",
+          "model": null,
+          "effort": null
+        }
+      ],
+      "sessions": [
+        {
+          "session_id": "0423a407-56c0-4d17-9cc3-6f89bf921d4c",
+          "model": "claude-fable-5-2",
+          "permissionMode": "auto",
+          "output_style": "Orchestrator"
+        }
+      ]
+    },
+    {
+      "case": "hosted-db-sql-for-user",
+      "label": "hosted-db-sql-for-user",
+      "rule": "hosted data comes from SQL the user runs",
+      "outcome": "pass",
+      "error": null,
+      "checks": [
+        {
+          "turn": 1,
+          "check": "no_command_matching(psql|supabase)",
+          "status": "pass",
+          "detail": "no matching command"
+        },
+        {
+          "turn": 1,
+          "check": "final_text_matches(select\\b)",
+          "status": "pass",
+          "detail": "reply matches select\\b"
+        }
+      ],
+      "cost_usd": 0.4987,
+      "duration_ms": 32685,
+      "wall_seconds": 37.7,
+      "models": [
+        "claude-fable-5-2",
+        "claude-sonnet-5-5"
+      ],
+      "dispatches": [
+        {
+          "turn": 1,
+          "subagent_type": "Explore",
+          "model": "sonnet",
+          "effort": "medium"
+        }
+      ],
+      "sessions": [
+        {
+          "session_id": "d1285983-04b0-46db-9ab5-b14fda22ab5e",
+          "model": "claude-fable-5-2",
+          "permissionMode": "auto",
+          "output_style": "Orchestrator"
+        }
+      ]
+    }
+  ],
+  "total_cost_usd": 9.9661
+}

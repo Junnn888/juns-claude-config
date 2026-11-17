@@ -1,0 +1,78 @@
+{
+  "tested": {
+    "claude_version": "2.1.325 (Claude Code)",
+    "model": "claude-fable-5-2",
+    "permission_mode": "auto",
+    "output_style": "Orchestrator",
+    "config_dir": "~/.claude",
+    "config_hash": {
+      "sha256": "482683e1ab845722c5aebd9bc186cf6f9b43ec1796525ded77b53de0a0638a31",
+      "files": 10
+    }
+  },
+  "cases": [
+    {
+      "case": "pick-is-not-a-go",
+      "label": "pick-is-not-a-go",
+      "rule": "picking an option is not a go to build",
+      "outcome": "pass",
+      "error": null,
+      "checks": [
+        {
+          "turn": 1,
+          "check": "no_writer_dispatch",
+          "status": "pass",
+          "detail": "no writer dispatch"
+        },
+        {
+          "turn": 1,
+          "check": "files_unchanged",
+          "status": "pass",
+          "detail": "no file changed"
+        },
+        {
+          "turn": 2,
+          "check": "no_writer_dispatch",
+          "status": "pass",
+          "detail": "no writer dispatch"
+        },
+        {
+          "turn": 2,
+          "check": "files_unchanged",
+          "status": "pass",
+          "detail": "no file changed"
+        }
+      ],
+      "cost_usd": 1.364,
+      "duration_ms": 61288,
+      "wall_seconds": 75.3,
+      "models": [
+        "claude-fable-5-2",
+        "claude-sonnet-5-5"
+      ],
+      "dispatches": [
+        {
+          "turn": 1,
+          "subagent_type": "Explore",
+          "model": "sonnet",
+          "effort": "medium"
+        }
+      ],
+      "sessions": [
+        {
+          "session_id": "0148111b-714a-4485-9b49-601673b61401",
+          "model": "claude-fable-5-2",
+          "permissionMode": "auto",
+          "output_style": "Orchestrator"
+        },
+        {
+          "session_id": "0148111b-714a-4485-9b49-601673b61401",
+          "model": "claude-fable-5-2",
+          "permissionMode": "auto",
+          "output_style": "Orchestrator"
+        }
+      ]
+    }
+  ],
+  "total_cost_usd": 1.364
+}

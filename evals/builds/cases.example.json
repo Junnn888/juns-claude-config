@@ -1,0 +1,12 @@
+[
+  {
+    "id": "invoice-rounding",
+    "repo": "~/code/example-shop",
+    "fix": "0123456789abcdef0123456789abcdef01234567",
+    "tests": ["tests/unit/invoices/totals.test.ts"],
+    "report": "Invoices with three or more line items sometimes show a total one cent off from the sum of the lines, on both the invoice page and the PDF. The total should always equal the sum of the rounded line amounts.\nDone when: lib/invoices/totals.ts exports invoiceTotal(lines: { amount: number }[]), returning the total in cents.",
+    "go": "Go ahead with the smallest fix.",
+    "interface_given": true,
+    "reserve": false
+  }
+]

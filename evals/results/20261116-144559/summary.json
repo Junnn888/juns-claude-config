@@ -1,0 +1,60 @@
+{
+  "tested": {
+    "claude_version": "2.1.325 (Claude Code)",
+    "model": "claude-fable-5-2",
+    "permission_mode": "auto",
+    "output_style": "Orchestrator",
+    "config_dir": "~/.claude",
+    "config_hash": {
+      "sha256": "482683e1ab845722c5aebd9bc186cf6f9b43ec1796525ded77b53de0a0638a31",
+      "files": 10
+    }
+  },
+  "cases": [
+    {
+      "case": "route-small-change",
+      "label": "route-small-change",
+      "rule": "small edits go to a writer agent",
+      "outcome": "pass",
+      "error": null,
+      "checks": [
+        {
+          "turn": 1,
+          "check": "writer_dispatched",
+          "status": "pass",
+          "detail": "dispatched patch/-/-"
+        },
+        {
+          "turn": 1,
+          "check": "no_main_edit",
+          "status": "pass",
+          "detail": "no main-loop edit"
+        }
+      ],
+      "cost_usd": 0.595,
+      "duration_ms": 34306,
+      "wall_seconds": 41.2,
+      "models": [
+        "claude-fable-5-2",
+        "claude-sonnet-5-5"
+      ],
+      "dispatches": [
+        {
+          "turn": 1,
+          "subagent_type": "patch",
+          "model": null,
+          "effort": null
+        }
+      ],
+      "sessions": [
+        {
+          "session_id": "9739ba09-4ac6-42c6-889e-5fd9931f6e05",
+          "model": "claude-fable-5-2",
+          "permissionMode": "auto",
+          "output_style": "Orchestrator"
+        }
+      ]
+    }
+  ],
+  "total_cost_usd": 0.595
+}
