@@ -73,9 +73,9 @@ Report: the command, its last lines, and the files changed.
 
 ## Proving it works
 - A condition a test can prove gets the test.
-- A condition only the running app can prove gets its own dispatch, using the
-  way of exercising the app named in the repo's instructions. It returns what
-  it did, what it observed, and pass or fail.
+- A condition only the running app can prove goes to `app-check`, which uses
+  the way of exercising the app named in the repo's instructions. It returns
+  what it did, what it observed, and pass or fail.
 - If nothing here can prove a condition, report it as untested and say why.
 
 ## Reports
