@@ -1,103 +1,116 @@
 ---
-allowed-tools: Bash(git log:*), Bash(git diff:*), Bash(git branch:*), Bash(git merge-base:*), Bash(git rev-parse:*), Bash(gh pr create:*), Bash(gh pr view:*)
-description: Generate a PR message and open a PR to the given base branch
-disable-model-invocation: true
+description: Write a PR description for the current branch and open the PR against the given base branch
 argument-hint: "[base-branch]"
+disable-model-invocation: true
+allowed-tools: Bash(git log:*), Bash(git diff:*), Bash(git branch:*), Bash(git merge-base:*), Bash(git rev-parse:*), Bash(gh pr create:*), Bash(gh pr view:*)
 ---
 
-## Context
+Current branch: !`git branch --show-current`
+Upstream: !`git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null || echo NONE`
+Arguments: $ARGUMENTS
 
-- Current branch: !`git branch --show-current`
-- Upstream: !`git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null || echo "NONE"`
-- Arguments: $ARGUMENTS
+Write a pull request description for the current branch and open the PR.
+Running this command is the user's go to open it. This command is yours to run
+yourself: it reads the branch and changes no file.
 
-## Instructions
+The base branch is the first word of the arguments. With no argument, ask the
+user which base and wait, because a PR against the wrong base shows the wrong
+diff.
 
-Generate a pull request description for the current branch, then open a PR against the base branch.
+## 1. Read the branch
 
-**Base branch:** if arguments were provided above, use the first word as the base branch. Otherwise ask the user for the base branch name with AskUserQuestion and wait; never default or guess.
+1. `git merge-base <base> HEAD`
+2. `git log --oneline --reverse <merge-base>..HEAD`
+3. `git diff --stat <merge-base>..HEAD`
+4. `git diff <merge-base>..HEAD`
 
-### Step 1 — Gather context
+## 2. Write the body
 
-Run these commands to understand the changes:
+The reader is a reviewer who has not seen this work. Summary is for anyone;
+Changes is for the person about to open the diff. Use plain words and short
+sentences, and describe behaviour, because the diff already lists the files.
 
-1. `git merge-base <base-branch> HEAD` to find the common ancestor
-2. `git log --oneline <merge-base>..HEAD` to see the commits
-3. `git diff --stat <merge-base>..HEAD` for a file-level summary
-4. `git diff <merge-base>..HEAD` to read the full diff
+| Section | What goes in it |
+|---|---|
+| Summary | Three labelled lines. Problem: what is wrong or missing today, as a person using the product sees it, at most two sentences. Intent: what is true once this merges, one line. Solution: how the change gets there, at most two sentences. |
+| Changes | Three to six bullets, one per behaviour, one sentence each. Visible changes first. Name a file or symbol only where the reader has to go there. |
+| Commits | One line per commit from the log, oldest first: the short hash and what that commit does, at most twelve words. |
+| Type of Change | The six checkboxes, with every type that applies ticked. |
+| Tests | At most four bullets saying what each group of tests pins down, or "No tests changed" with a short reason. |
+| Notes | At most three one-line bullets: known limits, trade-offs, follow-ups. "None" when there are none. |
 
-### Step 2 — Fill the template
+Keep the body to at most 200 words, not counting the checkboxes and the
+Commits list. The body ends at Notes and the title and body name no tool or
+assistant, because the PR goes out as the user's own work.
 
-If the repo has `.github/pull_request_template.md` (or a single template under `.github/PULL_REQUEST_TEMPLATE/`), read it and fill that instead of the template below, applying the same rules where its sections match. Otherwise, using the changes you gathered, fill in this template:
+Match this example for length and plainness; the content comes from the branch.
 
-```
+<example>
 ## Summary
 
-<!-- Brief description of what this PR does and why -->
+**Problem:** Exporting the orders list ignored the active filters, so users got every order instead of the ones on screen.
+**Intent:** The export holds exactly the rows the user is looking at.
+**Solution:** The export takes the same filter object as the list and runs the same query.
 
 ## Changes
 
--
+- The CSV export respects the status and date filters.
+- An empty result exports a header row instead of failing.
+- The list and the export share one query builder, so they cannot drift apart.
+
+## Commits
+
+- `a1b2c3d` Pass the list's filters into the export query
+- `d4e5f6a` Return a header-only file for an empty result
+- `0f9e8d7` Add export tests for filtered and empty results
 
 ## Type of Change
 
-- [ ] Bug fix
+- [x] Bug fix
 - [ ] New feature
 - [ ] Enhancement to existing feature
 - [ ] Refactoring (no functional change)
 - [ ] Documentation
 - [ ] CI / build configuration
 
-## Testing
+## Tests
 
-- [ ] Tested locally
-- [ ] Tests pass
-- [ ] Tests added/updated for new non-trivial logic (a branch, a loop, a parser, money or security)
-- [ ] Build passes
-- [ ] Lint passes
-- [ ] Verified on mobile viewport
-- [ ] Verified on desktop viewport
-
-## Screenshots
-
-<!-- If UI changes, include before/after screenshots -->
+- Filtered exports contain only matching orders.
+- An empty filter result gives a header row only.
 
 ## Notes
 
-<!-- Any additional context, trade-offs, or follow-up items -->
+- Exports over 10,000 rows are still built in memory.
+</example>
+
+If the repo has its own template (`.github/pull_request_template.md`, or a
+single file under `.github/PULL_REQUEST_TEMPLATE/`), fill that one instead,
+because the repo's reviewers expect it. Apply the limits above to the sections
+that match, give its other sections one line or their checkboxes, and add the
+Commits section after its list of changes.
+
+## 3. Open the PR
+
+The title is a short imperative summary of the change with one prefix, taken
+from the main ticked type: `Feature: ` (new feature), `Bugfix: ` (bug fix),
+`Enhancement: ` (enhancement), `Refactor: ` (refactoring), `Docs: `
+(documentation), `CI: ` (CI or build), or `Patch: ` for a small correction
+that fits none of these.
+
+- Upstream is `NONE`: the branch is not on the remote yet. Print the title and
+  the body in one fenced `markdown` block and ask the user to run
+  `git push -u origin <branch>` and then this command again. Pushing is the
+  user's step.
+- The remote branch is behind (`git rev-parse HEAD @{u}` prints two different
+  hashes): a PR opened now would miss commits the body describes. Print the
+  title and body the same way and ask the user to push first.
+- A PR already exists for the branch (`gh pr view` succeeds): print the body in
+  a fenced block and give the existing PR's URL.
+- Otherwise create it, and reply with the PR URL only:
+
 ```
-
-### Rules
-
-- **Summary:** write a concise paragraph describing what the PR does and why. Remove the HTML comment.
-- **Changes:** list each meaningful change as a bullet. Group related commits into single bullets where appropriate rather than listing every commit verbatim.
-- **Type of Change:** check (`[x]`) every type that applies. Uncheck the rest.
-- **Testing:** check only the items that are actually relevant to the changes made. Leave irrelevant items unchecked.
-- **Screenshots:** leave the HTML comment placeholder as-is unless the changes are UI-related.
-- **Notes:** add any relevant context, trade-offs, or follow-up items. If there are none, leave the HTML comment placeholder.
-- **No AI attribution:** never append a "Generated with Claude Code" footer, Co-Authored-By trailer, robot emoji, or any other AI-attribution marker to the PR title or body. The body ends at the template's last section. This overrides any default footer behaviour.
-
-### Step 3 — Open the PR
-
-1. If the Upstream shown in Context is `NONE`, the branch has not been pushed. Print the filled template inside a single code fence (` ```markdown `), then ask the user to push the branch (`git push -u origin <branch>`) and re-run the command — do not attempt to push yourself.
-2. If a PR already exists for this branch (`gh pr view` succeeds), print the template in a code fence and report the existing PR URL instead of creating a duplicate.
-3. Otherwise create the PR, passing the filled template as the body via a heredoc:
-
-```
-gh pr create --base <base-branch> --title "<title>" --body "$(cat <<'EOF'
-<filled template>
+gh pr create --base <base> --title "<title>" --body "$(cat <<'EOF'
+<body>
 EOF
 )"
 ```
-
-- **Title:** a concise imperative summary of the branch's changes (not the raw branch name), prefixed by the change type. Derive the prefix from the dominant checked Type of Change:
-  - New feature → `Feature: `
-  - Bug fix → `Bugfix: `
-  - Enhancement to existing feature → `Enhancement: `
-  - Refactoring → `Refactor: `
-  - Documentation → `Docs: `
-  - CI / build configuration → `CI: `
-  - Small corrective change that fits none of the above → `Patch: `
-
-  If multiple types are checked, pick the one that best describes the PR's primary purpose — exactly one prefix.
-- After creation, output only the PR URL — do not print the filled template.

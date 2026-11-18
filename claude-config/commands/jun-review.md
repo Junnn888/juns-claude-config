@@ -1,61 +1,123 @@
 ---
-description: "CodeRabbit, ponytail-review and the gate-integrity scan report on the branch, the main loop clusters by root cause and decides, one agent per cluster fixes correctness only, gates run, three-section report"
-argument-hint: "base ref, then optional free text naming what to watch for"
+description: "Review the current branch against a base ref: CodeRabbit, the review agent and the weakened-checks scan report; the main session weighs the findings and sends the fixes out; /simplify then reports on the result; a final re-check and a report follow"
+argument-hint: "<base ref>"
 disable-model-invocation: true
-allowed-tools: Bash(git log:*), Bash(git diff:*), Bash(git branch:*), Bash(git merge-base:*), Bash(git status:*), Bash(python3 ~/.claude/scripts/gate-scan.py:*)
+allowed-tools: Bash(git log:*), Bash(git diff:*), Bash(git branch:*), Bash(git merge-base:*), Bash(git status:*), Bash(shasum:*), Bash(python3 ~/.claude/scripts/gate-scan.py:*)
 ---
 
-Base ref argument: $ARGUMENTS
+Base ref: $ARGUMENTS
 Current branch: !`git branch --show-current`
 
-`/jun-review → ask base → 2 reviewers + gate scan report → main loop clusters and decides → one agent per cluster → gates → report`
+Review this branch's change against the base ref. With no base ref, ask the
+user which ref and wait, because a review against the wrong base reports other
+people's changes. Start with `git merge-base <base> HEAD`: every reviewer
+compares from that commit to the working tree, so uncommitted and untracked
+changes are part of the review.
 
-You orchestrate. Reviewers only report, verbatim. You decide per cluster. Every edit ships through a dispatched agent that carries the full context.
+Running this command is the user's go for the fixes in steps 3 and 5. The
+reviewers only report. You weigh what they found, and the fixes go out to
+`patch` or `builder`.
 
-## 0. Base and focus
+## 1. The reviewers report
 
-The first word of the argument above is the base ref; everything after it is the focus, free text naming what to watch for (a file, a flow, a worry). If the base is empty, ask with AskUserQuestion: `main` (Recommended), `development`, or another ref. Never guess. Both reviewers get the same base. Uncommitted changes are in scope.
+Start all three in one message.
 
-Focus narrows attention, never scope. Each reviewer prompt in §1 carries it as: "Look hardest at <focus>. Still report everything."
+- **CodeRabbit**: the `coderabbit:code-reviewer` agent, model sonnet, effort
+  high. Ask it to review the diff from the merge-base to the working tree and
+  return every finding (file and line, severity, the claim, a failing case,
+  the fix it suggests) with the number of findings its tool reported, so you
+  can see that none was dropped. If the agent is not installed or does not
+  finish, record CodeRabbit as "not run" with the reason and carry on.
+- **The `review` agent**: give it the merge-base, the files the branch changed
+  (`git diff --name-only <merge-base>` plus the untracked files in
+  `git status --short`) and the repo's check commands. Ask it for one more
+  list, kept apart from its findings and needing no failing case: the comments
+  the change adds that only restate the code.
+- **The scan**: `python3 ~/.claude/scripts/gate-scan.py <base>`. It tags lines
+  that weaken a check and does not judge them: RH-1 a test removed or skipped,
+  RH-3 a snapshot changed without its owner, RH-4 a placeholder in product
+  code, RH-12 code that behaves differently under test or CI, RH-13 a lint or
+  type suppression, RH-14 a CI or hook bypass, RH-15 a relaxed threshold or
+  timeout, RH-16 a swallowed exception. Exit code 2 or a `GATE_ERROR` line
+  means the scan did not run: report it as "unavailable" with the reason,
+  since "none" would claim a clean result that nobody produced.
 
-## 1. Gather (report only)
+## 2. Weigh the findings together
 
-Run all three in one message:
+Group the findings by cause, so that one cause reported twice is fixed once.
+Each finding is a claim: check it against the current code before it earns a
+fix, with one Explore batch for what the reports do not already quote, and
+name the ones you drop and why. Then sort what is left:
 
-1. **CodeRabbit**: Agent `coderabbit:code-reviewer` with `model: sonnet`, `effort: high`. Prompt: review the diff from `<base>` to the working tree and return **every** finding, none merged or dropped, as `file:line · severity · claim · failure scenario or none · suggested fix`, plus the count the CLI reported so you can check nothing was lost. It must not edit.
-2. **ponytail-review**: Agent `deep` (opus, high). Prompt: invoke the `ponytail:ponytail-review` skill on the diff from `<base>` to the working tree and return its report in full. It must not edit; return the report only.
-3. **Gate scan**: `python3 ~/.claude/scripts/gate-scan.py <base>`. Read-only; it lists added lines that weaken a gate (test removed or skipped, snapshot changed without its owner, suppression, CI bypass, relaxed timeout or threshold, placeholder, env sniffing, swallowed exception) and never judges them. A non-zero exit or a `GATE_ERROR` line means the scan is **UNAVAILABLE**; carry that word into §5 and never write "none" for it.
+- **Fix now**: a problem in the branch's own change with one clear fix that
+  stays inside the finding. A bug with a concrete failing case, a comment that
+  restates the code, and a test the scan shows was removed by accident all
+  belong here.
+- **Yours to decide**: a problem in the branch's own change where the fix is a
+  choice: it changes behaviour, widens the branch, or has more than one
+  reasonable shape. Missing tests and scale problems that need more than a
+  small fix belong here. So does every other line the scan tagged, with one
+  sentence on what the line does: it silences a failure, or something visible
+  in this diff justifies it.
+- **Later**: findings about code the branch did not change, and cosmetic
+  points.
 
-Normalise every reviewer finding to one shape: `file:line`, source (`coderabbit:<severity>` / `ponytail:<group>`), claim, consequence, failure scenario or `none`. Gate-scan lines keep their own shape (`RH-n path:line + text`) and skip §2 clustering; they go straight to the gate-integrity read below.
+## 3. Fix
 
-## 2. Interpret (this loop, no delegation)
+Send one writer per cause, routed as the style describes. Each hand-over also
+quotes the finding word for word and limits the files to those the branch
+changed and the tests beside them.
 
-Cluster by mechanism, not by line. One root cause reported twice is one cluster, fixed once at the right depth. Rank by consequence. With a focus, clusters touching the focus rank first and are tagged `focus`; the rest follow unchanged.
+## 4. Simplify reports
 
-Every finding is a claim. Read the code before a severe one earns a fix; drop false positives and say so.
+Record a checksum of each file the branch changed (`shasum <files>`), then run
+the built-in `/simplify` skill on the branch's change with this request:
+report each finding with its file and line and the change it would make, and
+leave every file as it is, because this command decides which changes are
+made. Take the checksums again afterwards. If one differs, `/simplify` edited
+that file: name it in the report so the user knows which lines came from it.
 
-Fix a cluster only when it is **correctness**: a reviewer named a failure scenario and you reproduced it against the code, or it is a never-cut item (validation at a trust boundary, error handling that prevents data loss, security, accessibility), or it is the gate restore named below. Everything else is optional, default no, with one line `If left:` or `cosmetic`.
+## 5. Weigh what simplify found
 
-Scope: edit only files in `git diff --name-only <base>...HEAD` plus uncommitted changes, and the test co-located with one of them. Anything else is an own-branch follow-up. A shared helper outside the diff is reported, not patched at the caller.
+Over-built code is this step's subject. Send out the findings that hold and
+stay inside the branch's change, the same way as step 3. The rest go to Later.
 
-**Gate integrity.** For every line the scan tagged, open the hunk and write one line stating what it does: silences the failure the gate was there to catch, or is justified by something visible in this diff (the case is now covered elsewhere, the threshold moved with a measurement). That line is a reading, never a pick. Except for the removed-test case, a tagged line is not fixed by a dispatched agent in §3 and is never dropped silently: every one lands in §5 section 2 with its tag, `path:line`, the reading, and the options restore / keep, justified / leave open. A removed test whose function survived is a plainly accidental loss: a `patch` restores it, named in section 1 as a gate restore.
+## 6. Final re-check
 
-## 3. Fix (one agent per cluster)
+Run the repo's own checks (type check, lint, tests, as its instructions or
+package scripts name them); a check the repo does not define is "not run". Run
+the scan again, and CodeRabbit once more from the same merge-base. Report a
+failing check with its last 15 lines and leave it for the user, because a
+second round of fixes here would hide how far the branch moved during review.
+A line the scan tags now and did not tag in step 1 came from a fix: say so. A
+finding CodeRabbit reports now and did not report in step 1 goes under Yours
+to decide, marked as found after the fixes.
 
-Dispatch one agent per independent cluster: `patch` for a single-site cluster (one or two files, exact change), `builder` for the rest, all in a single message so they run concurrently; sequence only where one fix depends on another. Each dispatch carries: the cluster's findings verbatim with consequences, the `file:line` sites, the relevant diff excerpt, the base ref, the allowlist of files it may edit (stop and report rather than touch anything else), the rule that the fix must not change behaviour beyond what the finding names, and an acceptance criterion it can check itself. Smallest change that closes the scenario.
+## 7. Report
 
-A failed builder gets one fresh `deep` brief with the files kept and the conversation dropped; a failed `deep` is reported open with the gate's last lines. Never "fix it" to the same agent. Treat agent reports as claims: say which you verified.
+Open with `Fixed <n> · To decide <n> · Later <n>`, then three sections:
 
-## 4. Verify
+1. **Done: read, then commit.** One line per fix.
+2. **Yours to decide before commit.** Each item gives the problem, what the
+   user would see, and the options. A scan item uses what its tag means, in
+   words, with path:line as the title, and has the options restore, keep, or
+   leave open.
+3. **Later.** One line per item, ending `If left:` and what happens.
 
-Run the typecheck, lint and test scripts the repo's instructions or `package.json` name; a gate the repo does not define is reported as not run. A failing gate is reported with its last 15 lines, not chased into another fix round. Then re-run the CodeRabbit agent once on the same base, and the gate scan; anything still open is reported, and a tag new since §1 is reported as introduced by a fix.
+<example>
+**Export times out on large accounts** (app/orders/export.ts:41)
+Problem: the export builds the whole file in memory.
+What you'd see: the largest customers' exports fail after 30 seconds.
+Options: stream the rows (about 40 lines, one file) · cap the export at
+10,000 rows and say so on the page · leave it.
+</example>
 
-## 5. Report
+<example>
+`lib/csv.ts:88` quotes a field twice when the value holds a quote mark (not
+part of this branch). If left: exported names with quotes show doubled marks.
+</example>
 
-Open with `Fixed <n> · To decide <n> · Later <n>`. Then exactly three sections:
-
-1. **Done — read, then commit.** One line per fix. A `focus`-tagged line says so.
-2. **Yours to decide before commit.** Only blockers: failing gate, behaviour choice, open cluster, every gate-integrity tag. Each: Problem / What you'd see / Options. No Recommend line. A gate-integrity item uses the tag as its title, its reading as the Problem, and the options restore / keep, justified / leave open. End the section with: "Pick per item, with a one-line why." Your own view on each item comes only in the reply to their picks: agree or differ, plus what the reason missed. A bare option label gets one "and why?"; "just do it" after that proceeds and the reply says the pick was waved.
-3. **Later — read once.** Two lists: "Has a consequence" (`<finding> — If left: <…>`) and "Cosmetic". Not a to-do.
-
-Close with a gate table (name, pass/fail) whose last row is `Gate integrity: none tagged` / `<n> tagged, see 2` / `UNAVAILABLE (<reason>)`, and: "Read 1, then 2, then stop."
+After the sections, give a table of the checks and their results. Its last
+rows are the scan (`none tagged`, `<n> tagged, see 2` or
+`unavailable (<reason>)`) and CodeRabbit (`ran` or `not run (<reason>)`). The
+commit message line the style asks for comes last.
