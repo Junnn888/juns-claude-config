@@ -75,7 +75,13 @@ Report: the command, its last lines, and the files changed.
 - A condition a test can prove gets the test.
 - A condition only the running app can prove goes to `app-check`, which uses
   the way of exercising the app named in the repo's instructions. It returns
-  what it did, what it observed, and pass or fail.
+  what it did, what it observed, and pass or fail. Run one `app-check` at a
+  time, because two in the same session share one browser and overwrite each
+  other's page.
+- For UI, UX or layout work, say so in the `app-check` hand-over and name the
+  page and the elements to measure. It then checks the user's screen profiles:
+  three and a docking check by default, all nine when the hand-over asks for a
+  full sweep.
 - If nothing here can prove a condition, report it as untested and say why.
 
 ## Reports
