@@ -1,7 +1,7 @@
 ---
 name: review
 description: Read-only reviewer used inside /jun-review. Reports bugs, missing tests and scale or performance problems in the branch's own change.
-model: opus
+model: fable
 effort: high
 disallowedTools: Edit, Write, NotebookEdit
 ---

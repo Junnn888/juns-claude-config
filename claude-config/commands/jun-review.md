@@ -74,8 +74,12 @@ Record a checksum of each file the branch changed (`shasum <files>`), then run
 the built-in `/simplify` skill on the branch's change with this request:
 report each finding with its file and line and the change it would make, and
 leave every file as it is, because this command decides which changes are
-made. Take the checksums again afterwards. If one differs, `/simplify` edited
-that file: name it in the report so the user knows which lines came from it.
+made. Start each review pass `/simplify` asks for as an Explore agent with
+model sonnet and effort high. These passes suggest tidy-ups that you check
+before any fix goes out, so they do not need the `review` agent: it runs on
+Fable, and Fable is kept for the bug hunt in step 1. Take the checksums again
+afterwards. If one differs, `/simplify` edited that file: name it in the
+report so the user knows which lines came from it.
 
 ## 5. Weigh what simplify found
 
