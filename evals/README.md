@@ -35,3 +35,24 @@ python3 -m pytest evals/builds/tests -q           # the outcome function's own t
 
 Outcomes: `pass`, `fail` (hidden tests fail), `regressed` (a baseline-passing test now fails), `no-change`, `error`.
 `evals/builds/results/<stamp>/summary.json` (git-ignored) holds each case's test output, files changed, dispatches, cost and the `tested` block.
+
+# Usage report
+
+Reads the local session transcripts under `~/.claude/projects` and reports cost in list-price dollars, an approximation of the plan meter, so a week on one main-session model can be compared with a week on another. No model usage.
+
+```
+python3 evals/usage/report.py                                         # last 7 days, local dates
+python3 evals/usage/report.py --since 2026-11-16 --until 2026-11-22   # both days inclusive
+python3 evals/usage/report.py --model opus                            # family for the by-day, call and context sections
+python3 evals/usage/report.py --json > week.json                      # same figures as one JSON object, to diff two periods
+python3 -m pytest evals/usage/tests -q                                # the report's own tests
+```
+
+Unit: list-price dollars, an approximation of the plan meter. Each message id counts once.
+Per million tokens, input / output: Fable $8 / $40, Opus $4 / $20, Sonnet $2 / $10, Haiku $0.10 / $0.50.
+Cache writes cost 2 × input for 1-hour writes and 1.25 × input for 5-minute writes (1.25 × when the transcript has no split);
+cache reads cost 0.025 × input on Fable, 0.05 × on Opus and 0.1 × on Sonnet and Haiku.
+Advisor calls (`advisor_message` entries in `usage.iterations`) count to the advisor's own model and show as the `advisor` row.
+Sections: totals by model family; each family split into main session and subagent types (runs, calls);
+the chosen family by day (`--model`, default the main sessions' most used); that family's main-session calls by what the call did;
+and its main-session context (median and p90 per call, sessions that peaked over 200k, dollars spent rereading context above 150k).
