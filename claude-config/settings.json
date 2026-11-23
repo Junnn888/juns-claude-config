@@ -55,7 +55,7 @@
       "~/projects/tolaria"
     ]
   },
-  "model": "fable[1m]",
+  "model": "opus",
   "statusLine": {
     "type": "command",
     "command": "~/.claude/statusLine.sh",
@@ -69,8 +69,12 @@
   "modelSettings": {
     "claude-fable-5-2": {
       "effortLevel": "high"
+    },
+    "claude-opus-5-5": {
+      "effortLevel": "high"
     }
   },
+  "tui": "fullscreen",
   "autoCompactEnabled": false,
   "remoteControlAtStartup": true,
   "agentPushNotifEnabled": true,
@@ -85,5 +89,5 @@
       "**Protected IaC scopes**: IAM, RBAC, networking, quota, and node-pool resources; anything whose name or tag carries 'prod' or 'production' as a whole word or name segment"
     ]
   },
-  "tui": "fullscreen"
+  "skipWorkflowUsageWarning": true
 }
