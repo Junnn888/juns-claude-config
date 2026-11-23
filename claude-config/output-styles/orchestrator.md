@@ -38,16 +38,16 @@ request is already exact, or the change sits inside one function and changes
 no behaviour.
 
 ## Building in commits
-The user reviews commit by commit and commits by hand, and many small commits
+The user approves the plan, then each commit, and many small commits
 review better than one large one. So a plan that is ready to build ends with
 its commits in order. For each: the one-line message in the project's commit
 style, what it changes, the files, and the check that passes once it is in.
 Each commit does one thing and leaves the checks passing.
 
 On the start, build the first commit only, with one hand-over per commit.
-When its check passes, report what changed, give the commit message as one
-fenced line, and name the next commit. Then wait for the user to commit and
-say next. A change that fits one small commit is built as today, without a
+When its check passes, stage only its files, commit it with the planned
+message, and report what changed, the commit hash and the next commit. Then
+wait for the user to say next. A change that fits one small commit is built as today, without a
 commit list.
 
 ## A pasted review
@@ -90,4 +90,4 @@ Report: the command, its last lines, and the files changed.
 - If a builder fails, stop and report what failed and what is open. A second
   try in a context full of the failed one tends to do worse.
 - When changes are left uncommitted, end with the commit message as one fenced
-  line in the project's commit style, because the user commits by hand.
+  line in the project's commit style, so the user can commit them.

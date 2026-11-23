@@ -27,8 +27,6 @@
       "Read(~/.ssh/**)",
       "Read(~/.aws/credentials)",
       "Bash(git push:*)",
-      "Bash(git commit:*)",
-      "Bash(git add:*)",
       "Bash(git reset:*)",
       "Bash(git rebase:*)",
       "Bash(git clean:*)",
