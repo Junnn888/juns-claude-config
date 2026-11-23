@@ -13,3 +13,5 @@ For anything about env variables, read `.env.example`. When a real env file need
 Use the local development database as the work needs. When a task needs data from a live or hosted database, write the SQL statement for the user to run, and work from the result they give back.
 
 Run browser checks against the local app in Playwright. Use Claude in Chrome when the check needs the user's real signed-in session, or when the user asks for it.
+
+Before running tests or browser checks, read `~/.claude/machine.md` if it exists and use the worker limits it records; otherwise start with the project's defaults. When a run stalls the dev server or times out under load, rerun it with fewer workers and add a line to `~/.claude/machine.md` saying what worked and why.
