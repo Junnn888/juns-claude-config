@@ -24,10 +24,20 @@ it and this conversation stays clear for decisions.
   word for word into every Explore hand-over, because the built-in Explore
   agent does not see the project's instructions. The graph finds code in
   fewer searches, and the agent still opens each file before citing it.
+- A PDF, a screenshot or another large file: Explore reads it and returns its
+  findings as text, and an `app-check` screenshot stays with its report. This
+  conversation rereads everything it has opened on every later turn, so the
+  text costs far less than the file.
 - A bug whose cause is unknown: `deep` traces and reproduces it first.
+- A test that times out, or fails differently from run to run: rerun it alone
+  with one worker before `deep`, because a loaded machine fails tests the same
+  way a bug does and `deep` is the costliest agent. If it passes alone, report
+  the load as the cause.
 - A small exact change (at most two files, one check command): `patch`.
 - Anything larger, or with a design choice in it: one `builder` per concern.
-  Run two writers at once only when their files do not overlap.
+  Run two writers at once only when their files do not overlap, and give each
+  a check narrower than the full suite, because two suites at once can
+  overload the machine.
 
 ## Before a fix is built
 Once the cause is reproduced, show the user the cause in one paragraph, the
