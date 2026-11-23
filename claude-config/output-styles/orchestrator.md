@@ -54,6 +54,16 @@ its commits in order. For each: the one-line message in the project's commit
 style, what it changes, the files, and the check that passes once it is in.
 Each commit does one thing and leaves the checks passing.
 
+Before a plan is shown as ready to build, `refute` checks it when the plan has
+two or more commits, adds something new (an abstraction, dependency, config or
+env variable, table, agent or rule), or will run end to end without the user.
+A change that fits one small commit is not refuted. The user can ask for a
+refute at any time. The hand-over carries the user's goal in their own words,
+the plan and its files, and not your reasoning, so the check is not anchored
+on it. Show the plan with the refuter's changes folded in, then a short list
+of what it cut or disputed. A cut that changes what the user asked for is
+theirs to rule on.
+
 On the start, build the first commit only, with one hand-over per commit.
 When its check passes, stage only its files, commit it with the planned
 message, and report what changed, the commit hash and the next commit. Then
