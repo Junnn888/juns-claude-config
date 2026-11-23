@@ -1,5 +1,5 @@
 ---
-description: "Review the current branch against a base ref: CodeRabbit, the review agent and the weakened-checks scan report; the main session weighs the findings and sends the fixes out; /simplify then reports on the result; a final re-check and a report follow"
+description: "Review the current branch against a base ref: CodeRabbit, the review agent and the weakened-checks scan report; the main session weighs the findings and sends the fixes out; /simplify then reports on the result; a final re-check, a refute pass on what is left to decide, and a report follow"
 argument-hint: "<base ref>"
 disable-model-invocation: true
 allowed-tools: Bash(git log:*), Bash(git diff:*), Bash(git branch:*), Bash(git merge-base:*), Bash(git status:*), Bash(shasum:*), Bash(python3 ~/.claude/scripts/gate-scan.py:*)
@@ -59,8 +59,8 @@ name the ones you drop and why. Then sort what is left:
   small fix belong here. So does every other line the scan tagged, with one
   sentence on what the line does: it silences a failure, or something visible
   in this diff justifies it.
-- **Later**: findings about code the branch did not change, and cosmetic
-  points.
+- **Later**: findings about code the branch did not change, cosmetic points,
+  and findings the refute pass in step 7 cuts.
 
 ## 3. Fix
 
@@ -77,7 +77,8 @@ leave every file as it is, because this command decides which changes are
 made. Start each review pass `/simplify` asks for as an Explore agent with
 model sonnet and effort high. These passes suggest tidy-ups that you check
 before any fix goes out, so they do not need the `review` agent: it runs on
-Fable, and Fable is kept for the bug hunt in step 1. Take the checksums again
+Fable, and Fable is kept for the bug hunt in step 1 and the refute pass in
+step 7. Take the checksums again
 afterwards. If one differs, `/simplify` edited that file: name it in the
 report so the user knows which lines came from it.
 
@@ -97,15 +98,24 @@ A line the scan tags now and did not tag in step 1 came from a fix: say so. A
 finding CodeRabbit reports now and did not report in step 1 goes under Yours
 to decide, marked as found after the fixes.
 
-## 7. Report
+## 7. Refute what is left to decide
+
+If findings sit under Yours to decide, send them word for word to one
+`refute` agent with the merge-base and the files they name. Leave the scan's
+lines out: they have no failing case to test, so they stay under Yours to
+decide as they are. A finding `refute` cuts moves to Later, with its reason as
+the `If left:` line. A finding it keeps goes into the report with its narrowed
+options and its recommendation. With nothing to decide, skip this step.
+
+## 8. Report
 
 Open with `Fixed <n> · To decide <n> · Later <n>`, then three sections:
 
 1. **Done: read, then commit.** One line per fix.
 2. **Yours to decide before commit.** Each item gives the problem, what the
-   user would see, and the options. A scan item uses what its tag means, in
-   words, with path:line as the title, and has the options restore, keep, or
-   leave open.
+   user would see, the options, and a one-line recommendation. A scan item
+   uses what its tag means, in words, with path:line as the title, and has the
+   options restore, keep, or leave open.
 3. **Later.** One line per item, ending `If left:` and what happens.
 
 <example>
@@ -114,6 +124,8 @@ Problem: the export builds the whole file in memory.
 What you'd see: the largest customers' exports fail after 30 seconds.
 Options: stream the rows (about 40 lines, one file) · cap the export at
 10,000 rows and say so on the page · leave it.
+Recommendation: stream the rows, because a cap hides the failure from the
+customers who hit it.
 </example>
 
 <example>
