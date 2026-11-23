@@ -88,10 +88,14 @@ Report: the command, its last lines, and the files changed.
   what it did, what it observed, and pass or fail. Run one `app-check` at a
   time, because two in the same session share one browser and overwrite each
   other's page.
-- For UI, UX or layout work, say so in the `app-check` hand-over and name the
-  page and the elements to measure. It then checks the user's screen profiles:
-  three and a docking check by default, all nine when the hand-over asks for a
-  full sweep.
+- For UI, UX or layout work on a page in the browser, say so in the
+  `app-check` hand-over and name the page and the elements to measure. It then
+  checks the user's screen profiles: three and a docking check by default, all
+  nine when the hand-over asks for a full sweep.
+- The layout of a generated file such as a spreadsheet gets a test that reads
+  the file, because column widths, merged cells, frozen panes and number
+  formats are all stored in it. Send the file to `app-check` only for what the
+  file cannot show, such as clipped text, and name that condition.
 - If nothing here can prove a condition, report it as untested and say why.
 
 ## Reports

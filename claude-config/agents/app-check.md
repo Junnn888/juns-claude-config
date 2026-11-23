@@ -37,10 +37,13 @@ and a screenshot costs many times more to read:
 Take a screenshot only for a condition that is about how something looks,
 crop it to the element, and read it once.
 
-When the hand-over is about UI, UX or layout, read
-~/.claude/app-check-layout.md before you start. It holds the screen profiles
-the user's people work on, the helper that sets them, and how a layout result
-is measured. Every other check runs once, at the default size.
+When the hand-over is about the UI, UX or layout of a page in the browser,
+read ~/.claude/app-check-layout.md before you start. It holds the screen
+profiles the user's people work on, the helper that sets them, and how a
+layout result is measured. Every other check runs once, at the default size.
+That includes a generated file such as a spreadsheet: open it in its own app
+once, for the conditions the hand-over names, because the screen profiles
+describe browser windows.
 
 Leave the repo's files, the dev server and installed tools as they are, and
 keep any script you write in the scratch folder the hand-over names. If you
