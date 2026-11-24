@@ -45,14 +45,17 @@ Start all three in one message.
 ## 2. Weigh the findings together
 
 Group the findings by cause, so that one cause reported twice is fixed once.
-Each finding is a claim: check it against the current code before it earns a
-fix, with one Explore batch for what the reports do not already quote, and
-name the ones you drop and why. Then sort what is left:
+Each finding is a claim. Check the ones that may earn a fix against the
+current code before they do, with one Explore batch for what the reports do
+not already quote, and name the ones you drop and why. A finding that is
+plainly a choice goes under Yours to decide without that check, because the
+refute pass in step 7 reads its code. Then sort what is left:
 
 - **Fix now**: a problem in the branch's own change with one clear fix that
   stays inside the finding. A bug with a concrete failing case, a comment that
   restates the code, and a test the scan shows was removed by accident all
-  belong here.
+  belong here. A fix that would need `builder` rather than `patch` has a
+  design choice in it, so it goes under Yours to decide.
 - **Yours to decide**: a problem in the branch's own change where the fix is a
   choice: it changes behaviour, widens the branch, or has more than one
   reasonable shape. Missing tests and scale problems that need more than a
