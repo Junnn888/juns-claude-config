@@ -24,6 +24,9 @@ For review findings, check each one:
 - Real: show that the failing case is reachable from a real caller, input or
   size found in the repo (fixtures, schema limits, data shapes). If you cannot,
   it is hypothetical.
+- Narrow and harmless: reachable, but only through a rare sequence, and what
+  the user sees corrects itself or takes one more action to put right. Cut
+  it, naming the sequence.
 - Options: smallest first, "leave it" always present, and none that guards a
   case you found unreachable.
 

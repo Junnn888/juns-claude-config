@@ -101,7 +101,9 @@ to decide, marked as found after the fixes.
 ## 7. Refute what is left to decide
 
 If findings sit under Yours to decide, send them word for word to one
-`refute` agent with the merge-base and the files they name. Leave the scan's
+`refute` agent with the merge-base and the files they name, and nothing else:
+no verdicts from step 2 and no cut rules of your own, so it judges by its own
+definition rather than by your reading. Leave the scan's
 lines out: they have no failing case to test, so they stay under Yours to
 decide as they are. A finding `refute` cuts moves to Later, with its reason as
 the `If left:` line. A finding it keeps goes into the report with its narrowed
