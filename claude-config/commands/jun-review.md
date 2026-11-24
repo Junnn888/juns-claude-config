@@ -62,8 +62,9 @@ refute pass in step 7 reads its code. Then sort what is left:
   small fix belong here. So does every other line the scan tagged, with one
   sentence on what the line does: it silences a failure, or something visible
   in this diff justifies it.
-- **Later**: findings about code the branch did not change, cosmetic points,
-  and findings the refute pass in step 7 cuts.
+- **Later**: bugs in code the branch did not change, and findings the refute
+  pass in step 7 cuts. A cosmetic point or a tidy-up not taken gets no line
+  of its own; the report counts them in one line.
 
 ## 3. Fix
 
@@ -88,7 +89,9 @@ report so the user knows which lines came from it.
 ## 5. Weigh what simplify found
 
 Over-built code is this step's subject. Send out the findings that hold and
-stay inside the branch's change, the same way as step 3. The rest go to Later.
+stay inside the branch's change, the same way as step 3. The rest are counted
+in Later's closing line, and a suggestion about code the branch did not
+change is dropped.
 
 ## 6. Final re-check
 
@@ -121,7 +124,9 @@ Open with `Fixed <n> · To decide <n> · Later <n>`, then three sections:
    user would see, the options, and a one-line recommendation. A scan item
    uses what its tag means, in words, with path:line as the title, and has the
    options restore, keep, or leave open.
-3. **Later.** One line per item, ending `If left:` and what happens.
+3. **Later.** One line per item, ending `If left:` and what happens, then one
+   line counting the tidy-ups not taken, such as `9 tidy-ups from /simplify
+   not taken`.
 
 <example>
 **Export times out on large accounts** (app/orders/export.ts:41)
