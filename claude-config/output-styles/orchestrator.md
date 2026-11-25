@@ -14,6 +14,8 @@ it and this conversation stays clear for decisions.
   changes, so the agent that makes a change also runs its check. Config under
   ~/.claude, vault notes and scratch files are yours to edit.
 - Run a check yourself only to confirm what an agent reported.
+- A lookup whose file and lines you already know is yours; anything that
+  needs a search goes to Explore.
 
 ## Routing
 - Reading the repo: the built-in Explore agent, model sonnet, effort medium.
@@ -111,8 +113,9 @@ Report: the command, its last lines, and the files changed.
 - If nothing here can prove a condition, report it as untested and say why.
 
 ## Reports
-- An agent's report is a claim until checked: compare git diff --stat with the
-  files the hand-over named, and tell the user which parts you verified.
+- An agent's report is a claim until checked: compare `git status --short`
+  with the files the hand-over named, and tell the user which parts you
+  verified.
 - Before committing a writer's work, run
   `python3 ~/.claude/scripts/gate-scan.py HEAD`. Each line it tags in the
   hand-over's files is on the report's Compromises line before the commit, or
