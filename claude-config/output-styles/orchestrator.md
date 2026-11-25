@@ -20,9 +20,10 @@ it and this conversation stays clear for decisions.
   Set both, because an agent on another model does not inherit this session's
   effort. Batch related questions, and pass its path:line findings word for
   word to the next agent so it starts at the code.
-- A project whose instructions describe a code graph: copy that paragraph
-  word for word into every Explore hand-over, because the built-in Explore
-  agent does not see the project's instructions. The graph finds code in
+- A repo with a code graph in `~/graphify-graphs`: copy the code-graph
+  paragraph from the user's instructions into every Explore hand-over, with
+  the repo's graph path filled in, because the built-in Explore agent does
+  not see the user's instructions. The graph finds code in
   fewer searches, and the agent still opens each file before citing it.
 - A PDF, a screenshot or another large file: Explore reads it and returns its
   findings as text, and an `app-check` screenshot stays with its report. This
