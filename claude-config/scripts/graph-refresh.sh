@@ -19,7 +19,6 @@ command -v graphify >/dev/null || die "graphify is not installed (uv tool instal
 main_checkout=$(git -C "$dir" worktree list --porcelain 2>/dev/null | sed -n '1s/^worktree //p' || true)
 [ -n "$main_checkout" ] || die "$dir is not inside a git project"
 
-# Same naming rule as /jun-setup, so the graph sits beside <project>-instructions.md.
 project=$(basename "$main_checkout" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/-/g; s/^-+//; s/-+$//')
 [ -n "$project" ] || die "cannot derive a project name from $main_checkout"
 
@@ -85,31 +84,8 @@ graphify export callflow-html --graph "$graph" --output "$out_dir/callflow.html"
 [ -f "$graph" ] || die "no graph was written for $project (full output: $run_log)"
 echo "$commit" > "$stamp"
 
-instructions="$HOME/.claude/$project-instructions.md"
-instructions_note="no $instructions yet: run /jun-setup in the main checkout so sessions use the graph"
-if [ -f "$instructions" ]; then
-  instructions_note="sessions already told about the graph"
-  if ! grep -q "graphify-graphs/$project/graph.json" "$instructions"; then
-    cat >> "$instructions" <<EOF
-
-A code graph of this repo's default branch is at
-~/graphify-graphs/$project/graph.json. To find code you have not
-been pointed to, query the graph before searching:
-\`graphify query "<names>" --graph ~/graphify-graphs/$project/graph.json --budget 4000\`,
-\`graphify explain "<name>" --graph ~/graphify-graphs/$project/graph.json\` and
-\`graphify affected "<name>" --graph ~/graphify-graphs/$project/graph.json\`.
-Query by concrete names such as a file path or a function name, because
-matching is by keyword. Open each file the graph points to before relying on
-it, and search normally for code that exists only on a branch, because the
-graph does not have it.
-EOF
-    instructions_note="added the graph paragraph to $instructions"
-  fi
-fi
-
 nodes=$(sed -n 's/.*graph\.json: \([0-9]*\) nodes.*/\1/p' "$run_log" | tail -1)
 elapsed=$(( $(date +%s) - started ))
 summary="$project: rebuilt from $default_ref ${commit:0:8}$fetch_note, ${nodes:-?} nodes, groups $naming, ${elapsed}s"
 echo "$(date '+%Y-%m-%d %H:%M') $summary" >> "$history_log"
 echo "$summary"
-echo "$instructions_note"

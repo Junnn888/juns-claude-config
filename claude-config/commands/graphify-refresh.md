@@ -16,7 +16,4 @@ Reply with the result in one or two plain sentences and stop. Run nothing else.
 - "already at": say the graph was current and nothing was rebuilt. `--force`
   rebuilds anyway.
 - "rebuilt from": give the commit, the node count and the time taken.
-- A line saying there is no instructions file yet: tell the user to run
-  `/jun-setup` in the main checkout and then this command again, because
-  sessions learn about the graph from that file.
 - An error: quote it and name the log file it points to.
