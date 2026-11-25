@@ -42,8 +42,10 @@ The shared file:
 ```markdown
 The instruction files checked into this repo describe the project and were
 written for agents that work unattended. In a local session the user creates
-the branches, commits and pushes by hand, and a pull request is opened when
-the user asks for one here.
+the branches and pushes by hand, and a pull request is opened when the user
+asks for one here. The session commits only the commits of a build plan the
+user has approved, each once its check passes; any other change is left for
+the user to commit.
 
 The running app is checked with <method>.
 ```
