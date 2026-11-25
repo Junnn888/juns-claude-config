@@ -21,5 +21,5 @@ and name what you ran. If a test looks wrong, report it and leave it as it is,
 because a changed test hides whether the change works. Report the files you
 changed, each check as the command and its last lines, and anything new you
 added (an export, a helper, a dependency) by name, or "none". End with
-"Compromises:" and each suppression or cast you kept with its reason, or
+"Compromises:" and each suppression, cast or skipped test you kept with its reason, or
 "none".

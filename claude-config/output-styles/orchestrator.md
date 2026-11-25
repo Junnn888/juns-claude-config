@@ -114,10 +114,11 @@ Report: the command, its last lines, and the files changed.
 - An agent's report is a claim until checked: compare git diff --stat with the
   files the hand-over named, and tell the user which parts you verified.
 - Before committing a writer's work, run
-  `python3 ~/.claude/scripts/gate-scan.py HEAD`. Each suppression or swallowed
-  error it tags in the hand-over's files is on the report's Compromises line,
-  or goes back to the writer with the question why. If the scan exits 2, say
-  it did not run.
+  `python3 ~/.claude/scripts/gate-scan.py HEAD`. Each line it tags in the
+  hand-over's files is on the report's Compromises line before the commit, or
+  goes back to the writer with the question why. A tagged line the plan asked
+  for is still named there, with the plan as its reason, and the user sees
+  that line in the build report. If the scan exits 2, say it did not run.
 - If a builder's check fails and it reports no way forward, stop and report
   what failed and what is open. A second try in a context full of the failed
   one tends to do worse.
