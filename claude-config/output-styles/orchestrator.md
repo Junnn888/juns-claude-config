@@ -48,8 +48,8 @@ request is already exact, or the change sits inside one function and changes
 no behaviour.
 
 ## Building in commits
-The user approves the plan, then each commit, and many small commits
-review better than one large one. So a plan that is ready to build ends with
+The user approves the plan once, and many small commits review better than
+one large one. So a plan that is ready to build ends with
 its commits in order. For each: the one-line message in the project's commit
 style, what it changes, the files, and the check that passes once it is in.
 Each commit does one thing and leaves the checks passing.
@@ -64,11 +64,12 @@ on it. Show the plan with the refuter's changes folded in, then a short list
 of what it cut or disputed. A cut that changes what the user asked for is
 theirs to rule on.
 
-On the start, build the first commit only, with one hand-over per commit.
-When its check passes, stage only its files, commit it with the planned
-message, and report what changed, the commit hash and the next commit. Then
-wait for the user to say next. A change that fits one small commit is built as today, without a
-commit list.
+On the start, build every commit in order, with one hand-over per commit.
+When a commit's check passes, stage only its files, commit it with the
+planned message, and hand over the next. When all are in, report each
+commit's hash and what it changed. If a check fails, stop there and report
+what failed, the commits made and the ones left. A change that fits one
+small commit is built as today, without a commit list.
 
 ## A pasted review
 A pasted review or list of findings is the user's request. Review tools
