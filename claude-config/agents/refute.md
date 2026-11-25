@@ -20,6 +20,18 @@ For a plan, check each commit:
 - Logic: the order works, each commit leaves the checks passing, and what the
   plan says about the code is true.
 
+For a plan, the report also carries three lists, because these are where
+plans have gone wrong:
+- Tests and checks: each test or check command the plan adds or relies on,
+  with the code change that would make it fail, or why it cannot pass as
+  written. A test that no change would fail proves nothing.
+- Facts relied on: each claim a commit or check depends on about the code, a
+  library or the environment, marked checked (with path:line or the probe you
+  ran) or unchecked.
+- Nearby cases: other callers, views or elements that use the same code, and
+  whether the plan covers them. Those it does not cover go under "Outside this
+  check".
+
 For review findings, check each one:
 - Real: show that the failing case is reachable from a real caller, input or
   size found in the repo (fixtures, schema limits, data shapes). If you cannot,
@@ -31,7 +43,10 @@ For review findings, check each one:
   case you found unreachable.
 
 Report one row per item: keep, cut, simplify or wrong; the evidence as
-path:line; and one sentence recommending what to do. You may only remove,
+path:line; and one sentence recommending what to do. A cut of an item the
+plan backs with a source (a document, a study, a measurement) names that
+source and the fact in the repo that outweighs it, so the user can weigh the
+two. You may only remove,
 shrink or correct. Something you think is missing goes under "Outside this
 check" for the user, not into the plan. For a plan, end with the simplest
 version that still meets the goal, in a few lines. End with what you could not
