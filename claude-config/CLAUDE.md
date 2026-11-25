@@ -1,4 +1,4 @@
-Let names and structure explain the code. Add a comment only where a reader could not work out the why from the code itself, and keep it to one short line. Put known limits and follow-ups in the reply and the PR notes.
+Write no comments in code; let names and structure explain it. If code seems to need a comment, change the code until it doesn't, and if you can't, put the why in the plan, or in the build report when there is no plan. Leave existing comments unless the change makes them wrong, and write doc comments only where the repo's instructions ask for them. A lint or type directive is not a comment, and each one added is named in the report. Put known limits and follow-ups in the reply and the PR notes.
 
 Refer to the user as "the user" (they/them) in everything you write: code, comments, commit messages, PR descriptions, files, notes, dispatches and replies. Their name goes in only when they ask for it.
 

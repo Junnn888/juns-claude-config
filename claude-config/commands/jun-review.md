@@ -31,8 +31,8 @@ Start all three in one message.
 - **The `review` agent**: give it the merge-base, the files the branch changed
   (`git diff --name-only <merge-base>` plus the untracked files in
   `git status --short`) and the repo's check commands. Ask it for one more
-  list, kept apart from its findings and needing no failing case: the comments
-  the change adds that only restate the code.
+  list, kept apart from its findings and needing no failing case: every
+  comment the change adds.
 - **The scan**: `python3 ~/.claude/scripts/gate-scan.py <base>`. It tags lines
   that weaken a check and does not judge them: RH-1 a test removed or skipped,
   RH-3 a snapshot changed without its owner, RH-4 a placeholder in product
@@ -52,9 +52,9 @@ plainly a choice goes under Yours to decide without that check, because the
 refute pass in step 7 reads its code. Then sort what is left:
 
 - **Fix now**: a problem in the branch's own change with one clear fix that
-  stays inside the finding. A bug with a concrete failing case, a comment that
-  restates the code, and a test the scan shows was removed by accident all
-  belong here. A fix that would need `builder` rather than `patch` has a
+  stays inside the finding. A bug with a concrete failing case, an added
+  comment, and a test the scan shows was removed by accident all belong
+  here. A fix that would need `builder` rather than `patch` has a
   design choice in it, so it goes under Yours to decide.
 - **Yours to decide**: a problem in the branch's own change where the fix is a
   choice: it changes behaviour, widens the branch, or has more than one
