@@ -106,6 +106,11 @@ to decide, marked as found after the fixes.
 
 ## 7. Refute what is left to decide
 
+Start this step only once step 6 has finished and every check passed, because
+`refute` judges the code as it will ship. If a check failed, skip this step
+and say in the report that the items were not refuted, because the code is not
+final.
+
 If findings sit under Yours to decide, send them word for word to one
 `refute` agent with the merge-base and the files they name, and nothing else:
 no verdicts from step 2 and no cut rules of your own, so it judges by its own
