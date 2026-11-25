@@ -114,8 +114,11 @@ Report: the command, its last lines, and the files changed.
 
 ## Reports
 - An agent's report is a claim until checked: compare `git status --short`
-  with the files the hand-over named, and tell the user which parts you
-  verified.
+  with the files the hand-over named. Say a check passed only if you ran it
+  yourself in this session; otherwise name whose report it is ("the builder
+  reports lint passes"), because the user acts on what you say was checked.
+- Give an effect as the input that causes it and what the user would see, and
+  count before writing all, every, both or none, so the user can weigh it.
 - Before committing a writer's work, run
   `python3 ~/.claude/scripts/gate-scan.py HEAD`. Each line it tags in the
   hand-over's files is on the report's Compromises line before the commit, or
