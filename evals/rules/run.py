@@ -47,17 +47,38 @@ def snapshot(root):
     return files
 
 
-def prepare_project(fixture):
+def origin_path(project):
+    return project.with_name(f"{project.name}-origin.git")
+
+
+def git(project, *args):
+    subprocess.run(["git", *args], cwd=project, check=True, capture_output=True)
+
+
+def add_pushed_origin(project):
+    origin = origin_path(project)
+    git(project.parent, "init", "-q", "--bare", "-b", "main", str(origin))
+    (project / ".gitignore").write_text(".env\n__pycache__/\n")
+    git(project, "checkout", "-q", "-b", "main")
+    git(project, "remote", "add", "origin", str(origin))
+    git(project, "add", "-A")
+    git(project, "-c", "user.name=Eval Fixture", "-c", "user.email=fixture@example.invalid", "commit", "-q", "-m", "Initial greeter")
+    git(project, "push", "-q", "-u", "origin", "main")
+
+
+def prepare_project(case):
     project = Path(tempfile.mkdtemp(prefix="config-eval-"))
     shutil.copytree(FIXTURES_DIR / "base", project, dirs_exist_ok=True)
-    if fixture != "base":
-        shutil.copytree(FIXTURES_DIR / "overlays" / fixture, project, dirs_exist_ok=True)
+    if case["fixture"] != "base":
+        shutil.copytree(FIXTURES_DIR / "overlays" / case["fixture"], project, dirs_exist_ok=True)
     subprocess.run(["git", "init", "-q"], cwd=project, check=True)
+    if case.get("git") == "remote":
+        add_pushed_origin(project)
     return project
 
 
 def run_case(case, label, streams_dir, env, name_tokens):
-    project = prepare_project(case["fixture"])
+    project = prepare_project(case)
     started = time.monotonic()
     check_results, seen_dispatches, models, inits = [], [], set(), []
     cost, duration_ms, error, session_id = 0.0, 0, None, None
@@ -86,6 +107,7 @@ def run_case(case, label, streams_dir, env, name_tokens):
             before = after
     finally:
         shutil.rmtree(project, ignore_errors=True)
+        shutil.rmtree(origin_path(project), ignore_errors=True)
     return {
         "case": case["id"],
         "label": label,
