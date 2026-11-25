@@ -87,7 +87,9 @@ If the repo has its own template (`.github/pull_request_template.md`, or a
 single file under `.github/PULL_REQUEST_TEMPLATE/`), fill that one instead,
 because the repo's reviewers expect it. Apply the limits above to the sections
 that match, give its other sections one line or their checkboxes, and add the
-Commits section after its list of changes.
+Commits section after its list of changes. A section made of checkboxes, such
+as a Testing checklist, gets its ticked checkboxes and nothing after them,
+because a list added below the checkboxes breaks how the section renders.
 
 ## 3. Open the PR
 
