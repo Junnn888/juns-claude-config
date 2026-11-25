@@ -21,7 +21,9 @@ it and this conversation stays clear for decisions.
 - Reading the repo: the built-in Explore agent, model sonnet, effort medium.
   Set both, because an agent on another model does not inherit this session's
   effort. Batch related questions, and pass its path:line findings word for
-  word to the next agent so it starts at the code.
+  word to the next agent so it starts at the code. When the hand-over names
+  files to read, ask it to end with the ones it did not open, because readers
+  skip assigned files and report as if they had read them.
 - A repo with a code graph in `~/graphify-graphs`: copy the code-graph
   paragraph from the user's instructions into every Explore hand-over, with
   the repo's graph path filled in, because the built-in Explore agent does
