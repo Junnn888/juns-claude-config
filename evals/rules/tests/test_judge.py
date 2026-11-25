@@ -142,6 +142,18 @@ def test_no_added_comments():
     assert status(judge.no_added_comments, "*.py", before=before, after=markdown) == PASS
 
 
+def test_no_added_comments_catches_a_trailing_inline_comment():
+    before = {"hello.py": "def greet():\n    pass\n"}
+    inline = {"hello.py": before["hello.py"] + "x = 1  # tidy first\n"}
+    assert status(judge.no_added_comments, "*.py", before=before, after=inline) == FAIL
+
+
+def test_no_added_comments_passes_a_code_line_without_hash():
+    before = {"hello.py": "def greet():\n    pass\n"}
+    code = {"hello.py": before["hello.py"] + "    return tidy_name(name)\n"}
+    assert status(judge.no_added_comments, "*.py", before=before, after=code) == PASS
+
+
 def test_judge_turn_and_outcome():
     t = turn(events=load("question_via_explore.jsonl"))
     results = judge.judge_turn([("no_writer_dispatch",), ("explore_settings", "sonnet", "medium")], t)

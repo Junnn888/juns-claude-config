@@ -134,7 +134,7 @@ CASES = [
     },
     {
         "id": "no-narration-comments",
-        "rule": "built code carries no narration comments",
+        "rule": "built code carries no comments",
         "fixture": "base",
         "turns": [
             {

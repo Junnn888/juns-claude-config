@@ -175,9 +175,9 @@ def no_added_comments(turn, glob):
         if path not in turn.after or not fnmatch.fnmatch(path, glob):
             continue
         for line in added_lines(turn.before.get(path), turn.after[path]):
-            if line.lstrip().startswith("#"):
+            if line.lstrip().startswith("#") or re.search(r"\s#", line):
                 return FAIL, f"{path}: {line.strip()[:100]}"
-    return PASS, f"no comment lines added to {glob}"
+    return PASS, f"no comments added to {glob}"
 
 
 CHECKS = {
