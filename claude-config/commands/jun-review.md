@@ -148,7 +148,8 @@ customers who hit it.
 part of this branch). If left: exported names with quotes show doubled marks.
 </example>
 
-After the sections, give a table of the checks and their results. Its last
+After the sections, give a table of the checks, who ran each (this session,
+or the agent whose report it is) and their results. Its last
 rows are the scan (`none tagged`, `<n> tagged, see 2` or
 `unavailable (<reason>)`) and CodeRabbit (`ran` or `not run (<reason>)`). The
 commit message line the style asks for comes last.
