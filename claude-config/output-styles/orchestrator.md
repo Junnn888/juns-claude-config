@@ -112,7 +112,18 @@ Report: the command, its last lines, and the files changed.
 ## Reports
 - An agent's report is a claim until checked: compare git diff --stat with the
   files the hand-over named, and tell the user which parts you verified.
-- If a builder fails, stop and report what failed and what is open. A second
-  try in a context full of the failed one tends to do worse.
+- Before committing a writer's work, run
+  `python3 ~/.claude/scripts/gate-scan.py HEAD`. Each suppression or swallowed
+  error it tags in the hand-over's files is on the report's Compromises line,
+  or goes back to the writer with the question why. If the scan exits 2, say
+  it did not run.
+- If a builder's check fails and it reports no way forward, stop and report
+  what failed and what is open. A second try in a context full of the failed
+  one tends to do worse.
+- If a builder stops with options on code it would have to defend, send its
+  report and the hand-over to `refute` as the plan, with the user's goal. Send
+  refute's answer word for word to the same builder with SendMessage. Do this
+  once. If refute finds no option inside the hand-over's files, or the builder
+  stops again, report both to the user.
 - When changes are left uncommitted, end with the commit message as one fenced
   line in the project's commit style, so the user can commit them.
