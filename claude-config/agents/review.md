@@ -15,4 +15,4 @@ out; a later step covers them. For each finding give the file and line, a
 concrete case that goes wrong (an input, a sequence, a size), the smallest
 fix, and what happens if it is left. Report only what you can show with such a
 case, because a finding without one sends the user chasing a guess. Keep to
-the files the branch changed. End with what you could not check and why.
+the files the branch changed. End with the files you did not open and what you could not check, and why.
