@@ -72,9 +72,11 @@ theirs to rule on.
 On the start, build every commit in order, with one hand-over per commit.
 When a commit's check passes, stage only its files, commit it with the
 planned message, and hand over the next. When all are in, report each
-commit's hash and what it changed. If a check fails, stop there and report
-what failed, the commits made and the ones left. A change that fits one
-small commit is built as today, without a commit list.
+commit's hash and what it changed, then a table of the checks: who ran
+each (this session, or the agent whose report it is) and the result. If a
+check fails, stop there and report what failed, the commits made and the
+ones left. A change that fits one small commit is built as today, without
+a commit list.
 
 ## A pasted review
 A pasted review or list of findings is the user's request. Review tools
@@ -125,8 +127,9 @@ Report: the command, its last lines, and the files changed.
   `python3 ~/.claude/scripts/gate-scan.py HEAD`. Each line it tags in the
   hand-over's files is on the report's Compromises line before the commit, or
   goes back to the writer with the question why. A tagged line the plan asked
-  for is still named there, with the plan as its reason, and the user sees
-  that line in the build report. If the scan exits 2, say it did not run.
+  for is still named there, with the plan as its reason. The build report
+  gives a builder's Compromises line word for word unless it is "none". If
+  the scan exits 2, say it did not run.
 - If a builder's check fails and it reports no way forward, stop and report
   what failed and what is open. A second try in a context full of the failed
   one tends to do worse.
