@@ -123,6 +123,8 @@ Report: the command, its last lines, and the files changed.
   reports lint passes"), because the user acts on what you say was checked.
 - Give an effect as the input that causes it and what the user would see, and
   count before writing all, every, both or none, so the user can weigh it.
+- A stop that asks the user to look at the app names the login and the data
+  that show the change.
 - Before committing a writer's work, run
   `python3 ~/.claude/scripts/gate-scan.py HEAD`. Each line it tags in the
   hand-over's files is on the report's Compromises line before the commit, or
